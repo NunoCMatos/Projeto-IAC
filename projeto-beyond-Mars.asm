@@ -13,13 +13,53 @@
 ; * Constantes
 ; **********************************************************************
 
+; **********************************************************************
+; * MediaCenter
+; **********************************************************************
+COMANDOS                 EQU 6000H   ; endereço base dos comandos do MediaCenter
+DEFINE_LINHA    	     EQU COMANDOS + 0AH		; endereço do comando para definir a linha
+DEFINE_COLUNA   	     EQU COMANDOS + 0CH		; endereço do comando para definir a coluna
+DEFINE_PIXEL    	     EQU COMANDOS + 12H		; endereço do comando para escrever um pixel
+APAGA_AVISO     	     EQU COMANDOS + 40H		; endereço do comando para apagar o aviso de nenhum cenário selecionado
+APAGA_ECRA	 		     EQU COMANDOS + 02H		; endereço do comando para apagar todos os pixels já desenhados
+SELECIONA_CENARIO_FUNDO  EQU COMANDOS + 42H		; endereço do comando para selecionar uma imagem de fundo
+MIN_LINHA		         EQU 0		 ; número da coluna mais à esquerda do ecrã
+MIN_COLUNA		         EQU 0		 ; número da coluna mais à esquerda do ecrã
+MAX_LINHA		         EQU 31      ; número da coluna mais à direita do ecrã
+MAX_COLUNA		         EQU 63      ; número da coluna mais à direita do ecrã
+ATRASO			         EQU 10H     ; atraso para limitar a velocidade de movimento do boneco
+
+; **********************************************************************
+; * Periféricos
+; **********************************************************************
 DISPLAYS   EQU 0A000H  ; endereço dos displays de 7 segmentos (perif�rico POUT-1)
 TEC_LIN    EQU 0C000H  ; endereço das linhas do teclado (perif�rico POUT-2)
 TEC_COL    EQU 0E000H  ; endereço das colunas do teclado (perif�rico PIN)
 U_LINHA    EQU 8       ; última linha do teclado
+
+; **********************************************************************
+; * Máscaras
+; **********************************************************************
 MASCARA    EQU 0FH     ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
 
+; **********************************************************************
+; * Figuras
+; **********************************************************************
+LARGURA     EQU 5
+COMPRIMENTO EQU 5
+LAR_PAINEL  EQU 15
+COM_PAINEL  EQU 5
+LAR_SONDA   EQU 1
+COM_SONDA   EQU 1
 
+VERMELHO    EQU 0FF00H
+VERDE       EQU 0F0F0H
+AZUL        EQU 0F00FH
+AMARELO     EQU 0F0F0H
+CASTANHO    EQU 0F0F0H
+ROSA        EQU 0F0F0H
+CINZENTO    EQU 0F0F0H
+APAGADO     EQU 0000H
 ; **********************************************************************
 ; * Dados
 ; **********************************************************************
