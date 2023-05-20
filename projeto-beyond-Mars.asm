@@ -77,6 +77,19 @@ ROSA        EQU 0F0F0H
 CINZENTO    EQU 0F0F0H
 APAGADO     EQU 0000H
 
+
+; **********************************************************************
+; * Dados
+; **********************************************************************
+
+PLACE 1000H
+
+; * Pilhas
+
+    STACK 100H  ; espaço reservado para a pilha do processo "programa principal"
+SP_Inicial:     ; endereço da pilha
+
+
 ; * Definições
 DEF_MET_MIN:
     WORD ALTURA, LARGURA
@@ -113,23 +126,6 @@ DEF_PAINEL:
 DEF_SONDA:
     WORD ALT_SONDA, LAR_SONDA
     WORD ROSA
-
-
-; **********************************************************************
-; * Dados
-; **********************************************************************
-
-PLACE 1000H
-
-pilha:
-    STACK 100H
-
-SP_Inicial:
-
-pilha_2:
-    STACK 100H
-
-bonecos:
 
 ; **********************************************************************
 ; * Código
@@ -221,38 +217,43 @@ desenha_boneco:
 	PUSH R4
 	PUSH R5
     PUSH R6
+    PUSH R7
+    PUSH R8
 	MOV	 R5, [R4]		; obtém a altura do boneco
+    MOV  R8, R4         ; guarda o início da tabela que define o boneco
+	ADD	 R8, 4			; endereço da cor do 1.º pixel
+reinicia:
+    MOV  R7, R2         ; guarda a coluna inicial
     MOV  R6, [R4+2]     ; obtém a largura do boneco
-	ADD	 R4, 4			; endereço da cor do 1º pixel
 desenha_pixels:       	; desenha os pixels do boneco a partir da tabela
-	MOV	 R3, [R4]		; obtém a cor do próximo pixel do boneco
+	MOV	 R3, [R8]		; obtém a cor do próximo pixel do boneco
 	CALL escreve_pixel  ; escreve cada pixel do boneco
-	ADD	 R4, 2			; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
-    ADD  R2, 1          ; próxima coluna
+	ADD	 R8, 2			; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
+    ADD  R7, 1          ; próxima coluna
     SUB  R6, 1			; menos uma coluna para tratar
     JNZ  desenha_pixels ; continua até percorrer toda a largura do objeto
-    ADD	 R4, 2			; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
+    ADD	 R8, 2			; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
     ADD  R1, 1          ; próxima linha
     SUB  R5, 1			; menos uma linha para tratar
-    JNZ  desenha_pixels ; continua até percorrer toda a largura do objeto
+    JNZ  reinicia       ; continua até percorrer toda a largura do objeto
+	POP	 R2
     POP  R6
 	POP	 R5
 	POP	 R4
 	POP	 R3
-	POP	 R2
 	RET
 
 
 ; **********************************************************************
 ; ESCREVE_PIXEL - Escreve um pixel na linha e coluna indicadas.
 ; Argumentos:   R1 - linha
-;               R2 - coluna
+;               R7 - coluna
 ;               R3 - cor do pixel (em formato ARGB de 16 bits)
 ;
 ; **********************************************************************
 escreve_pixel:
 	MOV  [DEFINE_LINHA], R1		; seleciona a linha
-	MOV  [DEFINE_COLUNA], R2		; seleciona a coluna
+	MOV  [DEFINE_COLUNA], R7		; seleciona a coluna
 	MOV  [DEFINE_PIXEL], R3		; altera a cor do pixel na linha e coluna já selecionadas
 	RET
 
