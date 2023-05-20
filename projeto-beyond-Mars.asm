@@ -16,18 +16,19 @@
 ; **********************************************************************
 ; * MediaCenter
 ; **********************************************************************
-COMANDOS                 EQU 6000H   ; endereço base dos comandos do MediaCenter
-DEFINE_LINHA    	     EQU COMANDOS + 0AH		; endereço do comando para definir a linha
-DEFINE_COLUNA   	     EQU COMANDOS + 0CH		; endereço do comando para definir a coluna
-DEFINE_PIXEL    	     EQU COMANDOS + 12H		; endereço do comando para escrever um pixel
-APAGA_AVISO     	     EQU COMANDOS + 40H		; endereço do comando para apagar o aviso de nenhum cenário selecionado
-APAGA_ECRA	 		     EQU COMANDOS + 02H		; endereço do comando para apagar todos os pixels já desenhados
-SELECIONA_CENARIO_FUNDO  EQU COMANDOS + 42H		; endereço do comando para selecionar uma imagem de fundo
-MIN_LINHA		         EQU 0		 ; número da coluna mais à esquerda do ecrã
-MIN_COLUNA		         EQU 0		 ; número da coluna mais à esquerda do ecrã
-MAX_LINHA		         EQU 31      ; número da coluna mais à direita do ecrã
-MAX_COLUNA		         EQU 63      ; número da coluna mais à direita do ecrã
-ATRASO			         EQU 10H     ; atraso para limitar a velocidade de movimento do boneco
+COMANDOS                    EQU 6000H   ; endereço base dos comandos do MediaCenter
+DEFINE_LINHA    	        EQU COMANDOS + 0AH		; endereço do comando para definir a linha
+DEFINE_COLUNA   	        EQU COMANDOS + 0CH		; endereço do comando para definir a coluna
+DEFINE_PIXEL                EQU COMANDOS + 12H		; endereço do comando para escrever um pixel
+APAGA_AVISO     	        EQU COMANDOS + 40H		; endereço do comando para apagar o aviso de nenhum cenário selecionado
+APAGA_ECRA	 		        EQU COMANDOS + 02H		; endereço do comando para apagar todos os pixels já desenhados
+SELECIONA_CENARIO_FUNDO     EQU COMANDOS + 42H		; endereço do comando para selecionar uma imagem de fundo
+TOCA_SOM                    EQU COMANDOS + 5AH		; endereço do comando para tocar um som
+MIN_LINHA		            EQU 0		 ; número da coluna mais à esquerda do ecrã
+MIN_COLUNA		            EQU 0		 ; número da coluna mais à esquerda do ecrã
+MAX_LINHA		            EQU 31      ; número da coluna mais à direita do ecrã
+MAX_COLUNA		            EQU 63      ; número da coluna mais à direita do ecrã
+ATRASO			            EQU 10H     ; atraso para limitar a velocidade de movimento do boneco
 
 ; **********************************************************************
 ; * Periféricos
@@ -140,7 +141,6 @@ inicializacoes:
     MOV SP, SP_Inicial  ; Inicialização do Stack Pointer
     MOV R9, TEC_LIN
     MOV R10, TEC_COL
-    MOV R11, DISPLAYS
 
     ; * Ecrâ
     MOV [APAGA_AVISO], R0	            ; apaga o aviso do ecrã (R0 não é relevante)
@@ -159,19 +159,17 @@ desenha:
     CALL desenha_sonda
 
 ciclo_teclado:          ; inicia o ciclo
-    MOV  R4, 0H         ; auxiliar para apresentar no display
     MOV  R3, 0H         ; auxiliar para calcular a tecla
-    MOVB [R11], R3      ; escreve linha e coluna a zero nos displays
 
-    MOV  R1, U_LINHA    ; volta à última linha
+    MOV  R8, U_LINHA    ; volta à última linha
     JMP espera_tecla
 
 passa_linha:
-    SHR R1, 1           ; decrementa uma linha
+    SHR R8, 1           ; decrementa uma linha
     JZ ciclo_teclado    ; se for 0, reinicia o ciclo
 
 espera_tecla:           ; neste ciclo espera-se até uma tecla ser premida
-    MOVB [R9], R1       ; escrever no periférico de saída (linhas)
+    MOVB [R9], R8       ; escrever no periférico de saída (linhas)
     MOVB R0, [R10]      ; ler do periférico de entrada (colunas)
     AND  R0, R5         ; elimina bits para além dos bits 0-3
     CMP  R0, 0          ; há tecla premida?
@@ -179,17 +177,17 @@ espera_tecla:           ; neste ciclo espera-se até uma tecla ser premida
                         ; vai mostrar a linha e a coluna da tecla
 
     ADD R7, 1
-    MOV R6, R1          ; guarda a linha atual, e R1 passa a auxiliar
+    MOV R6, R8          ; guarda a linha atual, e R8 passa a auxiliar
 
     CALL converte       ; converte a linha
-    MOV R1, 4
-    MUL R3, R1          ; multiplica a linha por 4
-    MOV R1, R0          ; passa a coluna para o registo R1
+    MOV R8, 4
+    MUL R3, R8          ; multiplica a linha por 4
+    MOV R8, R0          ; passa a coluna para o registo R8
     CALL converte       ; converte a coluna
-    OR R4, R7
-    SHL R4, 4
-    OR R4, R3
-    MOVB [R11], R4      ; escreve linha e coluna nos displays
+
+    MOV R8, 1H
+    CMP R3, R8
+    JZ move_sonda
 
 ha_tecla:               ; neste ciclo espera-se até NENHUMA tecla estar premida
     MOVB [R9], R6       ; escrever no periférico de saída (linhas)
@@ -198,6 +196,13 @@ ha_tecla:               ; neste ciclo espera-se até NENHUMA tecla estar premida
     CMP  R0, 0          ; há tecla premida?
     JNZ  ha_tecla       ; se ainda houver uma tecla premida, espera até não haver
     JMP  ciclo_teclado  ; repete ciclo
+
+move_sonda:
+    MOV R1, SPAWN_LIN   ; linha do meteoro
+    MOV R2, SPAWN1_COL  ; linha do meteoro
+    MOV R4, DEF_MET_MIN ; endereço da tabela do meteoro minerável
+    CALL apaga_boneco
+    JMP ha_tecla
 
 
 ; **********************************************************************
@@ -311,19 +316,19 @@ desenha_boneco:
 	MOV	 R5, [R4]		; obtém a altura do boneco
     MOV  R8, R4         ; guarda o início da tabela que define o boneco
 	ADD	 R8, 4			; endereço da cor do 1.º pixel
-reinicia:
+reinicia_1:
     MOV  R7, R2         ; guarda a coluna inicial
     MOV  R6, [R4+2]     ; obtém a largura do boneco
-desenha_pixels:       	; desenha os pixels do boneco a partir da tabela
+desenha_pixels_1:       	; desenha os pixels do boneco a partir da tabela
 	MOV	 R3, [R8]		; obtém a cor do próximo pixel do boneco
 	CALL escreve_pixel  ; escreve cada pixel do boneco
 	ADD	 R8, 2			; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
     ADD  R7, 1          ; próxima coluna
     SUB  R6, 1			; menos uma coluna para tratar
-    JNZ  desenha_pixels ; continua até percorrer toda a largura do objeto
+    JNZ  desenha_pixels_1 ; continua até percorrer toda a largura do objeto
     ADD  R1, 1          ; próxima linha
     SUB  R5, 1			; menos uma linha para tratar
-    JNZ  reinicia       ; continua até percorrer toda a largura do objeto
+    JNZ  reinicia_1       ; continua até percorrer toda a largura do objeto
 	POP	 R8
     POP  R7
     POP  R6
@@ -333,6 +338,47 @@ desenha_pixels:       	; desenha os pixels do boneco a partir da tabela
     POP  R2
 	RET
 
+
+; **********************************************************************
+; APAGA_BONECO - Apaga um boneco na linha e coluna indicadas
+;			  com a forma definida na tabela indicada.
+; Argumentos:   R1 - linha
+;               R2 - coluna
+;               R4 - tabela que define o boneco
+;
+; **********************************************************************
+apaga_boneco:
+	PUSH R2
+	PUSH R3
+	PUSH R4
+	PUSH R5
+    PUSH R6
+    PUSH R7
+    PUSH R8
+	MOV	 R5, [R4]		; obtém a altura do boneco
+    MOV  R8, R4         ; guarda o início da tabela que define o boneco
+	ADD	 R8, 4			; endereço da cor do 1.º pixel
+reinicia_2:
+    MOV  R7, R2         ; guarda a coluna inicial
+    MOV  R6, [R4+2]     ; obtém a largura do boneco
+desenha_pixels_2:       	; desenha os pixels do boneco a partir da tabela
+	MOV	 R3, 0		; obtém a cor do próximo pixel do boneco
+	CALL escreve_pixel  ; escreve cada pixel do boneco
+	ADD	 R8, 2			; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
+    ADD  R7, 1          ; próxima coluna
+    SUB  R6, 1			; menos uma coluna para tratar
+    JNZ  desenha_pixels_2 ; continua até percorrer toda a largura do objeto
+    ADD  R1, 1          ; próxima linha
+    SUB  R5, 1			; menos uma linha para tratar
+    JNZ  reinicia_2       ; continua até percorrer toda a largura do objeto
+	POP	 R8
+    POP  R7
+    POP  R6
+	POP	 R5
+	POP	 R4
+	POP	 R3
+    POP  R2
+	RET
 
 ; **********************************************************************
 ; ESCREVE_PIXEL - Escreve um pixel na linha e coluna indicadas.
@@ -351,17 +397,17 @@ escreve_pixel:
 ; **********************************************************************
 ; CONVERTE - Converte a linha, ou coluna, para um número entre 0 e 3.
 ;
-; Argumentos:   R1 - linha/coluna
+; Argumentos:   R8 - linha/coluna
 ;
 ; Retorna:      R3 - Soma das conversões
 ; **********************************************************************
 converte:
     PUSH R2
-    PUSH R1
+    PUSH R8
     MOV R2, 0
 converte_loop:
     ADD R2, 1
-    SHR R1, 1
+    SHR R8, 1
     JNZ converte_loop
     SUB R2, 1           ; retira 1 para passar a um numero entre 0 e 3
     ADD R3, R2
