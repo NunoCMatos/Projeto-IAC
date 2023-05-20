@@ -45,6 +45,14 @@ MASCARA    EQU 0FH     ; para isolar os 4 bits de menor peso, ao ler as colunas 
 ; **********************************************************************
 ; * Figuras
 ; **********************************************************************
+; * Coordenadas
+SPAWN_LIN   EQU 0       ; linha dos spawnpoints dos meteoros
+SPAWN1_COL  EQU 0       ; coluna do 1.º spawnpoint (canto superior esquerdo)
+SPAWN2_COL  EQU 30      ; coluna do 2.º spawnpoint (centro superior)
+SPAWN3_COL  EQU 58      ; coluna do 3.º spawnpoint (canto superior direito)
+
+SPAWN
+; * Tamanhos
 LARGURA     EQU 5
 COMPRIMENTO EQU 5
 LAR_PAINEL  EQU 15
@@ -52,6 +60,7 @@ COM_PAINEL  EQU 5
 LAR_SONDA   EQU 1
 COM_SONDA   EQU 1
 
+; * Cores
 VERMELHO    EQU 0FF00H
 VERDE       EQU 0F0F0H
 AZUL        EQU 0F00FH
@@ -61,6 +70,7 @@ ROSA        EQU 0F0F0H
 CINZENTO    EQU 0F0F0H
 APAGADO     EQU 0000H
 
+; * Definições
 DEF_MET_MIN:
     WORD COMPRIMENTO, LARGURA
     WORD     0, VERDE, VERDE, VERDE, 0
