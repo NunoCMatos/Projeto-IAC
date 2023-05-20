@@ -70,11 +70,11 @@ ALT_SONDA   EQU 1
 ; * Cores
 VERMELHO    EQU 0FF00H
 VERDE       EQU 0F0F0H
-AZUL        EQU 0F00FH
-AMARELO     EQU 0F0F0H
-CASTANHO    EQU 0F0F0H
-ROSA        EQU 0F0F0H
-CINZENTO    EQU 0F0F0H
+AZUL        EQU 0F0FFH
+AMARELO     EQU 0FFF0H
+CASTANHO    EQU 0FAA6H
+ROSA        EQU 0FF0FH
+CINZENTO    EQU 0F777H
 APAGADO     EQU 0000H
 
 
@@ -156,7 +156,7 @@ inicializacoes:
 posicao_boneco:
     MOV R1, SPAWN_LIN   ; linha do meteoro
     MOV R2, SPAWN1_COL  ; linha do meteoro
-    MOV R4, DEF_MET_NMIN ; endereço da tabela do meteoro minerável
+    MOV R4, DEF_MET_MIN ; endereço da tabela do meteoro minerável
 
 mostra_boneco:
     CALL desenha_boneco ; desenha o boneco a partir da tabela
@@ -232,7 +232,6 @@ desenha_pixels:       	; desenha os pixels do boneco a partir da tabela
     ADD  R7, 1          ; próxima coluna
     SUB  R6, 1			; menos uma coluna para tratar
     JNZ  desenha_pixels ; continua até percorrer toda a largura do objeto
-    ADD	 R8, 2			; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
     ADD  R1, 1          ; próxima linha
     SUB  R5, 1			; menos uma linha para tratar
     JNZ  reinicia       ; continua até percorrer toda a largura do objeto
