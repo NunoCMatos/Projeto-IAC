@@ -126,6 +126,10 @@ pilha:
 
 SP_Inicial:
 
+pilha_2:
+    STACK 100H
+
+bonecos:
 
 ; **********************************************************************
 ; * Código
@@ -137,11 +141,14 @@ PLACE 0
 
 inicializacoes:
     ; * Stack Pointer
-    MOV SP, SP_Inicial      ; Inicialização do Stack Pointer
+    MOV SP, SP_Inicial  ; Inicialização do Stack Pointer
+    MOV R9, TEC_LIN
+    MOV R10, TEC_COL
+    MOV R11, DISPLAYS
 
     ; * Ecrâ
     MOV [APAGA_AVISO], R0	            ; apaga o aviso do ecrã (R0 não é relevante)
-    MOV [APAGA_ECRÃ], R0	            ; apaga todos os pixels já desenhados (R0 não é relevante)
+    MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados (R0 não é relevante)
     MOV R0, 0                           ; cenário de fundo número 0
     MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
 
@@ -158,46 +165,46 @@ posicao_boneco:
 mostra_boneco:
     CALL desenha_boneco ; desenha o boneco a partir da tabela
 
-ciclo_teclado:              ; inicia o ciclo
-    MOV  R4, 0H             ; auxiliar para apresentar no display
-    MOV  R3, 0H             ; auxiliar para calcular a tecla
-    MOVB [DISPLAYS], R3     ; escreve linha e coluna a zero nos displays
+ciclo_teclado:          ; inicia o ciclo
+    MOV  R4, 0H         ; auxiliar para apresentar no display
+    MOV  R3, 0H         ; auxiliar para calcular a tecla
+    MOVB [R11], R3      ; escreve linha e coluna a zero nos displays
 
-    MOV  R1, U_LINHA        ; volta à última linha
+    MOV  R1, U_LINHA    ; volta à última linha
     JMP espera_tecla
 
 passa_linha:
-    SHR R1, 1          ; decrementa uma linha
-    JZ ciclo           ; se for 0, reinicia o ciclo
+    SHR R1, 1           ; decrementa uma linha
+    JZ ciclo_teclado    ; se for 0, reinicia o ciclo
 
-espera_tecla:          ; neste ciclo espera-se até uma tecla ser premida
-    MOVB [TEC_LIN], R1      ; escrever no periférico de saída (linhas)
-    MOVB R0, [TEC_COL]      ; ler do periférico de entrada (colunas)
-    AND  R0, R5        ; elimina bits para além dos bits 0-3
-    CMP  R0, 0         ; há tecla premida?
-    JZ   passa_linha   ; se nenhuma tecla premida, repete
-                       ; vai mostrar a linha e a coluna da tecla
+espera_tecla:           ; neste ciclo espera-se até uma tecla ser premida
+    MOVB [R9], R1       ; escrever no periférico de saída (linhas)
+    MOVB R0, [R10]      ; ler do periférico de entrada (colunas)
+    AND  R0, R5         ; elimina bits para além dos bits 0-3
+    CMP  R0, 0          ; há tecla premida?
+    JZ   passa_linha    ; se nenhuma tecla premida, repete
+                        ; vai mostrar a linha e a coluna da tecla
 
     ADD R7, 1
-    MOV R6, R1         ; guarda a linha atual, e R1 passa a auxiliar
+    MOV R6, R1          ; guarda a linha atual, e R1 passa a auxiliar
 
-    CALL converte      ; converte a linha
+    CALL converte       ; converte a linha
     MOV R1, 4
-    MUL R3, R1         ; multiplica a linha por 4
-    MOV R1, R0         ; passa a coluna para o registo R1
-    CALL converte      ; converte a coluna
+    MUL R3, R1          ; multiplica a linha por 4
+    MOV R1, R0          ; passa a coluna para o registo R1
+    CALL converte       ; converte a coluna
     OR R4, R7
     SHL R4, 4
     OR R4, R3
-    MOVB [DISPLAYS], R4      ; escreve linha e coluna nos displays
+    MOVB [R11], R4      ; escreve linha e coluna nos displays
 
-ha_tecla:              ; neste ciclo espera-se até NENHUMA tecla estar premida
-    MOVB [TEC_LIN], R6      ; escrever no periférico de saída (linhas)
-    MOVB R0, [TEC_COL]      ; ler do periférico de entrada (colunas)
-    AND  R0, R5        ; elimina bits para além dos bits 0-3
-    CMP  R0, 0         ; há tecla premida?
-    JNZ  ha_tecla      ; se ainda houver uma tecla premida, espera até não haver
-    JMP  ciclo_teclado ; repete ciclo
+ha_tecla:               ; neste ciclo espera-se até NENHUMA tecla estar premida
+    MOVB [R9], R6       ; escrever no periférico de saída (linhas)
+    MOVB R0, [R10]      ; ler do periférico de entrada (colunas)
+    AND  R0, R5         ; elimina bits para além dos bits 0-3
+    CMP  R0, 0          ; há tecla premida?
+    JNZ  ha_tecla       ; se ainda houver uma tecla premida, espera até não haver
+    JMP  ciclo_teclado  ; repete ciclo
 
 
 ; **********************************************************************
