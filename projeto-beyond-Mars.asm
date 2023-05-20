@@ -156,7 +156,7 @@ inicializacoes:
 posicao_boneco:
     MOV R1, SPAWN_LIN   ; linha do meteoro
     MOV R2, SPAWN1_COL  ; linha do meteoro
-    MOV R4, DEF_MET_MIN ; endereço da tabela do meteoro minerável
+    MOV R4, DEF_MET_NMIN ; endereço da tabela do meteoro minerável
 
 mostra_boneco:
     CALL desenha_boneco ; desenha o boneco a partir da tabela
@@ -236,11 +236,13 @@ desenha_pixels:       	; desenha os pixels do boneco a partir da tabela
     ADD  R1, 1          ; próxima linha
     SUB  R5, 1			; menos uma linha para tratar
     JNZ  reinicia       ; continua até percorrer toda a largura do objeto
-	POP	 R2
+	POP	 R8
+    POP  R7
     POP  R6
 	POP	 R5
 	POP	 R4
 	POP	 R3
+    POP  R2
 	RET
 
 
