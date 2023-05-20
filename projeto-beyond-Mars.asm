@@ -49,7 +49,7 @@ MASCARA    EQU 0FH     ; para isolar os 4 bits de menor peso, ao ler as colunas 
 SPAWN_LIN   EQU 0       ; linha dos spawnpoints dos meteoros
 SPAWN1_COL  EQU 0       ; coluna do 1.º spawnpoint (canto superior esquerdo)
 SPAWN2_COL  EQU 30      ; coluna do 2.º spawnpoint (centro superior)
-SPAWN3_COL  EQU 58      ; coluna do 3.º spawnpoint (canto superior direito)
+SPAWN3_COL  EQU 59      ; coluna do 3.º spawnpoint (canto superior direito)
 
 SPAWN_SND_LIN   EQU 26
 SPAWN1_SND_COL  EQU 26
@@ -152,22 +152,11 @@ inicializacoes:
     MOV R5, MASCARA                     ; para isolar os 4 bits de menor peso
     MOV R7, 0H                          ; contador de clicks no teclado
 
-; desenhar meteoro minerável
-posicao_meteoro_mineravel:
-    MOV R1, SPAWN_LIN   ; linha do meteoro
-    MOV R2, SPAWN1_COL  ; linha do meteoro
-    MOV R4, DEF_MET_MIN ; endereço da tabela do meteoro minerável
-
-mostra_meteoro:
-    CALL desenha_boneco ; desenha o boneco a partir da tabela
-
-posicao_painel:
-    MOV R1, LIN_PAINEL  ; linha do meteoro
-    MOV R2, COL_PAINEL  ; linha do meteoro
-    MOV R4, DEF_PAINEL  ; endereço da tabela do meteoro minerável
-
-mostra_painel:
-    CALL desenha_boneco
+desenha:
+    CALL desenha_meteoro_mineravel
+    CALL desenha_meteoro_nao_mineravel
+    CALL desenha_painel
+    CALL desenha_sonda
 
 ciclo_teclado:          ; inicia o ciclo
     MOV  R4, 0H         ; auxiliar para apresentar no display
@@ -210,6 +199,98 @@ ha_tecla:               ; neste ciclo espera-se até NENHUMA tecla estar premida
     JNZ  ha_tecla       ; se ainda houver uma tecla premida, espera até não haver
     JMP  ciclo_teclado  ; repete ciclo
 
+
+; **********************************************************************
+; DESENHA_METEORO_MINERAVEL - Desenha um boneco na linha e coluna indicadas
+;			    com a forma e cor definidas na tabela indicada.
+; Argumentos:   R1 - linha
+;               R2 - coluna
+;               R4 - tabela que define o boneco
+;
+; **********************************************************************
+desenha_meteoro_mineravel:
+    PUSH R1
+    PUSH R2
+    PUSH R4
+posicao_meteoro_mineravel:
+    MOV R1, SPAWN_LIN   ; linha do meteoro
+    MOV R2, SPAWN1_COL  ; linha do meteoro
+    MOV R4, DEF_MET_MIN ; endereço da tabela do meteoro minerável
+mostra_meteoro_mineravel:
+    CALL desenha_boneco ; desenha o boneco a partir da tabela
+    POP R4
+    POP R2
+    POP R1
+    RET
+
+; **********************************************************************
+; DESENHA_METEORO_NAO_MINERAVEL - Desenha um boneco na linha e coluna indicadas
+;			    com a forma e cor definidas na tabela indicada.
+; Argumentos:   R1 - linha
+;               R2 - coluna
+;               R4 - tabela que define o boneco
+;
+; **********************************************************************
+desenha_meteoro_nao_mineravel:
+    PUSH R1
+    PUSH R2
+    PUSH R4
+posicao_meteoro_nao_mineravel:
+    MOV R1, SPAWN_LIN   ; linha do meteoro
+    MOV R2, SPAWN3_COL  ; linha do meteoro
+    MOV R4, DEF_MET_NMIN ; endereço da tabela do meteoro minerável
+mostra_meteoro_nao_mineravel:
+    CALL desenha_boneco ; desenha o boneco a partir da tabela
+    POP R4
+    POP R2
+    POP R1
+    RET
+
+; **********************************************************************
+; DESENHA_PAINEL - Desenha um boneco na linha e coluna indicadas
+;			    com a forma e cor definidas na tabela indicada.
+; Argumentos:   R1 - linha
+;               R2 - coluna
+;               R4 - tabela que define o boneco
+;
+; **********************************************************************
+desenha_painel:
+    PUSH R1
+    PUSH R2
+    PUSH R4
+posicao_painel:
+    MOV R1, LIN_PAINEL  ; linha do meteoro
+    MOV R2, COL_PAINEL  ; linha do meteoro
+    MOV R4, DEF_PAINEL  ; endereço da tabela do meteoro minerável
+mostra_painel:
+    CALL desenha_boneco
+    POP R4
+    POP R2
+    POP R1
+    RET
+
+; **********************************************************************
+; DESENHA_SONDA - Desenha um boneco na linha e coluna indicadas
+;			    com a forma e cor definidas na tabela indicada.
+; Argumentos:   R1 - linha
+;               R2 - coluna
+;               R4 - tabela que define o boneco
+;
+; **********************************************************************
+desenha_sonda:
+    PUSH R1
+    PUSH R2
+    PUSH R4
+posicao_sonda:
+    MOV R1, SPAWN_SND_LIN
+    MOV R2, SPAWN2_SND_COL
+    MOV R4, DEF_SONDA
+mostra_sonda:
+    CALL desenha_boneco
+    POP R4
+    POP R2
+    POP R1
+    RET
 
 ; **********************************************************************
 ; DESENHA_BONECO - Desenha um boneco na linha e coluna indicadas
