@@ -10,14 +10,14 @@
   "primary screen width" : 1470,
   "primary screen height" : 956,
   "window" : {
-    "X absolute" : -6,
+    "X absolute" : 0,
     "Y absolute" : 37,
-    "X relative" : -6,
+    "X relative" : 0,
     "Y relative" : 37,
-    "width" : 1482,
-    "height" : 816,
+    "width" : 1470,
+    "height" : 858,
     "leftRightDividerLocation" : 227,
-    "topBottomDividerLocation" : 659
+    "topBottomDividerLocation" : 701
   },
   "connections" : [ {
     "className" : "Connection",
@@ -743,7 +743,7 @@
     "simGuiXRelative" : 2,
     "simGuiYRelative" : 37,
     "simGuiWidth" : 769,
-    "simGuiHeight" : 807,
+    "simGuiHeight" : 822,
     "clockPeriod" : 200,
     "startAutomatically" : true,
     "simulationMaster" : true,

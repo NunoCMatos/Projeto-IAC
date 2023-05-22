@@ -36,6 +36,8 @@ ATRASO			            EQU 10H     ; atraso para limitar a velocidade de movimento
 DISPLAYS   EQU 0A000H  ; endereço dos displays de 7 segmentos (perif�rico POUT-1)
 TEC_LIN    EQU 0C000H  ; endereço das linhas do teclado (perif�rico POUT-2)
 TEC_COL    EQU 0E000H  ; endereço das colunas do teclado (perif�rico PIN)
+TECLA_DIREITA EQU 2
+TECLA_ESQUERDA EQU 1
 U_LINHA    EQU 8       ; última linha do teclado
 
 ; **********************************************************************
@@ -128,6 +130,12 @@ DEF_SONDA:
     WORD ALT_SONDA, LAR_SONDA
     WORD ROSA
 
+DEF_POS_METEORO:
+    WORD SPAWN_LIN, SPAWN1_COL          ; localização do meteoro (linha e coluna)
+
+DEF_POS_SONDA:
+    WORD SPAWN_SND_LIN, SPAWN2_SND_COL  ; localização da sonda
+
 ; **********************************************************************
 ; * Código
 ; **********************************************************************
@@ -150,7 +158,7 @@ inicializacoes:
 
     ; * Gerais
     MOV R5, MASCARA                     ; para isolar os 4 bits de menor peso
-    MOV R7, 0H                          ; contador de clicks no teclado
+    MOV R7, 1                           ; valor a somar à coluna do boneco, para o movimentar
 
 desenha:
     CALL desenha_meteoro_mineravel
@@ -158,51 +166,97 @@ desenha:
     CALL desenha_painel
     CALL desenha_sonda
 
-ciclo_teclado:          ; inicia o ciclo
-    MOV  R3, 0H         ; auxiliar para calcular a tecla
+ciclo_teclado_nao_tecla:    ; inicia o ciclo
+    MOV  R6, 16
+espera_nao_tecla:			; neste ciclo espera-se até NÃO haver nenhuma tecla premida
+	SHR R6, 1       	    ; linha a testar no teclado
+    JZ ciclo_teclado_nao_tecla
+	CALL teclado			; leitura às teclas
+	CMP	 R0, 0
+	JNZ	 espera_nao_tecla	; espera, enquanto houver tecla uma tecla carregada
 
-    MOV  R8, U_LINHA    ; volta à última linha
-    JMP espera_tecla
+ciclo_teclado_tecla:
+    MOV R6, 16
+espera_tecla:				; neste ciclo espera-se até uma tecla ser premida
+	SHR R6, 1	            ; linha a testar no teclado
+    JZ ciclo_teclado_tecla  ; Se o SHR der 0 volta à linha 8
+	CALL teclado			; leitura às teclas
+	CMP	 R0, 0
+	JZ	 espera_tecla		; espera, enquanto não houver tecla
+	
+	MOV	R9, 0			    ; som com número 0
+	MOV [TOCA_SOM], R9		; comando para tocar o som
+	
+    CALL converte
 
-passa_linha:
-    SHR R8, 1           ; decrementa uma linha
-    JZ ciclo_teclado    ; se for 0, reinicia o ciclo
+	CMP	R0, TECLA_ESQUERDA
+	JNZ	testa_direita
+	MOV	R7, -1			; vai deslocar para a esquerda
+	JMP	ve_limites
+testa_direita:
+	CMP	R0, TECLA_DIREITA
+	JNZ	espera_tecla		; tecla que não interessa
+	MOV	R7, +1			; vai deslocar para a direita
+	
+ve_limites:
+	MOV	R6, [R4]			; obtém a largura do boneco
+	CALL	testa_limites		; vê se chegou aos limites do ecrã e se sim força R7 a 0
+	CMP	R7, 0
+	JZ	espera_tecla		; se não é para movimentar o objeto, vai ler o teclado de novo
 
-espera_tecla:           ; neste ciclo espera-se até uma tecla ser premida
-    MOVB [R9], R8       ; escrever no periférico de saída (linhas)
-    MOVB R0, [R10]      ; ler do periférico de entrada (colunas)
-    AND  R0, R5         ; elimina bits para além dos bits 0-3
-    CMP  R0, 0          ; há tecla premida?
-    JZ   passa_linha    ; se nenhuma tecla premida, repete
-                        ; vai mostrar a linha e a coluna da tecla
+move_boneco:
+	CALL apaga_boneco		; apaga o boneco na sua posição corrente
+	
+coluna_seguinte:
+	ADD	R2, R7			; para desenhar objeto na coluna seguinte (direita ou esquerda)
 
-    ADD R7, 1
-    MOV R6, R8          ; guarda a linha atual, e R8 passa a auxiliar
+	CALL desenha_boneco		; vai desenhar o boneco de novo
 
-    CALL converte       ; converte a linha
-    MOV R8, 4
-    MUL R3, R8          ; multiplica a linha por 4
-    MOV R8, R0          ; passa a coluna para o registo R8
-    CALL converte       ; converte a coluna
 
-    MOV R8, 1H
-    CMP R3, R8
-    JZ move_sonda
 
-ha_tecla:               ; neste ciclo espera-se até NENHUMA tecla estar premida
-    MOVB [R9], R6       ; escrever no periférico de saída (linhas)
-    MOVB R0, [R10]      ; ler do periférico de entrada (colunas)
-    AND  R0, R5         ; elimina bits para além dos bits 0-3
-    CMP  R0, 0          ; há tecla premida?
-    JNZ  ha_tecla       ; se ainda houver uma tecla premida, espera até não haver
-    JMP  ciclo_teclado  ; repete ciclo
 
-move_sonda:
-    MOV R1, SPAWN_LIN   ; linha do meteoro
-    MOV R2, SPAWN1_COL  ; linha do meteoro
-    MOV R4, DEF_MET_MIN ; endereço da tabela do meteoro minerável
-    CALL apaga_boneco
-    JMP ha_tecla
+
+;espera_tecla:           ; neste ciclo espera-se até uma tecla ser premida
+;    MOVB [R9], R8       ; escrever no periférico de saída (linhas)
+;    MOVB R0, [R10]      ; ler do periférico de entrada (colunas)
+;    AND  R0, R5         ; elimina bits para além dos bits 0-3
+;    CMP  R0, 0          ; há tecla premida?
+;    JZ   passa_linha    ; se nenhuma tecla premida, repete
+;                        ; vai mostrar a linha e a coluna da tecla
+;
+;    ADD R7, 1
+;    MOV R6, R8          ; guarda a linha atual, e R8 passa a auxiliar
+;
+;    CALL converte       ; converte a linha
+;    MOV R8, 4
+;    MUL R3, R8          ; multiplica a linha por 4
+;    MOV R8, R0          ; passa a coluna para o registo R8
+;    CALL converte       ; converte a coluna
+;
+;    MOV R8, 1H
+;    CMP R3, R8
+;    JZ move_sonda
+;
+;ha_tecla:               ; neste ciclo espera-se até NENHUMA tecla estar premida
+;    MOVB [R9], R6       ; escrever no periférico de saída (linhas)
+;    MOVB R0, [R10]      ; ler do periférico de entrada (colunas)
+;    AND  R0, R5         ; elimina bits para além dos bits 0-3
+;    CMP  R0, 0          ; há tecla premida?
+;    JNZ  ha_tecla       ; se ainda houver uma tecla premida, espera até não haver
+;    JMP  ciclo_teclado  ; repete ciclo
+;
+;move_sonda:
+;    MOV R1, SPAWN_LIN   ; linha do meteoro
+;    MOV R2, SPAWN1_COL  ; linha do meteoro
+;    MOV R4, DEF_MET_MIN ; endereço da tabela do meteoro minerável
+;    CALL apaga_boneco
+;    JMP ha_tecla
+;
+
+
+
+
+
 
 
 ; **********************************************************************
@@ -287,8 +341,8 @@ desenha_sonda:
     PUSH R2
     PUSH R4
 posicao_sonda:
-    MOV R1, SPAWN_SND_LIN
-    MOV R2, SPAWN2_SND_COL
+    MOV R1, [DEF_POS_SONDA]
+    MOV R2, [DEF_POS_SONDA+2]
     MOV R4, DEF_SONDA
 mostra_sonda:
     CALL desenha_boneco
@@ -306,6 +360,7 @@ mostra_sonda:
 ;
 ; **********************************************************************
 desenha_boneco:
+    PUSH R1
 	PUSH R2
 	PUSH R3
 	PUSH R4
@@ -313,22 +368,22 @@ desenha_boneco:
     PUSH R6
     PUSH R7
     PUSH R8
-	MOV	 R5, [R4]		; obtém a altura do boneco
-    MOV  R8, R4         ; guarda o início da tabela que define o boneco
-	ADD	 R8, 4			; endereço da cor do 1.º pixel
-reinicia_1:
-    MOV  R7, R2         ; guarda a coluna inicial
-    MOV  R6, [R4+2]     ; obtém a largura do boneco
-desenha_pixels_1:       	; desenha os pixels do boneco a partir da tabela
-	MOV	 R3, [R8]		; obtém a cor do próximo pixel do boneco
-	CALL escreve_pixel  ; escreve cada pixel do boneco
-	ADD	 R8, 2			; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
-    ADD  R7, 1          ; próxima coluna
-    SUB  R6, 1			; menos uma coluna para tratar
-    JNZ  desenha_pixels_1 ; continua até percorrer toda a largura do objeto
-    ADD  R1, 1          ; próxima linha
-    SUB  R5, 1			; menos uma linha para tratar
-    JNZ  reinicia_1       ; continua até percorrer toda a largura do objeto
+	MOV	 R5, [R4]		    ; obtém a altura do boneco
+    MOV  R8, R4             ; guarda o início da tabela que define o boneco
+	ADD	 R8, 4			    ; endereço da cor do 1.º pixel
+reinicia_desenha:
+    MOV  R7, R2             ; guarda a coluna inicial
+    MOV  R6, [R4+2]         ; obtém a largura do boneco
+desenha_pixels:       	    ; desenha os pixels do boneco a partir da tabela
+	MOV	 R3, [R8]		    ; obtém a cor do próximo pixel do boneco
+	CALL escreve_pixel      ; escreve cada pixel do boneco
+	ADD	 R8, 2			    ; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
+    ADD  R7, 1              ; próxima coluna
+    SUB  R6, 1			    ; menos uma coluna para tratar
+    JNZ  desenha_pixels     ; continua até percorrer toda a largura do objeto
+    ADD  R1, 1              ; próxima linha
+    SUB  R5, 1			    ; menos uma linha para tratar
+    JNZ  reinicia_desenha   ; continua até percorrer toda a largura do objeto
 	POP	 R8
     POP  R7
     POP  R6
@@ -336,6 +391,7 @@ desenha_pixels_1:       	; desenha os pixels do boneco a partir da tabela
 	POP	 R4
 	POP	 R3
     POP  R2
+    POP  R1
 	RET
 
 
@@ -358,19 +414,19 @@ apaga_boneco:
 	MOV	 R5, [R4]		; obtém a altura do boneco
     MOV  R8, R4         ; guarda o início da tabela que define o boneco
 	ADD	 R8, 4			; endereço da cor do 1.º pixel
-reinicia_2:
+reinicia_apaga:
     MOV  R7, R2         ; guarda a coluna inicial
     MOV  R6, [R4+2]     ; obtém a largura do boneco
-desenha_pixels_2:       	; desenha os pixels do boneco a partir da tabela
-	MOV	 R3, 0		; obtém a cor do próximo pixel do boneco
+apaga_pixels:       	; desenha os pixels do boneco a partir da tabela
+	MOV	 R3, 0		    ; obtém a cor do próximo pixel do boneco
 	CALL escreve_pixel  ; escreve cada pixel do boneco
 	ADD	 R8, 2			; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
     ADD  R7, 1          ; próxima coluna
     SUB  R6, 1			; menos uma coluna para tratar
-    JNZ  desenha_pixels_2 ; continua até percorrer toda a largura do objeto
+    JNZ  apaga_pixels   ; continua até percorrer toda a largura do objeto
     ADD  R1, 1          ; próxima linha
     SUB  R5, 1			; menos uma linha para tratar
-    JNZ  reinicia_2       ; continua até percorrer toda a largura do objeto
+    JNZ  reinicia_apaga ; continua até percorrer toda a largura do objeto
 	POP	 R8
     POP  R7
     POP  R6
@@ -395,23 +451,113 @@ escreve_pixel:
 
 
 ; **********************************************************************
+; ATRASO - Executa um ciclo para implementar um atraso.
+; Argumentos:   R11 - valor que define o atraso
+;
+; **********************************************************************
+atraso:
+	PUSH	R11
+ciclo_atraso:
+	SUB	R11, 1
+	JNZ	ciclo_atraso
+	POP	R11
+	RET
+
+
+    ; **********************************************************************
+; TESTA_LIMITES - Testa se o boneco chegou aos limites do ecrã e nesse caso
+;			   impede o movimento (força R7 a 0)
+; Argumentos:	R2 - coluna em que o objeto está
+;			R6 - largura do boneco
+;			R7 - sentido de movimento do boneco (valor a somar à coluna
+;				em cada movimento: +1 para a direita, -1 para a esquerda)
+;
+; Retorna: 	R7 - 0 se já tiver chegado ao limite, inalterado caso contrário	
+; **********************************************************************
+testa_limites:
+	PUSH	R5
+	PUSH	R6
+testa_limite_esquerdo:		; vê se o boneco chegou ao limite esquerdo
+	MOV	R5, MIN_COLUNA
+	CMP	R2, R5
+	JGT	testa_limite_direito
+	CMP	R7, 0			; passa a deslocar-se para a direita
+	JGE	sai_testa_limites
+	JMP	impede_movimento	; entre limites. Mantém o valor do R7
+testa_limite_direito:		; vê se o boneco chegou ao limite direito
+	ADD	R6, R2			; posição a seguir ao extremo direito do boneco
+	MOV	R5, MAX_COLUNA
+	CMP	R6, R5
+	JLE	sai_testa_limites	; entre limites. Mantém o valor do R7
+	CMP	R7, 0			; passa a deslocar-se para a direita
+	JGT	impede_movimento
+	JMP	sai_testa_limites
+impede_movimento:
+	MOV	R7, 0			; impede o movimento, forçando R7 a 0
+sai_testa_limites:	
+	POP	R6
+	POP	R5
+	RET
+
+; **********************************************************************
+; TECLADO - Faz uma leitura às teclas de uma linha do teclado e retorna o valor lido
+; Argumentos:	R6 - linha a testar (em formato 1, 2, 4 ou 8)
+;
+; Retorna: 	R0 - valor lido das colunas do teclado (0, 1, 2, 4, ou 8)	
+; **********************************************************************
+teclado:
+	PUSH	R2
+	PUSH	R3
+	PUSH	R5
+	MOV  R2, TEC_LIN   ; endereço do periférico das linhas
+	MOV  R3, TEC_COL   ; endereço do periférico das colunas
+	MOV  R5, MASCARA   ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
+	MOVB [R2], R6      ; escrever no periférico de saída (linhas)
+	MOVB R0, [R3]      ; ler do periférico de entrada (colunas)
+	AND  R0, R5        ; elimina bits para além dos bits 0-3
+    SHR R6, 1
+    JNZ saida
+    MOV R6, U_LINHA
+saida:
+    POP	R5
+	POP	R3
+	POP	R2
+	RET
+
+
+; **********************************************************************
 ; CONVERTE - Converte a linha, ou coluna, para um número entre 0 e 3.
 ;
-; Argumentos:   R8 - linha/coluna
+; Argumentos:   R6 - linha
+;               R0 - coluna
 ;
-; Retorna:      R3 - Soma das conversões
+; Retorna:      R0 - valor lido do teclado (0 a F)
 ; **********************************************************************
 converte:
     PUSH R2
-    PUSH R8
+    PUSH R3
+    PUSH R6
     MOV R2, 0
-converte_loop:
-    ADD R2, 1
-    SHR R8, 1
-    JNZ converte_loop
-    SUB R2, 1           ; retira 1 para passar a um numero entre 0 e 3
+    converte_linha_loop:
+        ADD R2, 1
+        SHR R6, 1
+        JNZ converte_linha_loop
+        SUB R2, 1           ; retira 1 para passar a um numero entre 0 e 3
+    
     ADD R3, R2
-    POP R1
+    SHL R3, 2
+    MOV R2, 0
+    
+    converte_col_loop:
+        ADD R2, 1
+        SHR R0, 1
+        JNZ converte_col_loop
+        SUB R2, 1           ; retira 1 para passar a um numero entre 0 e 3
+
+    ADD R3, R2
+    MOV R0, R3
+    POP R6
+    POP R3
     POP R2
     RET
 
