@@ -161,23 +161,17 @@ inicializacoes:
 
     ; * Gerais
     MOV R5, MASCARA                     ; para isolar os 4 bits de menor peso
-    MOV R7, 1                           ; valor a somar à coluna do boneco, para o movimentar
 
 cria_bonecos:
     CALL cria_meteoro_mineravel
     CALL cria_meteoro_nao_mineravel
     CALL cria_painel
     CALL cria_sonda
-
-ciclo_teclado_nao_tecla:    ; inicia o ciclo
-    MOV  R6, 10H
 espera_nao_tecla:			; neste ciclo espera-se até NÃO haver nenhuma tecla premida
-	SHR R6, 1       	    ; linha a testar no teclado
-    JZ ciclo_teclado_nao_tecla
 	CALL teclado			; leitura às teclas
 	CMP	 R0, 0
 	JNZ	 espera_nao_tecla	; espera, enquanto houver tecla uma tecla carregada
-
+    MOV R1, [DEF_POS_METEORO_MIN]
 ciclo_teclado_tecla:
     MOV R6, 10H
 espera_tecla:				; neste ciclo espera-se até uma tecla ser premida
@@ -189,15 +183,16 @@ espera_tecla:				; neste ciclo espera-se até uma tecla ser premida
 	
 	MOV	R9, 0			    ; som com número 0
 	MOV [TOCA_SOM], R9		; comando para tocar o som
-	
+	MOV R1, [DEF_POS_METEORO_MIN]
     CALL converte
-
+    MOV R1, [DEF_POS_METEORO_MIN]
     MOV R1, MOVE_METEORO
 	CMP	R0, R1
 	JNZ	testa_sonda
 	MOV	R7, +1			; vai deslocar para baixo
     MOV R8, +1          ; vai deslocar para a direita
     MOV R3, DEF_POS_METEORO_MIN
+    MOV R1, [DEF_POS_METEORO_MIN]
     CALL ativa_meteoro_mineravel
 	JMP	move_boneco
 testa_sonda:
@@ -295,6 +290,8 @@ define_novas_coordenadas:
     ADD R2, R8  ; quanto anda nas colunas
     MOV [R3], R1
     MOV [R3+2], R2
+    MOV R7, 0
+    MOV R8, 0
     RET
 ; **********************************************************************
 ; CRIA_METEORO_MINERAVEL - Cria um meteoro mineravel nas suas coordenadas
@@ -305,6 +302,10 @@ cria_meteoro_mineravel:
     PUSH R1
     PUSH R2
     PUSH R4
+    MOV R1, SPAWN_LIN
+    MOV R2, SPAWN1_COL
+    MOV [DEF_POS_METEORO_MIN], R1
+    MOV [DEF_POS_METEORO_MIN+2], R2
     CALL ativa_meteoro_mineravel
     CALL desenha_boneco ; desenha o boneco a partir da tabela
     POP R4
@@ -324,6 +325,10 @@ cria_meteoro_nao_mineravel:
     PUSH R1
     PUSH R2
     PUSH R4
+    MOV R1, SPAWN_LIN
+    MOV R2, SPAWN3_COL
+    MOV [DEF_POS_METEORO_NMIN], R1
+    MOV [DEF_POS_METEORO_NMIN+2], R2
     CALL ativa_meteoro_nao_mineravel
     CALL desenha_boneco
     POP R4
@@ -366,6 +371,10 @@ cria_sonda:
     PUSH R1
     PUSH R2
     PUSH R4
+    MOV R1, SPAWN_SND_LIN
+    MOV R2, SPAWN2_SND_COL
+    MOV [DEF_POS_SONDA], R1
+    MOV [DEF_POS_SONDA+2], R2
     CALL ativa_sonda
     CALL desenha_boneco
     POP R4
