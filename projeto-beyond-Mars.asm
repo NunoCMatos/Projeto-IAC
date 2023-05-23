@@ -1,4 +1,4 @@
-; *********************************************************************************
+; ******************************************************************************
 ; * IST-UL
 ; * Alunos: Nuno Correia de Matos - 105990
 ;           Duarte Ramires -
@@ -6,7 +6,7 @@
 ; * PROJETO
 ; * Descrição: Este programa corresponde à primeira fase do
 ;              projeto "Beyond Mars"
-; *********************************************************************************
+; ******************************************************************************
 
 
 ; **********************************************************************
@@ -167,11 +167,12 @@ cria_bonecos:
     CALL cria_meteoro_nao_mineravel
     CALL cria_painel
     CALL cria_sonda
+
 espera_nao_tecla:			; neste ciclo espera-se até NÃO haver nenhuma tecla premida
 	CALL teclado			; leitura às teclas
 	CMP	 R0, 0
 	JNZ	 espera_nao_tecla	; espera, enquanto houver tecla uma tecla carregada
-    MOV R1, [DEF_POS_METEORO_MIN]
+
 ciclo_teclado_tecla:
     MOV R6, 10H
 espera_tecla:				; neste ciclo espera-se até uma tecla ser premida
@@ -181,34 +182,29 @@ espera_tecla:				; neste ciclo espera-se até uma tecla ser premida
 	CMP	 R0, 0
 	JZ	 espera_tecla		; espera, enquanto não houver tecla
 	
-	MOV	R9, 0			    ; som com número 0
-	MOV [TOCA_SOM], R9		; comando para tocar o som
-	MOV R1, [DEF_POS_METEORO_MIN]
     CALL converte
-    MOV R1, [DEF_POS_METEORO_MIN]
+
     MOV R1, MOVE_METEORO
 	CMP	R0, R1
 	JNZ	testa_sonda
+
+    MOV	R9, 0			    ; som com número 0
+	MOV [TOCA_SOM], R9		; comando para tocar o som
 	MOV	R7, +1			; vai deslocar para baixo
     MOV R8, +1          ; vai deslocar para a direita
     MOV R3, DEF_POS_METEORO_MIN
-    MOV R1, [DEF_POS_METEORO_MIN]
     CALL ativa_meteoro_mineravel
 	JMP	move_boneco
+
 testa_sonda:
     MOV R1, MOVE_SONDA
 	CMP	R0, R1
 	JNZ	espera_tecla		; tecla que não interessa
+
 	MOV	R7, -1			; vai deslocar para cima
     MOV R8, 0
     MOV R3, DEF_POS_SONDA
     CALL ativa_sonda
-	
-;ve_limites:
-;	MOV	R6, [R4]			; obtém a largura do boneco
-;	CALL	testa_limites		; vê se chegou aos limites do ecrã e se sim força R7 a 0
-;	CMP	R7, 0
-;	JZ	espera_tecla		; se não é para movimentar o objeto, vai ler o teclado de novo
 
 move_boneco:
 	CALL apaga_boneco		; apaga o boneco na sua posição corrente
@@ -220,47 +216,9 @@ coluna_seguinte:
     JMP espera_nao_tecla
 
 
-
-
-
-
-;espera_tecla:           ; neste ciclo espera-se até uma tecla ser premida
-;    MOVB [R9], R8       ; escrever no periférico de saída (linhas)
-;    MOVB R0, [R10]      ; ler do periférico de entrada (colunas)
-;    AND  R0, R5         ; elimina bits para além dos bits 0-3
-;    CMP  R0, 0          ; há tecla premida?
-;    JZ   passa_linha    ; se nenhuma tecla premida, repete
-;                        ; vai mostrar a linha e a coluna da tecla
-;
-;    ADD R7, 1
-;    MOV R6, R8          ; guarda a linha atual, e R8 passa a auxiliar
-;
-;    CALL converte       ; converte a linha
-;    MOV R8, 4
-;    MUL R3, R8          ; multiplica a linha por 4
-;    MOV R8, R0          ; passa a coluna para o registo R8
-;    CALL converte       ; converte a coluna
-;
-;    MOV R8, 1H
-;    CMP R3, R8
-;    JZ move_sonda
-;
-;ha_tecla:               ; neste ciclo espera-se até NENHUMA tecla estar premida
-;    MOVB [R9], R6       ; escrever no periférico de saída (linhas)
-;    MOVB R0, [R10]      ; ler do periférico de entrada (colunas)
-;    AND  R0, R5         ; elimina bits para além dos bits 0-3
-;    CMP  R0, 0          ; há tecla premida?
-;    JNZ  ha_tecla       ; se ainda houver uma tecla premida, espera até não haver
-;    JMP  ciclo_teclado  ; repete ciclo
-;
-;move_sonda:
-;    MOV R1, SPAWN_LIN   ; linha do meteoro
-;    MOV R2, SPAWN1_COL  ; linha do meteoro
-;    MOV R4, DEF_MET_MIN ; endereço da tabela do meteoro minerável
-;    CALL apaga_boneco
-;    JMP ha_tecla
-;
-
+; **********************************************************************
+; * ROTINAS
+; **********************************************************************
 
 ; * Definem em R1 a linha atual, R2 a coluna atual e R4 a tabela do objeto escolhido
 ativa_meteoro_mineravel:
