@@ -38,6 +38,8 @@ TEC_LIN    EQU 0C000H  ; endereço das linhas do teclado (perif�rico POUT-2)
 TEC_COL    EQU 0E000H  ; endereço das colunas do teclado (perif�rico PIN)
 MOVE_METEORO EQU 0FH
 MOVE_SONDA EQU 0BH
+INCREMENTA EQU 01H
+DECREMENTA EQU 00H
 U_LINHA    EQU 8       ; última linha do teclado
 
 ; **********************************************************************
@@ -131,14 +133,16 @@ DEF_SONDA:
     WORD ROSA
 
 DEF_POS_METEORO_MIN:
-    WORD SPAWN_LIN, SPAWN1_COL          ; localização do meteoro (linha e coluna)
+    WORD SPAWN_LIN, SPAWN1_COL          ; localização do meteoro minerável(linha e coluna)
 
 DEF_POS_METEORO_NMIN:
-    WORD SPAWN_LIN, SPAWN3_COL          ; localização do meteoro (linha e coluna)
+    WORD SPAWN_LIN, SPAWN3_COL          ; localização do meteoro não minerável(linha e coluna)
 
 DEF_POS_SONDA:
-    WORD SPAWN_SND_LIN, SPAWN2_SND_COL  ; localização da sonda
+    WORD SPAWN_SND_LIN, SPAWN2_SND_COL  ; localização da sonda(linha e coluna)
 
+DEF_ENERGIA:
+    WORD 0
 ; **********************************************************************
 ; * Código
 ; **********************************************************************
@@ -167,10 +171,11 @@ cria_bonecos:
     CALL cria_meteoro_nao_mineravel
     CALL cria_painel
     CALL cria_sonda
+    CALL reseta_energia
+    CALL escreve_energia
     JMP ciclo_teclado_tecla
 
 espera_nao_tecla:			; neste ciclo espera-se até NÃO haver nenhuma tecla premida
-
 	CALL teclado			; leitura às teclas
 	CMP	 R0, 0
 	JNZ	 espera_nao_tecla	; espera, enquanto houver tecla uma tecla carregada
@@ -186,6 +191,7 @@ espera_tecla:				; neste ciclo espera-se até uma tecla ser premida
 	
     CALL converte
 
+testa_meteoro:
     MOV R1, MOVE_METEORO
 	CMP	R0, R1
 	JNZ	testa_sonda
@@ -201,22 +207,46 @@ espera_tecla:				; neste ciclo espera-se até uma tecla ser premida
 testa_sonda:
     MOV R1, MOVE_SONDA
 	CMP	R0, R1
-	JNZ	espera_tecla		; tecla que não interessa
+	JNZ	testa_incremento		; tecla que não interessa
 
 	MOV	R7, -1			; vai deslocar para cima
     MOV R8, 0
     MOV R3, DEF_POS_SONDA
     CALL ativa_sonda
 
-move_boneco:
-	CALL apaga_boneco		; apaga o boneco na sua posição corrente
-	
-coluna_seguinte:
-	CALL define_novas_coordenadas			; para desenhar objeto na coluna seguinte (direita ou esquerda)
+    move_boneco:
+    	CALL apaga_boneco		; apaga o boneco na sua posição corrente
 
-	CALL desenha_boneco		; vai desenhar o boneco de novo
+    coluna_seguinte:
+    	CALL define_novas_coordenadas			; para desenhar objeto na coluna seguinte (direita ou esquerda)
+
+    	CALL desenha_boneco		; vai desenhar o boneco de novo
+
     JMP espera_nao_tecla
 
+testa_incremento:
+    MOV R1, INCREMENTA
+    CMP R0, R1
+    JNZ testa_decremento
+
+    MOV R3, [DEF_ENERGIA]
+    INC R3
+    MOV [DEF_ENERGIA], R3
+    CALL escreve_energia
+
+    JMP espera_nao_tecla
+
+testa_decremento:
+    MOV R1, DECREMENTA
+    CMP R0, R1
+    JNZ espera_nao_tecla
+
+    MOV R3, [DEF_ENERGIA]
+    SUB R3, 1
+    MOV [DEF_ENERGIA], R3
+    CALL escreve_energia
+
+    JMP espera_nao_tecla
 
 ; **********************************************************************
 ; * ROTINAS
@@ -253,6 +283,25 @@ define_novas_coordenadas:
     MOV R7, 0
     MOV R8, 0
     RET
+
+
+; * Vai buscar à memória a energia
+escreve_energia:
+    PUSH R3
+    MOV R3, [DEF_ENERGIA]
+    MOV [DISPLAYS], R3
+    POP R3
+    RET
+
+
+reseta_energia:
+    PUSH R0
+    MOV  R0, 0
+    MOV  [DEF_ENERGIA], R0
+    POP  R0
+    RET
+
+
 ; **********************************************************************
 ; CRIA_METEORO_MINERAVEL - Cria um meteoro mineravel nas suas coordenadas
 ;			               inicais.
@@ -455,7 +504,7 @@ ciclo_atraso:
 	RET
 
 
-    ; **********************************************************************
+; **********************************************************************
 ; TESTA_LIMITES - Testa se o boneco chegou aos limites do ecrã e nesse caso
 ;			   impede o movimento (força R7 a 0)
 ; Argumentos:	R2 - coluna em que o objeto está
