@@ -287,10 +287,20 @@ define_novas_coordenadas:
 
 ; * Vai buscar à memória a energia
 escreve_energia:
+    PUSH R0
+    PUSH R1
+    PUSH R2
     PUSH R3
+    PUSH R4
     MOV R3, [DEF_ENERGIA]
-    MOV [DISPLAYS], R3
+    MOV R0, 0H
+    CALL hex_para_dec
+    MOV [DISPLAYS], R0
+    POP R4
     POP R3
+    POP R2
+    POP R1
+    POP R0
     RET
 
 
@@ -594,4 +604,29 @@ loop:
     SUB R2, 1           ; retira 1 para passar a um numero entre 0 e 3
     ADD R3, R2
     POP R2
+    RET
+
+
+; **********************************************************************
+; HEX_PARA_DEC - Converte um número hexadecimal num número decimal.
+;
+; Argumentos:   R3 - número hexadecimal
+;
+; Retorna:      R0 - número decimal correspondente
+; **********************************************************************
+hex_para_dec:
+    SHL R0, 4
+    MOV R1, R3   
+    AND R1, MASCARA   ;obter apenas o último dígito
+    MOV R2, 9H
+    CMP R2, R1   ;verificar se é de A a F
+    JNN 
+   
+    MOV R4, 0AH
+    MOD R1, R4   ;dígito que deve substituir o anterior
+monta_decimal:
+   
+    ADD R0, R1
+    SHR R3, 4
+    JNZ hex_para_dec
     RET
