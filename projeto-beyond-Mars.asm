@@ -36,8 +36,8 @@ ATRASO			            EQU 10H     ; atraso para limitar a velocidade de movimento
 DISPLAYS   EQU 0A000H  ; endereço dos displays de 7 segmentos (perif�rico POUT-1)
 TEC_LIN    EQU 0C000H  ; endereço das linhas do teclado (perif�rico POUT-2)
 TEC_COL    EQU 0E000H  ; endereço das colunas do teclado (perif�rico PIN)
-TECLA_DIREITA EQU 2
-TECLA_ESQUERDA EQU 1
+MOVE_METEORO EQU 0FH
+MOVE_SONDA EQU 0BH
 U_LINHA    EQU 8       ; última linha do teclado
 
 ; **********************************************************************
@@ -130,8 +130,11 @@ DEF_SONDA:
     WORD ALT_SONDA, LAR_SONDA
     WORD ROSA
 
-DEF_POS_METEORO:
+DEF_POS_METEORO_MIN:
     WORD SPAWN_LIN, SPAWN1_COL          ; localização do meteoro (linha e coluna)
+
+DEF_POS_METEORO_NMIN:
+    WORD SPAWN_LIN, SPAWN3_COL          ; localização do meteoro (linha e coluna)
 
 DEF_POS_SONDA:
     WORD SPAWN_SND_LIN, SPAWN2_SND_COL  ; localização da sonda
@@ -160,14 +163,14 @@ inicializacoes:
     MOV R5, MASCARA                     ; para isolar os 4 bits de menor peso
     MOV R7, 1                           ; valor a somar à coluna do boneco, para o movimentar
 
-desenha:
-    CALL desenha_meteoro_mineravel
-    CALL desenha_meteoro_nao_mineravel
-    CALL desenha_painel
-    CALL desenha_sonda
+cria_bonecos:
+    CALL cria_meteoro_mineravel
+    CALL cria_meteoro_nao_mineravel
+    CALL cria_painel
+    CALL cria_sonda
 
 ciclo_teclado_nao_tecla:    ; inicia o ciclo
-    MOV  R6, 16
+    MOV  R6, 10H
 espera_nao_tecla:			; neste ciclo espera-se até NÃO haver nenhuma tecla premida
 	SHR R6, 1       	    ; linha a testar no teclado
     JZ ciclo_teclado_nao_tecla
@@ -176,7 +179,7 @@ espera_nao_tecla:			; neste ciclo espera-se até NÃO haver nenhuma tecla premid
 	JNZ	 espera_nao_tecla	; espera, enquanto houver tecla uma tecla carregada
 
 ciclo_teclado_tecla:
-    MOV R6, 16
+    MOV R6, 10H
 espera_tecla:				; neste ciclo espera-se até uma tecla ser premida
 	SHR R6, 1	            ; linha a testar no teclado
     JZ ciclo_teclado_tecla  ; Se o SHR der 0 volta à linha 8
@@ -189,28 +192,38 @@ espera_tecla:				; neste ciclo espera-se até uma tecla ser premida
 	
     CALL converte
 
-	CMP	R0, TECLA_ESQUERDA
-	JNZ	testa_direita
-	MOV	R7, -1			; vai deslocar para a esquerda
-	JMP	ve_limites
-testa_direita:
-	CMP	R0, TECLA_DIREITA
+    MOV R1, MOVE_METEORO
+	CMP	R0, R1
+	JNZ	testa_sonda
+	MOV	R7, +1			; vai deslocar para baixo
+    MOV R8, +1          ; vai deslocar para a direita
+    MOV R3, DEF_POS_METEORO_MIN
+    CALL ativa_meteoro_mineravel
+	JMP	move_boneco
+testa_sonda:
+    MOV R1, MOVE_SONDA
+	CMP	R0, R1
 	JNZ	espera_tecla		; tecla que não interessa
-	MOV	R7, +1			; vai deslocar para a direita
+	MOV	R7, -1			; vai deslocar para cima
+    MOV R8, 0
+    MOV R3, DEF_POS_SONDA
+    CALL ativa_sonda
 	
-ve_limites:
-	MOV	R6, [R4]			; obtém a largura do boneco
-	CALL	testa_limites		; vê se chegou aos limites do ecrã e se sim força R7 a 0
-	CMP	R7, 0
-	JZ	espera_tecla		; se não é para movimentar o objeto, vai ler o teclado de novo
+;ve_limites:
+;	MOV	R6, [R4]			; obtém a largura do boneco
+;	CALL	testa_limites		; vê se chegou aos limites do ecrã e se sim força R7 a 0
+;	CMP	R7, 0
+;	JZ	espera_tecla		; se não é para movimentar o objeto, vai ler o teclado de novo
 
 move_boneco:
 	CALL apaga_boneco		; apaga o boneco na sua posição corrente
 	
 coluna_seguinte:
-	ADD	R2, R7			; para desenhar objeto na coluna seguinte (direita ou esquerda)
+	CALL define_novas_coordenadas			; para desenhar objeto na coluna seguinte (direita ou esquerda)
 
 	CALL desenha_boneco		; vai desenhar o boneco de novo
+    JMP espera_nao_tecla
+
 
 
 
@@ -254,28 +267,45 @@ coluna_seguinte:
 ;
 
 
+; * Definem em R1 a linha atual, R2 a coluna atual e R4 a tabela do objeto escolhido
+ativa_meteoro_mineravel:
+    MOV R1, [DEF_POS_METEORO_MIN]
+    MOV R2, [DEF_POS_METEORO_MIN+2]
+    MOV R4, DEF_MET_MIN
+    RET
 
 
+ativa_meteoro_nao_mineravel:
+    MOV R1, [DEF_POS_METEORO_NMIN]
+    MOV R2, [DEF_POS_METEORO_NMIN+2]
+    MOV R4, DEF_MET_NMIN
+    RET
 
 
+ativa_sonda:
+    MOV R1, [DEF_POS_SONDA]
+    MOV R2, [DEF_POS_SONDA+2]
+    MOV R4, DEF_SONDA
+    RET
 
+
+; * Define as novas coordenadas no objeto na tabela especificada em R3
+define_novas_coordenadas:
+    ADD R1, R7  ; quanto anda nas linhas
+    ADD R2, R8  ; quanto anda nas colunas
+    MOV [R3], R1
+    MOV [R3+2], R2
+    RET
 ; **********************************************************************
-; DESENHA_METEORO_MINERAVEL - Desenha um boneco na linha e coluna indicadas
-;			    com a forma e cor definidas na tabela indicada.
-; Argumentos:   R1 - linha
-;               R2 - coluna
-;               R4 - tabela que define o boneco
+; CRIA_METEORO_MINERAVEL - Cria um meteoro mineravel nas suas coordenadas
+;			               inicais.
 ;
 ; **********************************************************************
-desenha_meteoro_mineravel:
+cria_meteoro_mineravel:
     PUSH R1
     PUSH R2
     PUSH R4
-posicao_meteoro_mineravel:
-    MOV R1, SPAWN_LIN   ; linha do meteoro
-    MOV R2, SPAWN1_COL  ; linha do meteoro
-    MOV R4, DEF_MET_MIN ; endereço da tabela do meteoro minerável
-mostra_meteoro_mineravel:
+    CALL ativa_meteoro_mineravel
     CALL desenha_boneco ; desenha o boneco a partir da tabela
     POP R4
     POP R2
@@ -283,37 +313,33 @@ mostra_meteoro_mineravel:
     RET
 
 ; **********************************************************************
-; DESENHA_METEORO_NAO_MINERAVEL - Desenha um boneco na linha e coluna indicadas
+; CRIA_METEORO_NAO_MINERAVEL - Desenha um boneco na linha e coluna indicadas
 ;			    com a forma e cor definidas na tabela indicada.
 ; Argumentos:   R1 - linha
 ;               R2 - coluna
 ;               R4 - tabela que define o boneco
 ;
 ; **********************************************************************
-desenha_meteoro_nao_mineravel:
+cria_meteoro_nao_mineravel:
     PUSH R1
     PUSH R2
     PUSH R4
-posicao_meteoro_nao_mineravel:
-    MOV R1, SPAWN_LIN   ; linha do meteoro
-    MOV R2, SPAWN3_COL  ; linha do meteoro
-    MOV R4, DEF_MET_NMIN ; endereço da tabela do meteoro minerável
-mostra_meteoro_nao_mineravel:
-    CALL desenha_boneco ; desenha o boneco a partir da tabela
+    CALL ativa_meteoro_nao_mineravel
+    CALL desenha_boneco
     POP R4
     POP R2
     POP R1
     RET
 
 ; **********************************************************************
-; DESENHA_PAINEL - Desenha um boneco na linha e coluna indicadas
+; CRIA_PAINEL - Desenha um boneco na linha e coluna indicadas
 ;			    com a forma e cor definidas na tabela indicada.
 ; Argumentos:   R1 - linha
 ;               R2 - coluna
 ;               R4 - tabela que define o boneco
 ;
 ; **********************************************************************
-desenha_painel:
+cria_painel:
     PUSH R1
     PUSH R2
     PUSH R4
@@ -329,22 +355,18 @@ mostra_painel:
     RET
 
 ; **********************************************************************
-; DESENHA_SONDA - Desenha um boneco na linha e coluna indicadas
+; CRIA_SONDA - Desenha um boneco na linha e coluna indicadas
 ;			    com a forma e cor definidas na tabela indicada.
 ; Argumentos:   R1 - linha
 ;               R2 - coluna
 ;               R4 - tabela que define o boneco
 ;
 ; **********************************************************************
-desenha_sonda:
+cria_sonda:
     PUSH R1
     PUSH R2
     PUSH R4
-posicao_sonda:
-    MOV R1, [DEF_POS_SONDA]
-    MOV R2, [DEF_POS_SONDA+2]
-    MOV R4, DEF_SONDA
-mostra_sonda:
+    CALL ativa_sonda
     CALL desenha_boneco
     POP R4
     POP R2
@@ -404,6 +426,7 @@ desenha_pixels:       	    ; desenha os pixels do boneco a partir da tabela
 ;
 ; **********************************************************************
 apaga_boneco:
+    PUSH R1
 	PUSH R2
 	PUSH R3
 	PUSH R4
@@ -434,6 +457,7 @@ apaga_pixels:       	; desenha os pixels do boneco a partir da tabela
 	POP	 R4
 	POP	 R3
     POP  R2
+    POP  R1
 	RET
 
 ; **********************************************************************
@@ -515,10 +539,8 @@ teclado:
 	MOVB [R2], R6      ; escrever no periférico de saída (linhas)
 	MOVB R0, [R3]      ; ler do periférico de entrada (colunas)
 	AND  R0, R5        ; elimina bits para além dos bits 0-3
-    SHR R6, 1
-    JNZ saida
-    MOV R6, U_LINHA
-saida:
+    JNZ teclado_saida
+teclado_saida:
     POP	R5
 	POP	R3
 	POP	R2
@@ -534,30 +556,26 @@ saida:
 ; Retorna:      R0 - valor lido do teclado (0 a F)
 ; **********************************************************************
 converte:
-    PUSH R2
     PUSH R3
     PUSH R6
-    MOV R2, 0
-    converte_linha_loop:
-        ADD R2, 1
-        SHR R6, 1
-        JNZ converte_linha_loop
-        SUB R2, 1           ; retira 1 para passar a um numero entre 0 e 3
-    
-    ADD R3, R2
-    SHL R3, 2
-    MOV R2, 0
-    
-    converte_col_loop:
-        ADD R2, 1
-        SHR R0, 1
-        JNZ converte_col_loop
-        SUB R2, 1           ; retira 1 para passar a um numero entre 0 e 3
-
-    ADD R3, R2
-    MOV R0, R3
-    POP R6
-    POP R3
-    POP R2
+    MOV  R3, 0
+    CALL converte_loop
+    SHL  R3, 2
+    MOV  R6, R0
+    CALL converte_loop
+    MOV  R0, R3
+    POP  R6
+    POP  R3
     RET
 
+converte_loop:
+    PUSH R2
+    MOV R2, 0
+loop:
+    ADD R2, 1
+    SHR R6, 1
+    JNZ loop
+    SUB R2, 1           ; retira 1 para passar a um numero entre 0 e 3
+    ADD R3, R2
+    POP R2
+    RET
