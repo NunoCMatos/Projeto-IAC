@@ -167,8 +167,10 @@ cria_bonecos:
     CALL cria_meteoro_nao_mineravel
     CALL cria_painel
     CALL cria_sonda
+    JMP ciclo_teclado_tecla
 
 espera_nao_tecla:			; neste ciclo espera-se até NÃO haver nenhuma tecla premida
+
 	CALL teclado			; leitura às teclas
 	CMP	 R0, 0
 	JNZ	 espera_nao_tecla	; espera, enquanto houver tecla uma tecla carregada
@@ -403,14 +405,12 @@ apaga_boneco:
     PUSH R8
 	MOV	 R5, [R4]		; obtém a altura do boneco
     MOV  R8, R4         ; guarda o início da tabela que define o boneco
-	ADD	 R8, 4			; endereço da cor do 1.º pixel
 reinicia_apaga:
     MOV  R7, R2         ; guarda a coluna inicial
     MOV  R6, [R4+2]     ; obtém a largura do boneco
 apaga_pixels:       	; desenha os pixels do boneco a partir da tabela
 	MOV	 R3, 0		    ; obtém a cor do próximo pixel do boneco
 	CALL escreve_pixel  ; escreve cada pixel do boneco
-	ADD	 R8, 2			; endereço da cor do próximo pixel (2 porque cada cor de pixel é uma word)
     ADD  R7, 1          ; próxima coluna
     SUB  R6, 1			; menos uma coluna para tratar
     JNZ  apaga_pixels   ; continua até percorrer toda a largura do objeto
@@ -447,11 +447,11 @@ escreve_pixel:
 ;
 ; **********************************************************************
 atraso:
-	PUSH	R11
+	PUSH R11
 ciclo_atraso:
-	SUB	R11, 1
-	JNZ	ciclo_atraso
-	POP	R11
+	SUB	 R11, 1
+	JNZ	 ciclo_atraso
+	POP	 R11
 	RET
 
 
