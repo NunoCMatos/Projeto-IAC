@@ -36,10 +36,10 @@ ATRASO			            EQU 10H     ; atraso para limitar a velocidade de movimento
 DISPLAYS   EQU 0A000H  ; endereço dos displays de 7 segmentos (perif�rico POUT-1)
 TEC_LIN    EQU 0C000H  ; endereço das linhas do teclado (perif�rico POUT-2)
 TEC_COL    EQU 0E000H  ; endereço das colunas do teclado (perif�rico PIN)
-MOVE_METEORO EQU 0FH
-MOVE_SONDA EQU 0BH
-INCREMENTA EQU 01H
-DECREMENTA EQU 00H
+MOVE_METEORO EQU 0FH   ; endereço da tecla que move o meteoro
+MOVE_SONDA EQU 0BH     ; endereço da tecla que move a sonda
+INCREMENTA EQU 01H     ; endereço da tecla que incrementa energia
+DECREMENTA EQU 00H     ; endereço da tecla que decrementa energia
 U_LINHA    EQU 8       ; última linha do teclado
 
 ; **********************************************************************
@@ -56,13 +56,13 @@ SPAWN1_COL  EQU 0       ; coluna do 1.º spawnpoint (canto superior esquerdo)
 SPAWN2_COL  EQU 30      ; coluna do 2.º spawnpoint (centro superior)
 SPAWN3_COL  EQU 59      ; coluna do 3.º spawnpoint (canto superior direito)
 
-SPAWN_SND_LIN   EQU 26
-SPAWN1_SND_COL  EQU 26
-SPAWN2_SND_COL  EQU 32
-SPAWN3_SND_COL  EQU 48
+SPAWN_SND_LIN   EQU 26  ; linha dos spawnpoints da sonda (acima da nave)
+SPAWN1_SND_COL  EQU 26  ; coluna do 1.º spawnpoint (lado esquerdo da nave)
+SPAWN2_SND_COL  EQU 32  ; coluna do 2.º spawnpoint (em linha com o meio da nave)
+SPAWN3_SND_COL  EQU 48  ; coluna do 3.º spawnpoint (lado direito da nave)
 
-LIN_PAINEL  EQU 27
-COL_PAINEL  EQU 25
+LIN_PAINEL  EQU 27      ; primeira linha do painel
+COL_PAINEL  EQU 25      ; primeira coluna do painel
 
 ; * Tamanhos
 LARGURA     EQU 5
@@ -96,7 +96,7 @@ SP_Inicial:     ; endereço da pilha
 
 
 ; * Definições
-DEF_MET_MIN:
+DEF_MET_MIN:    ; tabela que define a tabela do meteoro minerável
     WORD ALTURA, LARGURA
     WORD     0, VERDE, VERDE, VERDE, 0
     WORD VERDE, VERDE, VERDE, VERDE, VERDE
@@ -104,7 +104,7 @@ DEF_MET_MIN:
     WORD VERDE, VERDE, VERDE, VERDE, VERDE
     WORD     0, VERDE, VERDE, VERDE, 0
 
-DEF_MET_NMIN:
+DEF_MET_NMIN:    ; tabela que define a tabela do meteoro não minerável
     WORD ALTURA, LARGURA
     WORD VERMELHO, 0, VERMELHO, 0, VERMELHO
     WORD 0, VERMELHO, VERMELHO, VERMELHO, 0
@@ -112,7 +112,7 @@ DEF_MET_NMIN:
     WORD 0, VERMELHO, VERMELHO, VERMELHO, 0
     WORD VERMELHO, 0, VERMELHO, 0, VERMELHO
 
-DEF_EXPLOSAO:
+DEF_EXPLOSAO:    ; tabela que define a explosao
     WORD ALTURA, LARGURA
     WORD 0, AZUL, 0, AZUL, 0
     WORD AZUL, 0, AZUL, 0, AZUL
@@ -120,7 +120,7 @@ DEF_EXPLOSAO:
     WORD AZUL, 0, AZUL, 0, AZUL
     WORD 0, AZUL, 0, AZUL, 0
 
-DEF_PAINEL:
+DEF_PAINEL:     ; tabela que define o painel
     WORD ALT_PAINEL, LAR_PAINEL
     WORD 0, 0, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, 0, 0
     WORD 0, VERMELHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, VERMELHO, 0
@@ -129,7 +129,7 @@ DEF_PAINEL:
     WORD VERMELHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, VERMELHO
 
 DEF_SONDA:
-    WORD ALT_SONDA, LAR_SONDA
+    WORD ALT_SONDA, LAR_SONDA           ; localização da sonda(linha e coluna)
     WORD ROSA
 
 DEF_POS_METEORO_MIN:
@@ -143,6 +143,7 @@ DEF_POS_SONDA:
 
 DEF_ENERGIA:
     WORD 0
+
 ; **********************************************************************
 ; * Código
 ; **********************************************************************
@@ -224,7 +225,7 @@ testa_sonda:
 
     JMP espera_nao_tecla
 
-testa_incremento:
+testa_incremento:           
     MOV R1, INCREMENTA
     CMP R0, R1
     JNZ testa_decremento
@@ -444,7 +445,6 @@ desenha_pixels:       	    ; desenha os pixels do boneco a partir da tabela
     POP  R1
 	RET
 
-
 ; **********************************************************************
 ; APAGA_BONECO - Apaga um boneco na linha e coluna indicadas
 ;			  com a forma definida na tabela indicada.
@@ -499,7 +499,6 @@ escreve_pixel:
 	MOV  [DEFINE_PIXEL], R3		; altera a cor do pixel na linha e coluna já selecionadas
 	RET
 
-
 ; **********************************************************************
 ; ATRASO - Executa um ciclo para implementar um atraso.
 ; Argumentos:   R11 - valor que define o atraso
@@ -512,7 +511,6 @@ ciclo_atraso:
 	JNZ	 ciclo_atraso
 	POP	 R11
 	RET
-
 
 ; **********************************************************************
 ; TESTA_LIMITES - Testa se o boneco chegou aos limites do ecrã e nesse caso
@@ -572,7 +570,6 @@ teclado_saida:
 	POP	R2
 	RET
 
-
 ; **********************************************************************
 ; CONVERTE - Converte a linha, ou coluna, para um número entre 0 e 3.
 ;
@@ -605,7 +602,6 @@ loop:
     ADD R3, R2
     POP R2
     RET
-
 
 ; **********************************************************************
 ; HEX_PARA_DEC - Converte um número hexadecimal num número decimal.
