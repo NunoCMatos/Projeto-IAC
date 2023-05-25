@@ -231,8 +231,8 @@ testa_incremento:
 
     CALL incrementa_energia
     CALL escreve_energia
-    CALL atraso
-    JMP espera_tecla
+
+    JMP espera_nao_tecla
 
 testa_decremento:
     MOV R1, DECREMENTA
