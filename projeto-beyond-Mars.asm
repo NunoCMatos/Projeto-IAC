@@ -33,14 +33,16 @@ ATRASO			            EQU 1H     ; atraso para limitar a velocidade de movimento 
 ; **********************************************************************
 ; * Periféricos
 ; **********************************************************************
-DISPLAYS   EQU 0A000H  ; endereço dos displays de 7 segmentos (perif�rico POUT-1)
-TEC_LIN    EQU 0C000H  ; endereço das linhas do teclado (perif�rico POUT-2)
-TEC_COL    EQU 0E000H  ; endereço das colunas do teclado (perif�rico PIN)
-MOVE_METEORO EQU 0FH
-MOVE_SONDA EQU 0BH
-INCREMENTA EQU 01H
-DECREMENTA EQU 00H
-U_LINHA    EQU 8       ; última linha do teclado
+DISPLAYS                    EQU 0A000H  ; endereço dos displays de 7 segmentos (perif�rico POUT-1)
+TEC_LIN                     EQU 0C000H  ; endereço das linhas do teclado (perif�rico POUT-2)
+TEC_COL                     EQU 0E000H  ; endereço das colunas do teclado (perif�rico PIN)
+MOVE_METEORO                EQU 0FH
+MOVE_METEORO_NAO_MINERAVEL  EQU 0EH
+MOVE_SONDA                  EQU 0BH
+EXPLODE                     EQU 0CH
+INCREMENTA                  EQU 01H
+DECREMENTA                  EQU 00H
+U_LINHA                     EQU 8       ; última linha do teclado
 
 ; **********************************************************************
 ; * Máscaras
@@ -51,18 +53,19 @@ ISOLA_03BITS    EQU 000FH    ; para isolar os bits de 0 a 3
 ; * Figuras
 ; **********************************************************************
 ; * Coordenadas
-SPAWN_LIN   EQU 0       ; linha dos spawnpoints dos meteoros
-SPAWN1_COL  EQU 0       ; coluna do 1.º spawnpoint (canto superior esquerdo)
-SPAWN2_COL  EQU 30      ; coluna do 2.º spawnpoint (centro superior)
-SPAWN3_COL  EQU 59      ; coluna do 3.º spawnpoint (canto superior direito)
+SPAWN_LIN       EQU 0       ; linha dos spawnpoints dos meteoros
+SPAWN1_COL      EQU 0       ; coluna do 1.º spawnpoint (canto superior esquerdo)
+SPAWN2_COL      EQU 30      ; coluna do 2.º spawnpoint (centro superior)
+SPAWN3_COL      EQU 59      ; coluna do 3.º spawnpoint (canto superior direito)
 
 SPAWN_SND_LIN   EQU 26
 SPAWN1_SND_COL  EQU 26
 SPAWN2_SND_COL  EQU 32
 SPAWN3_SND_COL  EQU 48
+LIN_MAX_SONDA   EQU SPAWN_SND_LIN - 12
 
-LIN_PAINEL  EQU 27
-COL_PAINEL  EQU 25
+LIN_PAINEL      EQU 27
+COL_PAINEL      EQU 25
 
 ; * Tamanhos
 LARGURA     EQU 5
@@ -194,7 +197,7 @@ espera_tecla:				; neste ciclo espera-se até uma tecla ser premida
 testa_meteoro:
     MOV R1, MOVE_METEORO
 	CMP	R0, R1
-	JNZ	testa_sonda
+	JNZ	testa_meteoro_nao_mineravel
 
     MOV	R9, 0			    ; som com número 0
 	MOV [TOCA_SOM], R9		; comando para tocar o som
@@ -202,6 +205,32 @@ testa_meteoro:
     MOV R8, +1          ; vai deslocar para a direita
     MOV R3, DEF_POS_METEORO_MIN
     CALL ativa_meteoro_mineravel
+	JMP	move_boneco
+
+testa_meteoro_nao_mineravel:
+    MOV R1, MOVE_METEORO_NAO_MINERAVEL
+	CMP	R0, R1
+	JNZ	testa_sonda
+
+    MOV	R9, 0			    ; som com número 0
+	MOV [TOCA_SOM], R9		; comando para tocar o som
+	MOV	R7, +1			; vai deslocar para baixo
+    MOV R8, -1          ; vai deslocar para a esquerda
+    MOV R3, DEF_POS_METEORO_NMIN
+    CALL ativa_meteoro_nao_mineravel
+	JMP	move_boneco
+
+testa_explode:
+    MOV R1, EXPLODE
+	CMP	R0, R1
+	JNZ	testa_sonda
+
+    MOV	R9, 0			    ; som com número 0
+	MOV [TOCA_SOM], R9		; comando para tocar o som
+	MOV	R7, 0			; vai deslocar para baixo
+    MOV R8, 0          ; vai deslocar para a esquerda
+    MOV R3, DEF_POS_METEORO_NMIN
+    CALL ativa_explosao
 	JMP	move_boneco
 
 testa_sonda:
@@ -216,10 +245,8 @@ testa_sonda:
 
     move_boneco:
     	CALL apaga_boneco		; apaga o boneco na sua posição corrente
-
     coluna_seguinte:
     	CALL define_novas_coordenadas			; para desenhar objeto na coluna seguinte (direita ou esquerda)
-
     	CALL desenha_boneco		; vai desenhar o boneco de novo
 
     JMP espera_nao_tecla
@@ -260,6 +287,13 @@ ativa_meteoro_nao_mineravel:
     MOV R1, [DEF_POS_METEORO_NMIN]
     MOV R2, [DEF_POS_METEORO_NMIN+2]
     MOV R4, DEF_MET_NMIN
+    RET
+
+
+ativa_explosao:
+    MOV R1, [DEF_POS_METEORO_NMIN]
+    MOV R2, [DEF_POS_METEORO_NMIN+2]
+    MOV R4, DEF_EXPLOSAO
     RET
 
 
