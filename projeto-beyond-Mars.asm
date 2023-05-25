@@ -28,7 +28,7 @@ MIN_LINHA		            EQU 0		 ; número da coluna mais à esquerda do ecrã
 MIN_COLUNA		            EQU 0		 ; número da coluna mais à esquerda do ecrã
 MAX_LINHA		            EQU 31      ; número da coluna mais à direita do ecrã
 MAX_COLUNA		            EQU 63      ; número da coluna mais à direita do ecrã
-ATRASO			            EQU 10H     ; atraso para limitar a velocidade de movimento do boneco
+ATRASO			            EQU 1H     ; atraso para limitar a velocidade de movimento do boneco
 
 ; **********************************************************************
 ; * Periféricos
@@ -36,16 +36,16 @@ ATRASO			            EQU 10H     ; atraso para limitar a velocidade de movimento
 DISPLAYS   EQU 0A000H  ; endereço dos displays de 7 segmentos (perif�rico POUT-1)
 TEC_LIN    EQU 0C000H  ; endereço das linhas do teclado (perif�rico POUT-2)
 TEC_COL    EQU 0E000H  ; endereço das colunas do teclado (perif�rico PIN)
-MOVE_METEORO EQU 0FH   ; endereço da tecla que move o meteoro
-MOVE_SONDA EQU 0BH     ; endereço da tecla que move a sonda
-INCREMENTA EQU 01H     ; endereço da tecla que incrementa energia
-DECREMENTA EQU 00H     ; endereço da tecla que decrementa energia
+MOVE_METEORO EQU 0FH
+MOVE_SONDA EQU 0BH
+INCREMENTA EQU 01H
+DECREMENTA EQU 00H
 U_LINHA    EQU 8       ; última linha do teclado
 
 ; **********************************************************************
 ; * Máscaras
 ; **********************************************************************
-MASCARA    EQU 0FH     ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
+ISOLA_03BITS    EQU 000FH    ; para isolar os bits de 0 a 3
 
 ; **********************************************************************
 ; * Figuras
@@ -56,13 +56,13 @@ SPAWN1_COL  EQU 0       ; coluna do 1.º spawnpoint (canto superior esquerdo)
 SPAWN2_COL  EQU 30      ; coluna do 2.º spawnpoint (centro superior)
 SPAWN3_COL  EQU 59      ; coluna do 3.º spawnpoint (canto superior direito)
 
-SPAWN_SND_LIN   EQU 26  ; linha dos spawnpoints da sonda (acima da nave)
-SPAWN1_SND_COL  EQU 26  ; coluna do 1.º spawnpoint (lado esquerdo da nave)
-SPAWN2_SND_COL  EQU 32  ; coluna do 2.º spawnpoint (em linha com o meio da nave)
-SPAWN3_SND_COL  EQU 48  ; coluna do 3.º spawnpoint (lado direito da nave)
+SPAWN_SND_LIN   EQU 26
+SPAWN1_SND_COL  EQU 26
+SPAWN2_SND_COL  EQU 32
+SPAWN3_SND_COL  EQU 48
 
-LIN_PAINEL  EQU 27      ; primeira linha do painel
-COL_PAINEL  EQU 25      ; primeira coluna do painel
+LIN_PAINEL  EQU 27
+COL_PAINEL  EQU 25
 
 ; * Tamanhos
 LARGURA     EQU 5
@@ -96,7 +96,7 @@ SP_Inicial:     ; endereço da pilha
 
 
 ; * Definições
-DEF_MET_MIN:    ; tabela que define a tabela do meteoro minerável
+DEF_MET_MIN:
     WORD ALTURA, LARGURA
     WORD     0, VERDE, VERDE, VERDE, 0
     WORD VERDE, VERDE, VERDE, VERDE, VERDE
@@ -104,7 +104,7 @@ DEF_MET_MIN:    ; tabela que define a tabela do meteoro minerável
     WORD VERDE, VERDE, VERDE, VERDE, VERDE
     WORD     0, VERDE, VERDE, VERDE, 0
 
-DEF_MET_NMIN:    ; tabela que define a tabela do meteoro não minerável
+DEF_MET_NMIN:
     WORD ALTURA, LARGURA
     WORD VERMELHO, 0, VERMELHO, 0, VERMELHO
     WORD 0, VERMELHO, VERMELHO, VERMELHO, 0
@@ -112,7 +112,7 @@ DEF_MET_NMIN:    ; tabela que define a tabela do meteoro não minerável
     WORD 0, VERMELHO, VERMELHO, VERMELHO, 0
     WORD VERMELHO, 0, VERMELHO, 0, VERMELHO
 
-DEF_EXPLOSAO:    ; tabela que define a explosao
+DEF_EXPLOSAO:
     WORD ALTURA, LARGURA
     WORD 0, AZUL, 0, AZUL, 0
     WORD AZUL, 0, AZUL, 0, AZUL
@@ -120,7 +120,7 @@ DEF_EXPLOSAO:    ; tabela que define a explosao
     WORD AZUL, 0, AZUL, 0, AZUL
     WORD 0, AZUL, 0, AZUL, 0
 
-DEF_PAINEL:     ; tabela que define o painel
+DEF_PAINEL:
     WORD ALT_PAINEL, LAR_PAINEL
     WORD 0, 0, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, 0, 0
     WORD 0, VERMELHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, VERMELHO, 0
@@ -129,7 +129,7 @@ DEF_PAINEL:     ; tabela que define o painel
     WORD VERMELHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, VERMELHO
 
 DEF_SONDA:
-    WORD ALT_SONDA, LAR_SONDA           ; localização da sonda(linha e coluna)
+    WORD ALT_SONDA, LAR_SONDA
     WORD ROSA
 
 DEF_POS_METEORO_MIN:
@@ -142,8 +142,7 @@ DEF_POS_SONDA:
     WORD SPAWN_SND_LIN, SPAWN2_SND_COL  ; localização da sonda(linha e coluna)
 
 DEF_ENERGIA:
-    WORD 0
-
+    WORD 0H
 ; **********************************************************************
 ; * Código
 ; **********************************************************************
@@ -165,7 +164,7 @@ inicializacoes:
     MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
 
     ; * Gerais
-    MOV R5, MASCARA                     ; para isolar os 4 bits de menor peso
+    MOV R5, ISOLA_03BITS                  ; para isolar os 4 bits de menor peso
 
 cria_bonecos:
     CALL cria_meteoro_mineravel
@@ -225,26 +224,22 @@ testa_sonda:
 
     JMP espera_nao_tecla
 
-testa_incremento:           
+testa_incremento:
     MOV R1, INCREMENTA
     CMP R0, R1
     JNZ testa_decremento
 
-    MOV R3, [DEF_ENERGIA]
-    INC R3
-    MOV [DEF_ENERGIA], R3
+    CALL incrementa_energia
     CALL escreve_energia
-
-    JMP espera_nao_tecla
+    CALL atraso
+    JMP espera_tecla
 
 testa_decremento:
     MOV R1, DECREMENTA
     CMP R0, R1
     JNZ espera_nao_tecla
 
-    MOV R3, [DEF_ENERGIA]
-    SUB R3, 1
-    MOV [DEF_ENERGIA], R3
+    CALL decrementa_energia
     CALL escreve_energia
 
     JMP espera_nao_tecla
@@ -289,14 +284,52 @@ define_novas_coordenadas:
 ; * Vai buscar à memória a energia
 escreve_energia:
     PUSH R0
+    PUSH R3
+    MOV R3, [DEF_ENERGIA]
+    MOV [DISPLAYS], R3
+    POP R3
+    POP R0
+    RET
+
+
+reseta_energia:
+    PUSH R0
+    MOV  R0, 0H
+    MOV  [DEF_ENERGIA], R0
+    POP  R0
+    RET
+
+; **********************************************************************
+; INCREMENTA_ENERGIA - Incrementa uma unidade na memória da energia.
+;
+; **********************************************************************
+incrementa_energia:
+    PUSH R0
     PUSH R1
     PUSH R2
     PUSH R3
     PUSH R4
+    MOV R0, 000AH
+    MOV R1, 1H
+    MOV R2, ISOLA_03BITS
     MOV R3, [DEF_ENERGIA]
-    MOV R0, 0H
-    CALL hex_para_dec
-    MOV [DISPLAYS], R0
+    MOV R4, 3
+    JMP incrementa_corpo_ciclo
+ciclo_incrementa:
+    SUB R3, R0
+    SHL R1, 4
+    SHL R2, 4
+    SHL R0, 4
+incrementa_corpo_ciclo:
+    ADD R3, R1
+    AND R2, R3
+    CMP R2, R0
+    JLT incrementa_saida
+    SUB R4, 1
+    JNZ ciclo_incrementa
+    MOV R3, 0
+incrementa_saida:
+    MOV [DEF_ENERGIA], R3
     POP R4
     POP R3
     POP R2
@@ -305,11 +338,45 @@ escreve_energia:
     RET
 
 
-reseta_energia:
+; **********************************************************************
+; DECREMENTA_ENERGIA - Decrementa uma unidade na memória da energia.
+;
+; **********************************************************************
+decrementa_energia:
     PUSH R0
-    MOV  R0, 0
-    MOV  [DEF_ENERGIA], R0
-    POP  R0
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+    PUSH R5
+    MOV R0, 0009H
+    MOV R1, 1H
+    MOV R2, ISOLA_03BITS
+    MOV R3, [DEF_ENERGIA]
+    MOV R4, 3
+    MOV R5, 0006H
+    SUB R3, R1
+    JMP decrementa_corpo_ciclo
+ciclo_decrementa:
+    SUB R3, R5
+    SHL R5, 4
+    SHL R0, 4
+    SHL R2, 4
+decrementa_corpo_ciclo:
+    AND R2, R3
+    CMP R2, R0
+    JLT decrementa_saida
+    SUB R4, 1
+    JNZ ciclo_decrementa
+    MOV R3, 999H
+decrementa_saida:
+    MOV [DEF_ENERGIA], R3
+    POP R5
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    POP R0
     RET
 
 
@@ -445,6 +512,7 @@ desenha_pixels:       	    ; desenha os pixels do boneco a partir da tabela
     POP  R1
 	RET
 
+
 ; **********************************************************************
 ; APAGA_BONECO - Apaga um boneco na linha e coluna indicadas
 ;			  com a forma definida na tabela indicada.
@@ -499,6 +567,7 @@ escreve_pixel:
 	MOV  [DEFINE_PIXEL], R3		; altera a cor do pixel na linha e coluna já selecionadas
 	RET
 
+
 ; **********************************************************************
 ; ATRASO - Executa um ciclo para implementar um atraso.
 ; Argumentos:   R11 - valor que define o atraso
@@ -511,6 +580,7 @@ ciclo_atraso:
 	JNZ	 ciclo_atraso
 	POP	 R11
 	RET
+
 
 ; **********************************************************************
 ; TESTA_LIMITES - Testa se o boneco chegou aos limites do ecrã e nesse caso
@@ -559,7 +629,7 @@ teclado:
 	PUSH	R5
 	MOV  R2, TEC_LIN   ; endereço do periférico das linhas
 	MOV  R3, TEC_COL   ; endereço do periférico das colunas
-	MOV  R5, MASCARA   ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
+	MOV  R5, ISOLA_03BITS   ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
 	MOVB [R2], R6      ; escrever no periférico de saída (linhas)
 	MOVB R0, [R3]      ; ler do periférico de entrada (colunas)
 	AND  R0, R5        ; elimina bits para além dos bits 0-3
@@ -569,6 +639,7 @@ teclado_saida:
 	POP	R3
 	POP	R2
 	RET
+
 
 ; **********************************************************************
 ; CONVERTE - Converte a linha, ou coluna, para um número entre 0 e 3.
@@ -601,28 +672,4 @@ loop:
     SUB R2, 1           ; retira 1 para passar a um numero entre 0 e 3
     ADD R3, R2
     POP R2
-    RET
-
-; **********************************************************************
-; HEX_PARA_DEC - Converte um número hexadecimal num número decimal.
-;
-; Argumentos:   R3 - número hexadecimal
-;
-; Retorna:      R0 - número decimal correspondente
-; **********************************************************************
-hex_para_dec:
-    SHL R0, 4
-    MOV R1, R3   
-    AND R1, MASCARA   ;obter apenas o último dígito
-    MOV R2, 9H
-    CMP R2, R1   ;verificar se é de A a F
-    JNN 
-   
-    MOV R4, 0AH
-    MOD R1, R4   ;dígito que deve substituir o anterior
-monta_decimal:
-   
-    ADD R0, R1
-    SHR R3, 4
-    JNZ hex_para_dec
     RET
