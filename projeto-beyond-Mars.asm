@@ -141,7 +141,7 @@ DEF_POS_METEORO_NMIN:
 DEF_POS_SONDA:
     WORD SPAWN_SND_LIN, SPAWN2_SND_COL  ; localização da sonda(linha e coluna)
 
-DEF_ENERGIA:
+DEF_ENERGIA: 
     WORD 0H
 ; **********************************************************************
 ; * Código
@@ -536,7 +536,7 @@ reinicia_apaga:
     MOV  R7, R2         ; guarda a coluna inicial
     MOV  R6, [R4+2]     ; obtém a largura do boneco
 apaga_pixels:       	; desenha os pixels do boneco a partir da tabela
-	MOV	 R3, 0		    ; obtém a cor do próximo pixel do boneco
+	MOV	 R3, APAGADO    ; obtém a cor do próximo pixel do boneco
 	CALL escreve_pixel  ; escreve cada pixel do boneco
     ADD  R7, 1          ; próxima coluna
     SUB  R6, 1			; menos uma coluna para tratar
