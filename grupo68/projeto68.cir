@@ -772,7 +772,7 @@
       "pinConnectionID" : -1,
       "pinValueFixed" : "1"
     },
-    "programFilePathName" : "projeto-beyond-Mars.asm",
+    "programFilePathName" : "grupo68.asm",
     "nTabSpaces" : 4,
     "bus interface" : {
       "className" : "ModuleExtensionMasterBusReadWrite",
@@ -1454,8 +1454,8 @@
     "positionX" : 749,
     "positionY" : 466,
     "simGuiVisibleInSimulation" : true,
-    "simGuiXRelative" : 1083,
-    "simGuiYRelative" : 621,
+    "simGuiXRelative" : 997,
+    "simGuiYRelative" : 578,
     "simGuiWidth" : 110,
     "simGuiHeight" : 140,
     "columns" : 4,
@@ -1535,6 +1535,13 @@
     "windowScreenHeightixels" : 512,
     "defaultPenColor" : 65280,
     "image paths" : [ "espaço.jpg" ],
+    "sounds/videos settings" : [ {
+      "filePathName" : "disparo.wav",
+      "relative sound volume" : 1.0,
+      "relative start time" : 0.0,
+      "relative stop time" : 1.0,
+      "playAsClip" : false
+    } ],
     "addressable data" : {
       "className" : "ModuleExtensionMemoryMediaCenter",
       "elementID" : 83,

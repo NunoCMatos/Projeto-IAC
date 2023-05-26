@@ -120,11 +120,11 @@
       "sourcePinID" : 90,
       "targetPinID" : 11,
       "points" : [ {
-        "X" : 616,
-        "Y" : 287
+        "X" : 620,
+        "Y" : 284
       }, {
         "X" : 551,
-        "Y" : 287
+        "Y" : 284
       }, {
         "X" : 551,
         "Y" : 162
@@ -152,11 +152,11 @@
       "sourcePinID" : 88,
       "targetPinID" : 10,
       "points" : [ {
-        "X" : 616,
-        "Y" : 303
+        "X" : 620,
+        "Y" : 300
       }, {
         "X" : 515,
-        "Y" : 303
+        "Y" : 300
       }, {
         "X" : 515,
         "Y" : 178
@@ -238,11 +238,11 @@
       "sourcePinID" : 91,
       "targetPinID" : 12,
       "points" : [ {
-        "X" : 616,
-        "Y" : 319
+        "X" : 620,
+        "Y" : 316
       }, {
         "X" : 576,
-        "Y" : 319
+        "Y" : 316
       }, {
         "X" : 576,
         "Y" : 194
@@ -342,11 +342,11 @@
       "sourcePinID" : 89,
       "targetPinID" : 9,
       "points" : [ {
-        "X" : 616,
-        "Y" : 239
+        "X" : 620,
+        "Y" : 236
       }, {
         "X" : 496,
-        "Y" : 239
+        "Y" : 236
       }, {
         "X" : 496,
         "Y" : 214
@@ -569,11 +569,11 @@
       "sourcePinID" : 86,
       "targetPinID" : 8,
       "points" : [ {
-        "X" : 710,
-        "Y" : 239
+        "X" : 714,
+        "Y" : 236
       }, {
         "X" : 726,
-        "Y" : 239
+        "Y" : 236
       }, {
         "X" : 726,
         "Y" : 74
@@ -613,11 +613,11 @@
       "sourcePinID" : 87,
       "targetPinID" : 33,
       "points" : [ {
-        "X" : 616,
-        "Y" : 271
+        "X" : 620,
+        "Y" : 268
       }, {
         "X" : 472,
-        "Y" : 271
+        "Y" : 268
       }, {
         "X" : 472,
         "Y" : 401
@@ -635,11 +635,11 @@
       "sourcePinID" : 92,
       "targetPinID" : 32,
       "points" : [ {
-        "X" : 616,
-        "Y" : 255
+        "X" : 620,
+        "Y" : 252
       }, {
         "X" : 453,
-        "Y" : 255
+        "Y" : 252
       }, {
         "X" : 453,
         "Y" : 385
@@ -742,7 +742,7 @@
     "simGuiVisibleInSimulation" : true,
     "simGuiXRelative" : 2,
     "simGuiYRelative" : 37,
-    "simGuiWidth" : 769,
+    "simGuiWidth" : 669,
     "simGuiHeight" : 822,
     "clockPeriod" : 200,
     "startAutomatically" : true,
@@ -1454,7 +1454,7 @@
     "positionX" : 749,
     "positionY" : 466,
     "simGuiVisibleInSimulation" : true,
-    "simGuiXRelative" : 1083,
+    "simGuiXRelative" : 987,
     "simGuiYRelative" : 621,
     "simGuiWidth" : 110,
     "simGuiHeight" : 140,
@@ -1497,7 +1497,7 @@
     "positionX" : 786,
     "positionY" : 355,
     "simGuiVisibleInSimulation" : true,
-    "simGuiXRelative" : 891,
+    "simGuiXRelative" : 744,
     "simGuiYRelative" : 695,
     "simGuiWidth" : 195,
     "simGuiHeight" : 162,
@@ -1522,11 +1522,11 @@
     "name" : "Media Center",
     "numberOfBits" : 16,
     "moduleDelay" : 5,
-    "positionX" : 620,
-    "positionY" : 227,
+    "positionX" : 624,
+    "positionY" : 224,
     "simGuiVisibleInSimulation" : true,
-    "simGuiXRelative" : 431,
-    "simGuiYRelative" : 280,
+    "simGuiXRelative" : 686,
+    "simGuiYRelative" : 190,
     "simGuiWidth" : 784,
     "simGuiHeight" : 392,
     "columnAddressNBits" : 6,
@@ -1534,7 +1534,14 @@
     "windowScreenWidthPixels" : 1024,
     "windowScreenHeightixels" : 512,
     "defaultPenColor" : 65280,
-    "image paths" : [ "espaço.jpg" ],
+    "image paths" : [ "espaco_a_andar.gif", "espaço.jpg" ],
+    "sounds/videos settings" : [ {
+      "filePathName" : "disparo.wav",
+      "relative sound volume" : 1.0,
+      "relative start time" : 0.0,
+      "relative stop time" : 1.0,
+      "playAsClip" : false
+    } ],
     "addressable data" : {
       "className" : "ModuleExtensionMemoryMediaCenter",
       "elementID" : 83,
@@ -1543,7 +1550,7 @@
       "nWordParts" : 2,
       "endianness" : "Big-Endian",
       "addressNBits" : 12,
-      "numberOfPixelScreens" : 1
+      "numberOfPixelScreens" : 16
     },
     "addressable control" : {
       "className" : "ModuleExtensionMediaCenter",
