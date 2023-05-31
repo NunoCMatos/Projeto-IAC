@@ -96,16 +96,6 @@ PLACE 1000H
     STACK 100H  ; espaço reservado para a pilha do processo "programa principal"
 SP_Inicial:     ; endereço da pilha
 
-    STACK 100H      ; espaço reservado para a pilha do processo "teclado"
-SP_inicial_teclado: ; endereço da pilha
-
-
-tab:
-    WORD 0
-    WORD 0
-    WORD 0
-    WORD 0
-
 
 ; * Definições
 
@@ -161,8 +151,6 @@ DEF_POS_SONDA:
 
 DEF_ENERGIA:
     WORD 0H                              ; energia da nave
-
-tecla_carregada: LOCK 0
 ; **********************************************************************
 ; * Código
 ; **********************************************************************
@@ -174,6 +162,8 @@ PLACE 0
 inicializacoes:
     ; * Stack Pointer
     MOV SP, SP_Inicial  ; Inicialização do Stack Pointer
+    MOV R9, TEC_LIN
+    MOV R10, TEC_COL
 
     ; * Ecrâ
     MOV [APAGA_AVISO], R0	            ; apaga o aviso do ecrã
@@ -191,10 +181,23 @@ cria_bonecos:
     CALL cria_sonda                     ; cria uma sonda no 2.º spawnpoint
     CALL reseta_energia                 ; reinicia a energia guardada em memória
     CALL escreve_energia                ; escreve a energia no display
+    JMP ciclo_teclado_tecla
 
-    CALL inicio_teclado
-tecla:
-    MOV R0, [tecla_carregada]
+espera_nao_tecla:			; neste ciclo espera-se até NÃO haver nenhuma tecla premida
+	CALL teclado			; leitura às teclas
+	CMP	 R0, 0
+	JNZ	 espera_nao_tecla	; espera, enquanto houver tecla uma tecla carregada
+
+ciclo_teclado_tecla:
+    MOV R6, C_LINHA         ; reinicia o ciclo, começando em 10H para passar a 8
+espera_tecla:				; neste ciclo espera-se até uma tecla ser premida
+	SHR R6, 1	            ; passa de linha
+    JZ ciclo_teclado_tecla  ; Se o SHR der 0 volta ao início
+	CALL teclado			; leitura às teclas
+	CMP	 R0, 0
+	JZ	 espera_tecla		; espera, enquanto não houver tecla carregada
+	
+    CALL converte
 
 testa_meteoro:
     MOV R1, MOVE_METEORO
@@ -257,7 +260,7 @@ testa_sonda:
         
     	CALL desenha_boneco             ; desenha o boneco nas novas coordenadas
 
-    JMP tecla                ; volta a esperar que não haja tecla carregada
+    JMP espera_nao_tecla                ; volta a esperar que não haja tecla carregada
 
 testa_incremento:
     MOV R1, INCREMENTA
@@ -267,73 +270,21 @@ testa_incremento:
     CALL incrementa_energia ; incrementa uma unidade na energia
     CALL escreve_energia    ; escreve a energia no display
 
-    JMP tecla    ; volta a espera que não haja tecla carregada
+    JMP espera_nao_tecla    ; volta a espera que não haja tecla carregada
 
 testa_decremento:
     MOV R1, DECREMENTA
     CMP R0, R1              ; verifica se a tecla carregada foi a que incrementa o display
-    JNZ tecla    ; se não for, nenhuma tecla interessa
+    JNZ espera_nao_tecla    ; se não for, nenhuma tecla interessa
 
     CALL decrementa_energia ; decrementa uma unidade na energia
     CALL escreve_energia    ; escreve a energia no display
 
-    JMP tecla    ; volta a espera que não haja tecla carregada
+    JMP espera_nao_tecla    ; volta a espera que não haja tecla carregada
 
 ; **********************************************************************
 ; * ROTINAS
 ; **********************************************************************
-
-PROCESS SP_inicial_teclado
-    inicio_teclado:
-        MOV R9, TEC_LIN
-        MOV R10, TEC_COL
-        MOV R5, ISOLA_03BITS    ; para isolar os 4 bits de menor peso
-
-    espera_tecla:
-        YIELD
-        MOV  R6, C_LINHA        ; reinicia o ciclo, começando em 10H para passar a 8
-    linha:				        ; neste ciclo espera-se até uma tecla ser premida
-        SHR  R6, 1	            ; passa de linha
-        JZ   espera_tecla       ; Se o SHR der 0 volta ao início
-        CALL teclado			; leitura às teclas
-        CMP	 R0, 0
-        JZ	 linha		        ; espera, enquanto não houver tecla carregada
-        
-        CALL converte
-        MOV [tecla_carregada], R0
-
-    ha_tecla:
-        YIELD
-        CALL teclado
-        CMP  R0, 0
-        JNZ  ha_tecla
-    
-    JMP espera_tecla
-
-
-; **********************************************************************
-; TECLADO - Faz uma leitura às teclas de uma linha do teclado e retorna o valor lido
-; Argumentos:	R6 - linha a testar (em formato 1, 2, 4 ou 8)
-;
-; Retorna: 	R0 - valor lido das colunas do teclado (0, 1, 2, 4, ou 8)	
-; **********************************************************************
-teclado:
-	PUSH	R2
-	PUSH	R3
-	PUSH	R5
-	MOV  R2, TEC_LIN        ; endereço do periférico das linhas
-	MOV  R3, TEC_COL        ; endereço do periférico das colunas
-	MOV  R5, ISOLA_03BITS   ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
-	MOVB [R2], R6           ; escrever no periférico de saída (linhas)
-	MOVB R0, [R3]           ; ler do periférico de entrada (colunas)
-	AND  R0, R5             ; elimina bits para além dos bits 0-3
-    JNZ teclado_saida
-teclado_saida:
-    POP	R5
-	POP	R3
-	POP	R2
-	RET
-
 
 ; **********************************************************************
 ; ATIVA_METEORO_NAO_MINERAVEL - Retorna as informações para desenhar 
@@ -767,6 +718,29 @@ impede_movimento:
 sai_testa_limites:	
 	POP	R6
 	POP	R5
+	RET
+
+; **********************************************************************
+; TECLADO - Faz uma leitura às teclas de uma linha do teclado e retorna o valor lido
+; Argumentos:	R6 - linha a testar (em formato 1, 2, 4 ou 8)
+;
+; Retorna: 	R0 - valor lido das colunas do teclado (0, 1, 2, 4, ou 8)	
+; **********************************************************************
+teclado:
+	PUSH	R2
+	PUSH	R3
+	PUSH	R5
+	MOV  R2, TEC_LIN        ; endereço do periférico das linhas
+	MOV  R3, TEC_COL        ; endereço do periférico das colunas
+	MOV  R5, ISOLA_03BITS   ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
+	MOVB [R2], R6           ; escrever no periférico de saída (linhas)
+	MOVB R0, [R3]           ; ler do periférico de entrada (colunas)
+	AND  R0, R5             ; elimina bits para além dos bits 0-3
+    JNZ teclado_saida
+teclado_saida:
+    POP	R5
+	POP	R3
+	POP	R2
 	RET
 
 

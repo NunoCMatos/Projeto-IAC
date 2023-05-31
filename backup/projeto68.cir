@@ -1,0 +1,1747 @@
+{
+  "comment" : "This is a JSON file describing a digital circuit, which can be loaded into the SEPE (Simulador Especial Para Ensino), a computer architecture simulator.",
+  "savedWithSimulatorVersion" : "2.2.1",
+  "savedWithSimulatorBuildOn" : "2023-05-16  at  14:54:44",
+  "editorLocked" : false,
+  "startAutomatically" : true,
+  "showConnectionColors" : false,
+  "zoomScale" : 90,
+  "gridVisible" : true,
+  "primary screen width" : 1470,
+  "primary screen height" : 956,
+  "window" : {
+    "X absolute" : 0,
+    "Y absolute" : 37,
+    "X relative" : 0,
+    "Y relative" : 37,
+    "width" : 1470,
+    "height" : 858,
+    "leftRightDividerLocation" : 227,
+    "topBottomDividerLocation" : 701
+  },
+  "connections" : [ {
+    "className" : "Connection",
+    "elementID" : 42,
+    "name" : "Connection_ID:42",
+    "numberOfBits" : 1,
+    "segments" : [ {
+      "sourcePinID" : 29,
+      "targetPinID" : 39,
+      "points" : [ {
+        "X" : 308,
+        "Y" : 337
+      }, {
+        "X" : 322,
+        "Y" : 337
+      }, {
+        "X" : 322,
+        "Y" : 318
+      }, {
+        "X" : 347,
+        "Y" : 318
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 43,
+    "name" : "Connection_ID:43",
+    "numberOfBits" : 1,
+    "segments" : [ {
+      "sourcePinID" : 30,
+      "targetPinID" : 40,
+      "points" : [ {
+        "X" : 308,
+        "Y" : 353
+      }, {
+        "X" : 334,
+        "Y" : 353
+      }, {
+        "X" : 334,
+        "Y" : 334
+      }, {
+        "X" : 347,
+        "Y" : 334
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 44,
+    "name" : "Connection_ID:44",
+    "numberOfBits" : 1,
+    "segments" : [ {
+      "sourcePinID" : 41,
+      "targetPinID" : 20,
+      "points" : [ {
+        "X" : 433,
+        "Y" : 318
+      }, {
+        "X" : 435,
+        "Y" : 318
+      }, {
+        "X" : 435,
+        "Y" : 144
+      }, {
+        "X" : 616,
+        "Y" : 144
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 45,
+    "name" : "Connection_ID:45",
+    "numberOfBits" : 1,
+    "segments" : [ {
+      "sourcePinID" : 23,
+      "targetPinID" : 11,
+      "points" : [ {
+        "X" : 616,
+        "Y" : 160
+      }, {
+        "X" : 308,
+        "Y" : 160
+      } ]
+    }, {
+      "sourcePinID" : 69,
+      "targetPinID" : 11,
+      "points" : [ {
+        "X" : 616,
+        "Y" : 589
+      }, {
+        "X" : 551,
+        "Y" : 589
+      }, {
+        "X" : 551,
+        "Y" : 162
+      }, {
+        "X" : 308,
+        "Y" : 162
+      } ]
+    }, {
+      "sourcePinID" : 90,
+      "targetPinID" : 11,
+      "points" : [ {
+        "X" : 620,
+        "Y" : 284
+      }, {
+        "X" : 551,
+        "Y" : 284
+      }, {
+        "X" : 551,
+        "Y" : 162
+      }, {
+        "X" : 308,
+        "Y" : 162
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 46,
+    "name" : "Connection_ID:46",
+    "numberOfBits" : 1,
+    "segments" : [ {
+      "sourcePinID" : 21,
+      "targetPinID" : 10,
+      "points" : [ {
+        "X" : 616,
+        "Y" : 176
+      }, {
+        "X" : 307,
+        "Y" : 176
+      } ]
+    }, {
+      "sourcePinID" : 88,
+      "targetPinID" : 10,
+      "points" : [ {
+        "X" : 620,
+        "Y" : 300
+      }, {
+        "X" : 515,
+        "Y" : 300
+      }, {
+        "X" : 515,
+        "Y" : 178
+      }, {
+        "X" : 307,
+        "Y" : 178
+      } ]
+    }, {
+      "sourcePinID" : 10,
+      "targetPinID" : 106,
+      "points" : [ {
+        "X" : 307,
+        "Y" : 178
+      }, {
+        "X" : 515,
+        "Y" : 178
+      }, {
+        "X" : 515,
+        "Y" : 349
+      }, {
+        "X" : 594,
+        "Y" : 349
+      }, {
+        "X" : 594,
+        "Y" : 415
+      }, {
+        "X" : 616,
+        "Y" : 415
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 47,
+    "name" : "Connection_ID:47",
+    "numberOfBits" : 1,
+    "segments" : [ {
+      "sourcePinID" : 24,
+      "targetPinID" : 12,
+      "points" : [ {
+        "X" : 616,
+        "Y" : 192
+      }, {
+        "X" : 308,
+        "Y" : 192
+      } ]
+    }, {
+      "sourcePinID" : 55,
+      "targetPinID" : 12,
+      "points" : [ {
+        "X" : 616,
+        "Y" : 431
+      }, {
+        "X" : 576,
+        "Y" : 431
+      }, {
+        "X" : 576,
+        "Y" : 194
+      }, {
+        "X" : 308,
+        "Y" : 194
+      } ]
+    }, {
+      "sourcePinID" : 62,
+      "targetPinID" : 12,
+      "points" : [ {
+        "X" : 616,
+        "Y" : 510
+      }, {
+        "X" : 576,
+        "Y" : 510
+      }, {
+        "X" : 576,
+        "Y" : 194
+      }, {
+        "X" : 308,
+        "Y" : 194
+      } ]
+    }, {
+      "sourcePinID" : 91,
+      "targetPinID" : 12,
+      "points" : [ {
+        "X" : 620,
+        "Y" : 316
+      }, {
+        "X" : 576,
+        "Y" : 316
+      }, {
+        "X" : 576,
+        "Y" : 194
+      }, {
+        "X" : 308,
+        "Y" : 194
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 48,
+    "name" : "Connection_ID:48",
+    "numberOfBits" : 16,
+    "segments" : [ {
+      "sourcePinID" : 26,
+      "targetPinID" : 9,
+      "points" : [ {
+        "X" : 217,
+        "Y" : 337
+      }, {
+        "X" : 190,
+        "Y" : 337
+      }, {
+        "X" : 190,
+        "Y" : 276
+      }, {
+        "X" : 374,
+        "Y" : 276
+      }, {
+        "X" : 374,
+        "Y" : 98
+      }, {
+        "X" : 307,
+        "Y" : 98
+      } ]
+    }, {
+      "sourcePinID" : 27,
+      "targetPinID" : 9,
+      "points" : [ {
+        "X" : 217,
+        "Y" : 353
+      }, {
+        "X" : 190,
+        "Y" : 353
+      }, {
+        "X" : 190,
+        "Y" : 276
+      }, {
+        "X" : 374,
+        "Y" : 276
+      }, {
+        "X" : 374,
+        "Y" : 98
+      }, {
+        "X" : 307,
+        "Y" : 98
+      } ]
+    }, {
+      "sourcePinID" : 28,
+      "targetPinID" : 9,
+      "points" : [ {
+        "X" : 217,
+        "Y" : 369
+      }, {
+        "X" : 190,
+        "Y" : 369
+      }, {
+        "X" : 190,
+        "Y" : 276
+      }, {
+        "X" : 374,
+        "Y" : 276
+      }, {
+        "X" : 374,
+        "Y" : 98
+      }, {
+        "X" : 307,
+        "Y" : 98
+      } ]
+    }, {
+      "sourcePinID" : 22,
+      "targetPinID" : 9,
+      "points" : [ {
+        "X" : 616,
+        "Y" : 128
+      }, {
+        "X" : 579,
+        "Y" : 128
+      }, {
+        "X" : 579,
+        "Y" : 98
+      }, {
+        "X" : 307,
+        "Y" : 98
+      } ]
+    }, {
+      "sourcePinID" : 89,
+      "targetPinID" : 9,
+      "points" : [ {
+        "X" : 620,
+        "Y" : 236
+      }, {
+        "X" : 496,
+        "Y" : 236
+      }, {
+        "X" : 496,
+        "Y" : 214
+      }, {
+        "X" : 374,
+        "Y" : 214
+      }, {
+        "X" : 374,
+        "Y" : 98
+      }, {
+        "X" : 307,
+        "Y" : 98
+      } ]
+    }, {
+      "sourcePinID" : 107,
+      "targetPinID" : 9,
+      "points" : [ {
+        "X" : 616,
+        "Y" : 367
+      }, {
+        "X" : 496,
+        "Y" : 367
+      }, {
+        "X" : 496,
+        "Y" : 214
+      }, {
+        "X" : 374,
+        "Y" : 214
+      }, {
+        "X" : 374,
+        "Y" : 98
+      }, {
+        "X" : 307,
+        "Y" : 98
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 75,
+    "name" : "Connection_ID:75",
+    "numberOfBits" : 16,
+    "segments" : [ {
+      "sourcePinID" : 50,
+      "targetPinID" : 74,
+      "points" : [ {
+        "X" : 723,
+        "Y" : 367
+      }, {
+        "X" : 782,
+        "Y" : 367
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 76,
+    "name" : "Connection_ID:76",
+    "numberOfBits" : 8,
+    "segments" : [ {
+      "sourcePinID" : 57,
+      "targetPinID" : 71,
+      "points" : [ {
+        "X" : 718,
+        "Y" : 478
+      }, {
+        "X" : 745,
+        "Y" : 478
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 77,
+    "name" : "Connection_ID:77",
+    "numberOfBits" : 8,
+    "segments" : [ {
+      "sourcePinID" : 64,
+      "targetPinID" : 72,
+      "points" : [ {
+        "X" : 718,
+        "Y" : 557
+      }, {
+        "X" : 839,
+        "Y" : 557
+      }, {
+        "X" : 839,
+        "Y" : 478
+      }, {
+        "X" : 831,
+        "Y" : 478
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 78,
+    "name" : "Connection_ID:78",
+    "numberOfBits" : 1,
+    "segments" : [ {
+      "sourcePinID" : 54,
+      "targetPinID" : 34,
+      "points" : [ {
+        "X" : 616,
+        "Y" : 383
+      }, {
+        "X" : 508,
+        "Y" : 383
+      }, {
+        "X" : 508,
+        "Y" : 417
+      }, {
+        "X" : 308,
+        "Y" : 417
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 79,
+    "name" : "Connection_ID:79",
+    "numberOfBits" : 1,
+    "segments" : [ {
+      "sourcePinID" : 61,
+      "targetPinID" : 35,
+      "points" : [ {
+        "X" : 616,
+        "Y" : 478
+      }, {
+        "X" : 508,
+        "Y" : 478
+      }, {
+        "X" : 508,
+        "Y" : 433
+      }, {
+        "X" : 308,
+        "Y" : 433
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 80,
+    "name" : "Connection_ID:80",
+    "numberOfBits" : 1,
+    "segments" : [ {
+      "sourcePinID" : 68,
+      "targetPinID" : 36,
+      "points" : [ {
+        "X" : 616,
+        "Y" : 557
+      }, {
+        "X" : 456,
+        "Y" : 557
+      }, {
+        "X" : 456,
+        "Y" : 449
+      }, {
+        "X" : 308,
+        "Y" : 449
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 81,
+    "name" : "Connection_ID:81",
+    "numberOfBits" : 16,
+    "segments" : [ {
+      "sourcePinID" : 19,
+      "targetPinID" : 8,
+      "points" : [ {
+        "X" : 710,
+        "Y" : 128
+      }, {
+        "X" : 726,
+        "Y" : 128
+      }, {
+        "X" : 726,
+        "Y" : 74
+      }, {
+        "X" : 533,
+        "Y" : 74
+      }, {
+        "X" : 533,
+        "Y" : 130
+      }, {
+        "X" : 307,
+        "Y" : 130
+      } ]
+    }, {
+      "sourcePinID" : 60,
+      "targetPinID" : 8,
+      "points" : [ {
+        "X" : 616,
+        "Y" : 494
+      }, {
+        "X" : 533,
+        "Y" : 494
+      }, {
+        "X" : 533,
+        "Y" : 129
+      }, {
+        "X" : 530,
+        "Y" : 130
+      }, {
+        "X" : 307,
+        "Y" : 130
+      } ]
+    }, {
+      "sourcePinID" : 67,
+      "targetPinID" : 8,
+      "points" : [ {
+        "X" : 616,
+        "Y" : 573
+      }, {
+        "X" : 533,
+        "Y" : 573
+      }, {
+        "X" : 533,
+        "Y" : 130
+      }, {
+        "X" : 307,
+        "Y" : 130
+      } ]
+    }, {
+      "sourcePinID" : 86,
+      "targetPinID" : 8,
+      "points" : [ {
+        "X" : 714,
+        "Y" : 236
+      }, {
+        "X" : 726,
+        "Y" : 236
+      }, {
+        "X" : 726,
+        "Y" : 74
+      }, {
+        "X" : 533,
+        "Y" : 74
+      }, {
+        "X" : 533,
+        "Y" : 130
+      }, {
+        "X" : 307,
+        "Y" : 130
+      } ]
+    }, {
+      "sourcePinID" : 53,
+      "targetPinID" : 8,
+      "points" : [ {
+        "X" : 616,
+        "Y" : 399
+      }, {
+        "X" : 533,
+        "Y" : 399
+      }, {
+        "X" : 533,
+        "Y" : 130
+      }, {
+        "X" : 307,
+        "Y" : 130
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 93,
+    "name" : "Connection_ID:93",
+    "numberOfBits" : 1,
+    "segments" : [ {
+      "sourcePinID" : 87,
+      "targetPinID" : 33,
+      "points" : [ {
+        "X" : 620,
+        "Y" : 268
+      }, {
+        "X" : 472,
+        "Y" : 268
+      }, {
+        "X" : 472,
+        "Y" : 401
+      }, {
+        "X" : 308,
+        "Y" : 401
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 94,
+    "name" : "Connection_ID:94",
+    "numberOfBits" : 1,
+    "segments" : [ {
+      "sourcePinID" : 92,
+      "targetPinID" : 32,
+      "points" : [ {
+        "X" : 620,
+        "Y" : 252
+      }, {
+        "X" : 453,
+        "Y" : 252
+      }, {
+        "X" : 453,
+        "Y" : 385
+      }, {
+        "X" : 308,
+        "Y" : 385
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 97,
+    "name" : "Connection_ID:97",
+    "numberOfBits" : 1,
+    "segments" : [ {
+      "sourcePinID" : 96,
+      "targetPinID" : 2,
+      "points" : [ {
+        "X" : 129,
+        "Y" : 92
+      }, {
+        "X" : 147,
+        "Y" : 92
+      }, {
+        "X" : 147,
+        "Y" : 130
+      }, {
+        "X" : 194,
+        "Y" : 130
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 100,
+    "name" : "Connection_ID:100",
+    "numberOfBits" : 1,
+    "segments" : [ {
+      "sourcePinID" : 99,
+      "targetPinID" : 3,
+      "points" : [ {
+        "X" : 115,
+        "Y" : 141
+      }, {
+        "X" : 194,
+        "Y" : 141
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 103,
+    "name" : "Connection_ID:103",
+    "numberOfBits" : 1,
+    "segments" : [ {
+      "sourcePinID" : 102,
+      "targetPinID" : 4,
+      "points" : [ {
+        "X" : 116,
+        "Y" : 190
+      }, {
+        "X" : 147,
+        "Y" : 190
+      }, {
+        "X" : 147,
+        "Y" : 162
+      }, {
+        "X" : 194,
+        "Y" : 162
+      } ]
+    } ]
+  }, {
+    "className" : "Connection",
+    "elementID" : 111,
+    "name" : "Connection_ID:111",
+    "numberOfBits" : 1,
+    "segments" : [ {
+      "sourcePinID" : 109,
+      "targetPinID" : 5,
+      "points" : [ {
+        "X" : 104,
+        "Y" : 239
+      }, {
+        "X" : 172,
+        "Y" : 239
+      }, {
+        "X" : 172,
+        "Y" : 178
+      }, {
+        "X" : 194,
+        "Y" : 178
+      } ]
+    } ]
+  } ],
+  "modules" : [ {
+    "className" : "ModulePEPE16",
+    "elementID" : 0,
+    "name" : "PEPE-16",
+    "numberOfBits" : 16,
+    "moduleDelay" : 5,
+    "positionX" : 198,
+    "positionY" : 86,
+    "simGuiVisibleInSimulation" : true,
+    "simGuiXRelative" : 2,
+    "simGuiYRelative" : 37,
+    "simGuiWidth" : 669,
+    "simGuiHeight" : 822,
+    "clockPeriod" : 200,
+    "startAutomatically" : true,
+    "simulationMaster" : true,
+    "clockIsExternal" : false,
+    "clockInPin" : {
+      "className" : "InPin",
+      "elementID" : 7,
+      "name" : "CLOCK_IN",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "LEFT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : -1,
+      "pinValueFixed" : "-"
+    },
+    "resetPin" : {
+      "className" : "InPin",
+      "elementID" : 1,
+      "name" : "RESET",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "LEFT",
+      "pinShape" : "CIRCLE",
+      "pinConnectionID" : -1,
+      "pinValueFixed" : "1"
+    },
+    "programFilePathName" : "projeto-beyond-Mars.asm",
+    "nTabSpaces" : 4,
+    "bus interface" : {
+      "className" : "ModuleExtensionMasterBusReadWrite",
+      "elementID" : 104,
+      "name" : "ModuleExtensionMasterBusReadWrite_ID:104",
+      "numberOfBits" : 16,
+      "dataBusPin" : {
+        "className" : "InOutPin",
+        "elementID" : 8,
+        "name" : "DATA",
+        "numberOfBits" : 16,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "RIGHT",
+        "pinShape" : "RECT",
+        "pinConnectionID" : 81
+      },
+      "rdPin" : {
+        "className" : "TristateOutPin",
+        "elementID" : 11,
+        "name" : "RD",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "RIGHT",
+        "pinShape" : "CIRCLE",
+        "pinConnectionID" : 45
+      },
+      "wrPin" : {
+        "className" : "TristateOutPin",
+        "elementID" : 12,
+        "name" : "WR",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "RIGHT",
+        "pinShape" : "CIRCLE",
+        "pinConnectionID" : 47
+      },
+      "addressBusPin" : {
+        "className" : "TristateOutPin",
+        "elementID" : 9,
+        "name" : "ADDRESS",
+        "numberOfBits" : 16,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "RIGHT",
+        "pinShape" : "RECT",
+        "pinConnectionID" : 48
+      },
+      "swaPin" : {
+        "className" : "TristateOutPin",
+        "elementID" : 10,
+        "name" : "SWA",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "RIGHT",
+        "pinShape" : "RECT",
+        "pinConnectionID" : 46
+      },
+      "endianness" : "Big-Endian",
+      "waitPin" : {
+        "className" : "InPin",
+        "elementID" : 13,
+        "name" : "WAIT",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "RECT",
+        "pinConnectionID" : -1,
+        "pinValueFixed" : "0"
+      },
+      "busGrantPin" : {
+        "className" : "OutPin",
+        "elementID" : 14,
+        "name" : "BUS_GRANT",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "RIGHT",
+        "pinShape" : "RECT",
+        "pinConnectionID" : -1
+      },
+      "busReqPin" : {
+        "className" : "InPin",
+        "elementID" : 15,
+        "name" : "BUS_REQ",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "RECT",
+        "pinConnectionID" : -1,
+        "pinValueFixed" : "0"
+      },
+      "delay_Ta" : 1,
+      "delay_Td" : 2,
+      "delay_Tr" : 1,
+      "delay_Tw" : 1
+    },
+    "cache" : {
+      "className" : "ModuleExtensionDirectMappedCache",
+      "elementID" : 105,
+      "name" : "ModuleExtensionDirectMappedCache_ID:105",
+      "numberOfBits" : 16,
+      "cacheNLines" : 2048,
+      "cacheBlockNWords" : 1,
+      "cacheCapacityWordsFixed" : false,
+      "accessTimeRatio" : 3,
+      "accumulateAccessStatistics" : false,
+      "currentAccessesUpdateSpeed" : "Very fast"
+    },
+    "interruptPinsArray" : [ {
+      "className" : "InPin",
+      "elementID" : 2,
+      "name" : "INT0",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "LEFT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 97,
+      "pinValueFixed" : "-"
+    }, {
+      "className" : "InPin",
+      "elementID" : 3,
+      "name" : "INT1",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "LEFT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 100,
+      "pinValueFixed" : "-"
+    }, {
+      "className" : "InPin",
+      "elementID" : 4,
+      "name" : "INT2",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "LEFT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 103,
+      "pinValueFixed" : "-"
+    }, {
+      "className" : "InPin",
+      "elementID" : 5,
+      "name" : "INT3",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "LEFT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 111,
+      "pinValueFixed" : "-"
+    } ],
+    "intAckPin" : {
+      "className" : "OutPin",
+      "elementID" : 6,
+      "name" : "INT_ACK",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "RIGHT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : -1
+    }
+  }, {
+    "className" : "ModuleRAM",
+    "elementID" : 16,
+    "name" : "RAM",
+    "numberOfBits" : 16,
+    "moduleDelay" : 5,
+    "positionX" : 620,
+    "positionY" : 116,
+    "simGuiVisibleInSimulation" : false,
+    "addressable data" : {
+      "className" : "ModuleExtensionMemory",
+      "elementID" : 17,
+      "name" : "ModuleExtensionMemory_ID:17",
+      "numberOfBits" : 16,
+      "nWordParts" : 2,
+      "endianness" : "Big-Endian",
+      "addressNBits" : 14
+    },
+    "bus interface" : {
+      "className" : "ModuleExtensionSlaveBusReadWrite",
+      "elementID" : 18,
+      "name" : "ModuleExtensionSlaveBusReadWrite_ID:18",
+      "numberOfBits" : 16,
+      "dataBusPin" : {
+        "className" : "InOutPin",
+        "elementID" : 19,
+        "name" : "DATA",
+        "numberOfBits" : 16,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "RIGHT",
+        "pinShape" : "RECT",
+        "pinConnectionID" : 81
+      },
+      "csPin" : {
+        "className" : "InPin",
+        "elementID" : 20,
+        "name" : "CS",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "CIRCLE",
+        "pinConnectionID" : 44,
+        "pinValueFixed" : "-"
+      },
+      "swaPin" : {
+        "className" : "InPin",
+        "elementID" : 21,
+        "name" : "SWA",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "RECT",
+        "pinConnectionID" : 46,
+        "pinValueFixed" : "-"
+      },
+      "addressBusPin" : {
+        "className" : "InPin",
+        "elementID" : 22,
+        "name" : "ADDRESS",
+        "numberOfBits" : 14,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "RECT",
+        "pinConnectionID" : 48,
+        "pinValueFixed" : "-"
+      },
+      "rdPin" : {
+        "className" : "InPin",
+        "elementID" : 23,
+        "name" : "RD",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "CIRCLE",
+        "pinConnectionID" : 45,
+        "pinValueFixed" : "-"
+      },
+      "wrPin" : {
+        "className" : "InPin",
+        "elementID" : 24,
+        "name" : "WR",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "CIRCLE",
+        "pinConnectionID" : 47,
+        "pinValueFixed" : "-"
+      }
+    }
+  }, {
+    "className" : "ModuleDecoder",
+    "elementID" : 25,
+    "name" : "Descodificador",
+    "numberOfBits" : 1,
+    "moduleDelay" : 5,
+    "positionX" : 221,
+    "positionY" : 325,
+    "nInputPinsArray" : [ {
+      "className" : "InPin",
+      "elementID" : 26,
+      "name" : "A0",
+      "numberOfBits" : 1,
+      "pinStartBit" : 13,
+      "connStartBit" : 0,
+      "pinSide" : "LEFT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 48,
+      "pinValueFixed" : "-"
+    }, {
+      "className" : "InPin",
+      "elementID" : 27,
+      "name" : "A1",
+      "numberOfBits" : 1,
+      "pinStartBit" : 14,
+      "connStartBit" : 0,
+      "pinSide" : "LEFT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 48,
+      "pinValueFixed" : "-"
+    }, {
+      "className" : "InPin",
+      "elementID" : 28,
+      "name" : "A2",
+      "numberOfBits" : 1,
+      "pinStartBit" : 15,
+      "connStartBit" : 0,
+      "pinSide" : "LEFT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 48,
+      "pinValueFixed" : "-"
+    } ],
+    "outPinsArray" : [ {
+      "className" : "OutPin",
+      "elementID" : 29,
+      "name" : "OUT0",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "RIGHT",
+      "pinShape" : "CIRCLE",
+      "pinConnectionID" : 42
+    }, {
+      "className" : "OutPin",
+      "elementID" : 30,
+      "name" : "OUT1",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "RIGHT",
+      "pinShape" : "CIRCLE",
+      "pinConnectionID" : 43
+    }, {
+      "className" : "OutPin",
+      "elementID" : 31,
+      "name" : "OUT2",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "RIGHT",
+      "pinShape" : "CIRCLE",
+      "pinConnectionID" : -1
+    }, {
+      "className" : "OutPin",
+      "elementID" : 32,
+      "name" : "OUT3",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "RIGHT",
+      "pinShape" : "CIRCLE",
+      "pinConnectionID" : 94
+    }, {
+      "className" : "OutPin",
+      "elementID" : 33,
+      "name" : "OUT4",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "RIGHT",
+      "pinShape" : "CIRCLE",
+      "pinConnectionID" : 93
+    }, {
+      "className" : "OutPin",
+      "elementID" : 34,
+      "name" : "OUT5",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "RIGHT",
+      "pinShape" : "CIRCLE",
+      "pinConnectionID" : 78
+    }, {
+      "className" : "OutPin",
+      "elementID" : 35,
+      "name" : "OUT6",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "RIGHT",
+      "pinShape" : "CIRCLE",
+      "pinConnectionID" : 79
+    }, {
+      "className" : "OutPin",
+      "elementID" : 36,
+      "name" : "OUT7",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "RIGHT",
+      "pinShape" : "CIRCLE",
+      "pinConnectionID" : 80
+    } ],
+    "enPin" : {
+      "className" : "InPin",
+      "elementID" : 37,
+      "name" : "ENABLE",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "LEFT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : -1,
+      "pinValueFixed" : "1"
+    }
+  }, {
+    "className" : "ModuleAND",
+    "elementID" : 38,
+    "name" : "AND",
+    "numberOfBits" : 1,
+    "moduleDelay" : 5,
+    "positionX" : 351,
+    "positionY" : 306,
+    "nInputPinsArray" : [ {
+      "className" : "InPin",
+      "elementID" : 39,
+      "name" : "IN0",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "LEFT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 42,
+      "pinValueFixed" : "-"
+    }, {
+      "className" : "InPin",
+      "elementID" : 40,
+      "name" : "IN1",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "LEFT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 43,
+      "pinValueFixed" : "-"
+    } ],
+    "outPin" : {
+      "className" : "OutPin",
+      "elementID" : 41,
+      "name" : "OUT",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "RIGHT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 44
+    }
+  }, {
+    "className" : "ModuleOutputPeripheral",
+    "elementID" : 49,
+    "name" : "POUT-1",
+    "numberOfBits" : 16,
+    "moduleDelay" : 5,
+    "positionX" : 620,
+    "positionY" : 355,
+    "nOutputPinsArray" : [ {
+      "className" : "TristateOutPin",
+      "elementID" : 50,
+      "name" : "OUT_PORT",
+      "numberOfBits" : 16,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "RIGHT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 75
+    } ],
+    "addressable data" : {
+      "className" : "ModuleExtensionOutputPorts",
+      "elementID" : 51,
+      "name" : "ModuleExtensionOutputPorts_ID:51",
+      "numberOfBits" : 16,
+      "nWordParts" : 2,
+      "endianness" : "Big-Endian",
+      "addressNBits" : 1
+    },
+    "bus interface" : {
+      "className" : "ModuleExtensionSlaveBusWriteOnly",
+      "elementID" : 52,
+      "name" : "ModuleExtensionSlaveBusWriteOnly_ID:52",
+      "numberOfBits" : 16,
+      "dataBusPin" : {
+        "className" : "InOutPin",
+        "elementID" : 53,
+        "name" : "DATA_IN",
+        "numberOfBits" : 16,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "RECT",
+        "pinConnectionID" : 81
+      },
+      "csPin" : {
+        "className" : "InPin",
+        "elementID" : 54,
+        "name" : "CS",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "CIRCLE",
+        "pinConnectionID" : 78,
+        "pinValueFixed" : "-"
+      },
+      "swaPin" : {
+        "className" : "InPin",
+        "elementID" : 106,
+        "name" : "SWA",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "RECT",
+        "pinConnectionID" : 46,
+        "pinValueFixed" : "-"
+      },
+      "addressBusPin" : {
+        "className" : "InPin",
+        "elementID" : 107,
+        "name" : "ADDRESS",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "RECT",
+        "pinConnectionID" : 48,
+        "pinValueFixed" : "-"
+      },
+      "wrPin" : {
+        "className" : "InPin",
+        "elementID" : 55,
+        "name" : "WR",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "CIRCLE",
+        "pinConnectionID" : 47,
+        "pinValueFixed" : "-"
+      }
+    }
+  }, {
+    "className" : "ModuleOutputPeripheral",
+    "elementID" : 56,
+    "name" : "POUT-2",
+    "numberOfBits" : 8,
+    "moduleDelay" : 5,
+    "positionX" : 620,
+    "positionY" : 466,
+    "nOutputPinsArray" : [ {
+      "className" : "TristateOutPin",
+      "elementID" : 57,
+      "name" : "OUT_PORT",
+      "numberOfBits" : 8,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "RIGHT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 76
+    } ],
+    "addressable data" : {
+      "className" : "ModuleExtensionOutputPorts",
+      "elementID" : 58,
+      "name" : "ModuleExtensionOutputPorts_ID:58",
+      "numberOfBits" : 8,
+      "nWordParts" : 1,
+      "addressNBits" : 0
+    },
+    "bus interface" : {
+      "className" : "ModuleExtensionSlaveBusWriteOnly",
+      "elementID" : 59,
+      "name" : "ModuleExtensionSlaveBusWriteOnly_ID:59",
+      "numberOfBits" : 8,
+      "dataBusPin" : {
+        "className" : "InOutPin",
+        "elementID" : 60,
+        "name" : "DATA_IN",
+        "numberOfBits" : 8,
+        "pinStartBit" : 8,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "RECT",
+        "pinConnectionID" : 81
+      },
+      "csPin" : {
+        "className" : "InPin",
+        "elementID" : 61,
+        "name" : "CS",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "CIRCLE",
+        "pinConnectionID" : 79,
+        "pinValueFixed" : "-"
+      },
+      "wrPin" : {
+        "className" : "InPin",
+        "elementID" : 62,
+        "name" : "WR",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "CIRCLE",
+        "pinConnectionID" : 47,
+        "pinValueFixed" : "-"
+      }
+    }
+  }, {
+    "className" : "ModuleInputPeripheral",
+    "elementID" : 63,
+    "name" : "PIN",
+    "numberOfBits" : 8,
+    "moduleDelay" : 5,
+    "positionX" : 620,
+    "positionY" : 545,
+    "nInputPinsArray" : [ {
+      "className" : "InPin",
+      "elementID" : 64,
+      "name" : "IN_PORT",
+      "numberOfBits" : 8,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "RIGHT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 77,
+      "pinValueFixed" : "-"
+    } ],
+    "addressable data" : {
+      "className" : "ModuleExtensionInputPorts",
+      "elementID" : 65,
+      "name" : "ModuleExtensionInputPorts_ID:65",
+      "numberOfBits" : 8,
+      "nWordParts" : 1,
+      "addressNBits" : 0
+    },
+    "bus interface" : {
+      "className" : "ModuleExtensionSlaveBusReadOnly",
+      "elementID" : 66,
+      "name" : "ModuleExtensionSlaveBusReadOnly_ID:66",
+      "numberOfBits" : 8,
+      "dataBusPin" : {
+        "className" : "InOutPin",
+        "elementID" : 67,
+        "name" : "DATA_OUT",
+        "numberOfBits" : 8,
+        "pinStartBit" : 8,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "RECT",
+        "pinConnectionID" : 81
+      },
+      "csPin" : {
+        "className" : "InPin",
+        "elementID" : 68,
+        "name" : "CS",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "CIRCLE",
+        "pinConnectionID" : 80,
+        "pinValueFixed" : "-"
+      },
+      "rdPin" : {
+        "className" : "InPin",
+        "elementID" : 69,
+        "name" : "RD",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "CIRCLE",
+        "pinConnectionID" : 45,
+        "pinValueFixed" : "-"
+      }
+    }
+  }, {
+    "className" : "ModuleKeypad",
+    "elementID" : 70,
+    "name" : "Teclado",
+    "numberOfBits" : 4,
+    "moduleDelay" : 5,
+    "positionX" : 749,
+    "positionY" : 466,
+    "simGuiVisibleInSimulation" : true,
+    "simGuiXRelative" : 987,
+    "simGuiYRelative" : 621,
+    "simGuiWidth" : 110,
+    "simGuiHeight" : 140,
+    "columns" : 4,
+    "key numbers radix" : "Hexadecimal",
+    "key color" : "Default",
+    "key numbers color" : "Black",
+    "key width" : 30,
+    "key height" : 30,
+    "key gap" : 2,
+    "inPin" : {
+      "className" : "InPin",
+      "elementID" : 71,
+      "name" : "IN",
+      "numberOfBits" : 4,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "LEFT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 76,
+      "pinValueFixed" : "-"
+    },
+    "outPin" : {
+      "className" : "OutPin",
+      "elementID" : 72,
+      "name" : "OUT",
+      "numberOfBits" : 4,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "RIGHT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 77
+    }
+  }, {
+    "className" : "ModuleHexaDisplays",
+    "elementID" : 73,
+    "name" : "Displays energia",
+    "numberOfBits" : 12,
+    "moduleDelay" : 5,
+    "positionX" : 786,
+    "positionY" : 355,
+    "simGuiVisibleInSimulation" : true,
+    "simGuiXRelative" : 744,
+    "simGuiYRelative" : 695,
+    "simGuiWidth" : 195,
+    "simGuiHeight" : 162,
+    "nHexaDigits" : 3,
+    "onColor" : "Red",
+    "zColor" : "Black_White",
+    "inPin" : {
+      "className" : "InPin",
+      "elementID" : 74,
+      "name" : "IN",
+      "numberOfBits" : 12,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "LEFT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 75,
+      "pinValueFixed" : "-"
+    }
+  }, {
+    "className" : "ModuleMediaCenter",
+    "elementID" : 82,
+    "name" : "Media Center",
+    "numberOfBits" : 16,
+    "moduleDelay" : 5,
+    "positionX" : 624,
+    "positionY" : 224,
+    "simGuiVisibleInSimulation" : true,
+    "simGuiXRelative" : 686,
+    "simGuiYRelative" : 190,
+    "simGuiWidth" : 784,
+    "simGuiHeight" : 392,
+    "columnAddressNBits" : 6,
+    "lineAddressNBits" : 5,
+    "windowScreenWidthPixels" : 1024,
+    "windowScreenHeightixels" : 512,
+    "defaultPenColor" : 65280,
+    "image paths" : [ "espaco_a_andar.gif", "espaço.jpg" ],
+    "sounds/videos settings" : [ {
+      "filePathName" : "disparo.wav",
+      "relative sound volume" : 1.0,
+      "relative start time" : 0.0,
+      "relative stop time" : 1.0,
+      "playAsClip" : false
+    } ],
+    "addressable data" : {
+      "className" : "ModuleExtensionMemoryMediaCenter",
+      "elementID" : 83,
+      "name" : "ModuleExtensionMemoryMediaCenter_ID:83",
+      "numberOfBits" : 16,
+      "nWordParts" : 2,
+      "endianness" : "Big-Endian",
+      "addressNBits" : 12,
+      "numberOfPixelScreens" : 16
+    },
+    "addressable control" : {
+      "className" : "ModuleExtensionMediaCenter",
+      "elementID" : 84,
+      "name" : "ModuleExtensionMediaCenter_ID:84",
+      "numberOfBits" : 16,
+      "nWordParts" : 2,
+      "endianness" : "Big-Endian",
+      "addressNBits" : 8
+    },
+    "bus interface" : {
+      "className" : "ModuleExtensionSlaveBusReadWriteDataControl",
+      "elementID" : 85,
+      "name" : "ModuleExtensionSlaveBusReadWriteDataControl_ID:85",
+      "numberOfBits" : 16,
+      "dataBusPin" : {
+        "className" : "InOutPin",
+        "elementID" : 86,
+        "name" : "DATA",
+        "numberOfBits" : 16,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "RIGHT",
+        "pinShape" : "RECT",
+        "pinConnectionID" : 81
+      },
+      "csPin" : {
+        "className" : "InPin",
+        "elementID" : 87,
+        "name" : "CS_DATA",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "CIRCLE",
+        "pinConnectionID" : 93,
+        "pinValueFixed" : "-"
+      },
+      "swaPin" : {
+        "className" : "InPin",
+        "elementID" : 88,
+        "name" : "SWA",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "RECT",
+        "pinConnectionID" : 46,
+        "pinValueFixed" : "-"
+      },
+      "addressBusPin" : {
+        "className" : "InPin",
+        "elementID" : 89,
+        "name" : "ADDRESS",
+        "numberOfBits" : 12,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "RECT",
+        "pinConnectionID" : 48,
+        "pinValueFixed" : "-"
+      },
+      "rdPin" : {
+        "className" : "InPin",
+        "elementID" : 90,
+        "name" : "RD",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "CIRCLE",
+        "pinConnectionID" : 45,
+        "pinValueFixed" : "-"
+      },
+      "wrPin" : {
+        "className" : "InPin",
+        "elementID" : 91,
+        "name" : "WR",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "CIRCLE",
+        "pinConnectionID" : 47,
+        "pinValueFixed" : "-"
+      },
+      "csControlPin" : {
+        "className" : "InPin",
+        "elementID" : 92,
+        "name" : "CS_CTRL",
+        "numberOfBits" : 1,
+        "pinStartBit" : 0,
+        "connStartBit" : 0,
+        "pinSide" : "LEFT",
+        "pinShape" : "CIRCLE",
+        "pinConnectionID" : 94,
+        "pinValueFixed" : "-"
+      }
+    },
+    "simGuiPixelMemoryVisibleInSimulation" : false
+  }, {
+    "className" : "ModuleRealTimeClock",
+    "elementID" : 95,
+    "name" : "Relógio asteroides",
+    "numberOfBits" : 1,
+    "moduleDelay" : 5,
+    "positionX" : 25,
+    "positionY" : 80,
+    "simGuiVisibleInSimulation" : false,
+    "clockPeriod" : 400,
+    "startAutomatically" : true,
+    "simulationMaster" : false,
+    "clockOutPin" : {
+      "className" : "OutPin",
+      "elementID" : 96,
+      "name" : "CLOCK_OUT",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "RIGHT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 97
+    }
+  }, {
+    "className" : "ModuleRealTimeClock",
+    "elementID" : 98,
+    "name" : "Relógio sondas",
+    "numberOfBits" : 1,
+    "moduleDelay" : 5,
+    "positionX" : 25,
+    "positionY" : 129,
+    "simGuiVisibleInSimulation" : false,
+    "clockPeriod" : 200,
+    "startAutomatically" : true,
+    "simulationMaster" : false,
+    "clockOutPin" : {
+      "className" : "OutPin",
+      "elementID" : 99,
+      "name" : "CLOCK_OUT",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "RIGHT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 100
+    }
+  }, {
+    "className" : "ModuleRealTimeClock",
+    "elementID" : 101,
+    "name" : "Relógio energia",
+    "numberOfBits" : 1,
+    "moduleDelay" : 5,
+    "positionX" : 25,
+    "positionY" : 178,
+    "simGuiVisibleInSimulation" : false,
+    "clockPeriod" : 3000,
+    "startAutomatically" : true,
+    "simulationMaster" : false,
+    "clockOutPin" : {
+      "className" : "OutPin",
+      "elementID" : 102,
+      "name" : "CLOCK_OUT",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "RIGHT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 103
+    }
+  }, {
+    "className" : "ModuleRealTimeClock",
+    "elementID" : 108,
+    "name" : "Relógio nave",
+    "numberOfBits" : 1,
+    "moduleDelay" : 5,
+    "positionX" : 25,
+    "positionY" : 227,
+    "simGuiVisibleInSimulation" : false,
+    "clockPeriod" : 300,
+    "startAutomatically" : true,
+    "simulationMaster" : false,
+    "clockOutPin" : {
+      "className" : "OutPin",
+      "elementID" : 109,
+      "name" : "CLOCK_OUT",
+      "numberOfBits" : 1,
+      "pinStartBit" : 0,
+      "connStartBit" : 0,
+      "pinSide" : "RIGHT",
+      "pinShape" : "RECT",
+      "pinConnectionID" : 111
+    }
+  } ]
+}
