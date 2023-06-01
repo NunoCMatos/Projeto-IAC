@@ -94,15 +94,21 @@ PLACE 1000H
 ; * Pilhas
 
     STACK 100H  ; espaço reservado para a pilha do processo "programa principal"
-SP_Inicial:     ; endereço da pilha
+SP_inicial:     ; endereço da pilha
 
     STACK 100H      ; espaço reservado para a pilha do processo "teclado"
 SP_inicial_teclado: ; endereço da pilha
 
+    STACK 100H
+SP_inicial_meteoro:
+
+    STACK 100H
+SP_inicial_sonda:
+
 
 tab:
-    WORD 0
-    WORD 0
+    WORD int_meteoro
+    WORD int_sonda
     WORD 0
     WORD 0
 
@@ -160,9 +166,11 @@ DEF_POS_SONDA:
     WORD SPAWN_SND_LIN, SPAWN2_SND_COL  ; localização da sonda(linha e coluna)
 
 DEF_ENERGIA:
-    WORD 0H                              ; energia da nave
+    WORD 100H                              ; energia da nave
 
 tecla_carregada: LOCK 0
+anima_meteoro: LOCK 0
+anima_sonda: LOCK 0
 ; **********************************************************************
 ; * Código
 ; **********************************************************************
@@ -173,7 +181,12 @@ PLACE 0
 
 inicializacoes:
     ; * Stack Pointer
-    MOV SP, SP_Inicial  ; Inicialização do Stack Pointer
+    MOV SP, SP_inicial  ; Inicialização do Stack Pointer
+    MOV BTE, tab
+
+    EI0
+    EI1
+    EI
 
     ; * Ecrâ
     MOV [APAGA_AVISO], R0	            ; apaga o aviso do ecrã
@@ -185,30 +198,16 @@ inicializacoes:
     MOV R5, ISOLA_03BITS                  ; para isolar os 4 bits de menor peso
 
 cria_bonecos:
-    CALL cria_meteoro_mineravel         ; cria um meteoro minerável no 1.º spawnpoint
+    CALL inicio_meteoro
+    CALL inicio_sonda
     CALL cria_meteoro_nao_mineravel     ; cria um meteoro não minerável no 3.º spawnpoint
     CALL cria_painel                    ; cria o painel na sua posição
-    CALL cria_sonda                     ; cria uma sonda no 2.º spawnpoint
     CALL reseta_energia                 ; reinicia a energia guardada em memória
     CALL escreve_energia                ; escreve a energia no display
 
     CALL inicio_teclado
 tecla:
     MOV R0, [tecla_carregada]
-
-testa_meteoro:
-    MOV R1, MOVE_METEORO
-	CMP	R0, R1                          ; verifica se a tecla carregada foi a que move o meteoro
-	JNZ	testa_meteoro_nao_mineravel     ; se não for, testa outra tecla
-
-    MOV	R9, 0			            ; som com número 0
-	MOV [TOCA_SOM], R9		        ; toca som
-	MOV	R7, +1			            ; vai deslocar para baixo
-    MOV R8, +1                      ; vai deslocar para a direita
-    MOV R3, DEF_POS_METEORO_MIN     ; ativa a tabela com a posição do meteoro
-    CALL ativa_meteoro_mineravel    ; ativa as informações sobre o meteoro
-	JMP	move_boneco                 ; move o meteoro
-
 
 testa_meteoro_nao_mineravel:
     MOV R1, MOVE_METEORO_NAO_MINERAVEL
@@ -227,7 +226,7 @@ testa_meteoro_nao_mineravel:
 testa_explode:
     MOV R1, EXPLODE
 	CMP	R0, R1
-	JNZ	testa_sonda
+	JNZ	testa_incremento
 
     MOV	R9, 0			    ; som com número 0
 	MOV [TOCA_SOM], R9		; comando para tocar o som
@@ -235,19 +234,7 @@ testa_explode:
     MOV R8, 0               ; mantem-se nas colunas
     MOV R3, DEF_POS_METEORO_NMIN
     CALL ativa_explosao
-	JMP	move_boneco
-
-
-testa_sonda:
-    MOV R1, MOVE_SONDA
-	CMP	R0, R1              ; verifica se a tecla carregada foi a que move a sonda
-	JNZ	testa_incremento    ; se não for, testa outra tecla
-
-	MOV	R7, -1              ; vai deslocar para cima
-    MOV R8, 0               ; matem-se nas colunas
-    MOV R3, DEF_POS_SONDA   ; ativa a tabela com a posição da sonda
-    CALL ativa_sonda        ; ativa as informações sobre a sonda
-
+	
     move_boneco:
     	CALL apaga_boneco		        ; apaga o boneco na sua posição atual
 
@@ -334,6 +321,80 @@ teclado_saida:
 	POP	R2
 	RET
 
+
+PROCESS SP_inicial_meteoro
+    inicio_meteoro:
+        CALL cria_meteoro_mineravel     ; cria um meteoro minerável no 1.º spawnpoint
+        CALL ativa_meteoro_mineravel
+        MOV R3, DEF_POS_METEORO_MIN     ; ativa a tabela com a posição do meteoro
+        MOV	R7, +1			            ; vai deslocar para baixo
+        MOV R8, +1                      ; vai deslocar para a direita
+        MOV	R9, 0			            ; som com número 0
+
+
+    testa_meteoro:
+        MOV R0, [anima_meteoro]
+
+        MOV [TOCA_SOM], R9		        ; toca som
+
+    	CALL apaga_boneco		        ; apaga o boneco na sua posição atual
+
+    	CALL define_novas_coordenadas	; escreve as novas coordenadas na memória
+        MOV R0, MAX_LINHA
+        CMP R1, R0
+        JGT inicio_meteoro
+        
+    	CALL desenha_boneco             ; desenha o boneco nas novas coordenadas
+
+    MOV R0, 0
+    MOV [anima_meteoro], R0
+    JMP testa_meteoro                ; volta a esperar que não haja tecla carregada
+
+
+int_meteoro:
+    PUSH R0
+    MOV R0, 1
+    MOV [anima_meteoro], R0
+    POP R0
+    RFE
+
+
+PROCESS SP_inicial_sonda
+    inicio_sonda:
+        CALL ativa_sonda        ; ativa as informações sobre a sonda
+        MOV R3, DEF_POS_SONDA   ; ativa a tabela com a posição da sonda
+        MOV R5, 12
+        MOV	R7, -1              ; vai deslocar para cima
+        MOV R8, 0               ; matem-se nas colunas
+        
+    testa_sonda:
+        MOV R0, [tecla_carregada]
+        MOV R6, MOVE_SONDA
+        CMP	R0, R6              ; verifica se a tecla carregada foi a que move a sonda
+        JNZ	testa_sonda        ; se não for, não interessa
+
+        CALL cria_sonda
+        MOV R0, [anima_sonda]
+        MOV R0, 0
+        MOV [anima_sonda], R0
+        ciclo_sonda:
+            CALL apaga_boneco		        ; apaga o boneco na sua posição atual
+            
+            CALL define_novas_coordenadas	; escreve as novas coordenadas na memória
+            SUB R5, 1
+            CMP R5, 0
+            JZ testa_sonda
+            
+            CALL desenha_boneco             ; desenha o boneco nas novas coordenadas
+            JMP ciclo_sonda                ; volta a esperar que não haja tecla carregada
+
+
+int_sonda:
+    PUSH R0
+    MOV R0, 1
+    MOV [anima_sonda], R0
+    POP R0
+    RFE
 
 ; **********************************************************************
 ; ATIVA_METEORO_NAO_MINERAVEL - Retorna as informações para desenhar 
@@ -428,7 +489,7 @@ escreve_energia:
 ; **********************************************************************
 reseta_energia:
     PUSH R0
-    MOV  R0, 0H              
+    MOV  R0, 100H              
     MOV  [DEF_ENERGIA], R0  ; reinicia a energia em memória  
     POP  R0
     RET
