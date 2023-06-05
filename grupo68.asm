@@ -84,7 +84,7 @@ ROSA        EQU 0FF0FH
 CINZENTO    EQU 0F777H
 APAGADO     EQU 0000H
 
-
+ENERGIA_INICIAL EQU 100H
 ; **********************************************************************
 ; * Dados
 ; **********************************************************************
@@ -105,11 +105,14 @@ SP_inicial_meteoro:
     STACK 100H
 SP_inicial_sonda:
 
+    STACK 100H
+SP_inicial_energia:
+
 
 tab:
     WORD int_meteoro
     WORD int_sonda
-    WORD 0
+    WORD int_energia
     WORD 0
 
 
@@ -165,12 +168,11 @@ DEF_POS_METEORO_NMIN:
 DEF_POS_SONDA:
     WORD SPAWN_SND_LIN, SPAWN2_SND_COL  ; localização da sonda(linha e coluna)
 
-DEF_ENERGIA:
-    WORD 100H                              ; energia da nave
-
+energia: WORD ENERGIA_INICIAL                ; energia da nave
 tecla_carregada: LOCK 0
 anima_meteoro: LOCK 0
 anima_sonda: LOCK 0
+decresce_energia: LOCK 0
 ; **********************************************************************
 ; * Código
 ; **********************************************************************
@@ -186,6 +188,7 @@ inicializacoes:
 
     EI0
     EI1
+    EI2
     EI
 
     ; * Ecrâ
@@ -200,10 +203,9 @@ inicializacoes:
 cria_bonecos:
     CALL inicio_meteoro
     CALL inicio_sonda
+    CALL inicio_energia
     CALL cria_meteoro_nao_mineravel     ; cria um meteoro não minerável no 3.º spawnpoint
     CALL cria_painel                    ; cria o painel na sua posição
-    CALL reseta_energia                 ; reinicia a energia guardada em memória
-    CALL escreve_energia                ; escreve a energia no display
 
     CALL inicio_teclado
 tecla:
@@ -363,11 +365,11 @@ PROCESS SP_inicial_sonda
     inicio_sonda:
         CALL ativa_sonda        ; ativa as informações sobre a sonda
         MOV R3, DEF_POS_SONDA   ; ativa a tabela com a posição da sonda
-        MOV R5, 12
         MOV	R7, -1              ; vai deslocar para cima
         MOV R8, 0               ; matem-se nas colunas
         
     testa_sonda:
+        MOV R5, 12
         MOV R0, [tecla_carregada]
         MOV R6, MOVE_SONDA
         CMP	R0, R6              ; verifica se a tecla carregada foi a que move a sonda
@@ -386,7 +388,8 @@ PROCESS SP_inicial_sonda
             JZ testa_sonda
             
             CALL desenha_boneco             ; desenha o boneco nas novas coordenadas
-            JMP ciclo_sonda                ; volta a esperar que não haja tecla carregada
+            YIELD
+            JMP ciclo_sonda                ; volta a esperar que não haja tecla carregad
 
 
 int_sonda:
@@ -468,110 +471,6 @@ define_novas_coordenadas:
     ADD R2, R8      ; avança a coordenada nas colunas
     MOV [R3], R1    ; guarda a coordenada da linha na memória
     MOV [R3+2], R2  ; guarda as coordenada da coluna na memória
-    RET
-
-
-; **********************************************************************
-; ESCREVE_ENERGIA - Lê a energia em memória e escreve no display.
-;
-; **********************************************************************
-escreve_energia:
-    PUSH R3
-    MOV R3, [DEF_ENERGIA]   ; lê a energia guardada em memória
-    MOV [DISPLAYS], R3      ; escreve a energia no display
-    POP R3
-    RET
-
-
-; **********************************************************************
-; RESETA_ENERGIA - Reinicia a energia em memória.
-;
-; **********************************************************************
-reseta_energia:
-    PUSH R0
-    MOV  R0, 100H              
-    MOV  [DEF_ENERGIA], R0  ; reinicia a energia em memória  
-    POP  R0
-    RET
-
-; **********************************************************************
-; INCREMENTA_ENERGIA - Incrementa uma unidade na memória da energia.
-;
-; **********************************************************************
-incrementa_energia:
-    PUSH R0
-    PUSH R1
-    PUSH R2
-    PUSH R3
-    PUSH R4
-    MOV R0, 000AH
-    MOV R1, 1H
-    MOV R2, ISOLA_03BITS
-    MOV R3, [DEF_ENERGIA]
-    MOV R4, 3
-    JMP incrementa_corpo_ciclo
-ciclo_incrementa:
-    SUB R3, R0
-    SHL R1, 4
-    SHL R2, 4
-    SHL R0, 4
-incrementa_corpo_ciclo:
-    ADD R3, R1
-    AND R2, R3
-    CMP R2, R0
-    JLT incrementa_saida
-    SUB R4, 1
-    JNZ ciclo_incrementa
-    MOV R3, 0
-incrementa_saida:
-    MOV [DEF_ENERGIA], R3
-    POP R4
-    POP R3
-    POP R2
-    POP R1
-    POP R0
-    RET
-
-
-; **********************************************************************
-; DECREMENTA_ENERGIA - Decrementa uma unidade na memória da energia.
-;
-; **********************************************************************
-decrementa_energia:
-    PUSH R0
-    PUSH R1
-    PUSH R2
-    PUSH R3
-    PUSH R4
-    PUSH R5
-    MOV R0, 0009H
-    MOV R1, 1H
-    MOV R2, ISOLA_03BITS
-    MOV R3, [DEF_ENERGIA]
-    MOV R4, 3
-    MOV R5, 0006H
-    SUB R3, R1
-    JMP decrementa_corpo_ciclo
-ciclo_decrementa:
-    SUB R3, R5
-    SHL R5, 4
-    SHL R0, 4
-    SHL R2, 4
-decrementa_corpo_ciclo:
-    AND R2, R3
-    CMP R2, R0
-    JLT decrementa_saida
-    SUB R4, 1
-    JNZ ciclo_decrementa
-    MOV R3, 999H
-decrementa_saida:
-    MOV [DEF_ENERGIA], R3
-    POP R5
-    POP R4
-    POP R3
-    POP R2
-    POP R1
-    POP R0
     RET
 
 
@@ -862,4 +761,139 @@ loop:                   ; conta quantos bits o bit 1 se tem que mover para ficar
     SUB R2, 1           ; retira 1 para passar a um numero entre 0 e 3
     ADD R3, R2          ; soma 
     POP R2
+    RET
+    
+
+PROCESS SP_inicial_energia
+    inicio_energia:
+        MOV R1, ENERGIA_INICIAL
+        MOV [energia], R1
+        MOV R3, R1
+        MOV R0, 3H
+        MUL R1, R0
+        MOV R0, 100H
+        DIV R1, R0
+        controlo_energia:
+            CALL escreve_energia
+            MOV R0, [decresce_energia]
+            MOV R0, R1
+            ciclo_energia:
+                CALL decrementa_energia
+                SUB R0, 1
+                JNZ ciclo_energia
+        JMP controlo_energia
+
+; **********************************************************************
+; INT_ENERGIA - Decrementa a energia em memória e escreve no display.
+;   
+; **********************************************************************
+int_energia:
+    PUSH R0
+    MOV R0, 1
+    MOV [decresce_energia], R0
+    POP R0
+    RFE
+
+
+; **********************************************************************
+; ESCREVE_ENERGIA - Lê a energia em memória e escreve no display.
+;
+; **********************************************************************
+escreve_energia:
+    PUSH R3
+    MOV R3, [energia]   ; lê a energia guardada em memória
+    MOV [DISPLAYS], R3      ; escreve a energia no display
+    POP R3
+    RET
+
+
+; **********************************************************************
+; RESETA_ENERGIA - Reinicia a energia em memória.
+;
+; **********************************************************************
+reseta_energia:
+    PUSH R0
+    MOV  R0, ENERGIA_INICIAL              
+    MOV  [energia], R0  ; reinicia a energia em memória  
+    POP  R0
+    RET
+
+; **********************************************************************
+; INCREMENTA_ENERGIA - Incrementa uma unidade na energia recebida.
+; 
+; Argumentos: R3 - Energia atual
+;
+; Retorno: R3 - Energia Atualizada
+; **********************************************************************
+incrementa_energia:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    PUSH R4
+    MOV R0, 000AH
+    MOV R1, 1H
+    MOV R2, ISOLA_03BITS
+    MOV R4, 3
+    JMP incrementa_corpo_ciclo
+ciclo_incrementa:
+    SUB R3, R0
+    SHL R1, 4
+    SHL R2, 4
+    SHL R0, 4
+incrementa_corpo_ciclo:
+    ADD R3, R1
+    AND R2, R3
+    CMP R2, R0
+    JLT incrementa_saida
+    SUB R4, 1
+    JNZ ciclo_incrementa
+    MOV R3, 0
+incrementa_saida:
+    MOV [energia], R3
+    POP R4
+    POP R2
+    POP R1
+    POP R0
+    RET
+
+
+; **********************************************************************
+; DECREMENTA_ENERGIA - Decrementa uma unidade na energia recebida.
+;
+; Argumentos: R3 - Energia atual
+;
+; Retorno: R3 - Energia Atualizada
+; **********************************************************************
+decrementa_energia:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    PUSH R4
+    PUSH R5
+    MOV R0, 0009H
+    MOV R1, 1H
+    MOV R2, ISOLA_03BITS
+    MOV R4, 3
+    MOV R5, 0006H
+    SUB R3, R1
+    JMP decrementa_corpo_ciclo
+ciclo_decrementa:
+    SUB R3, R5
+    SHL R5, 4
+    SHL R0, 4
+    SHL R2, 4
+decrementa_corpo_ciclo:
+    AND R2, R3
+    CMP R2, R0
+    JLT decrementa_saida
+    SUB R4, 1
+    JNZ ciclo_decrementa
+    MOV R3, 999H
+decrementa_saida:
+    MOV [energia], R3
+    POP R5
+    POP R4
+    POP R2
+    POP R1
+    POP R0
     RET
