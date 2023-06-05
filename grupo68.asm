@@ -99,6 +99,12 @@ SP_inicial:     ; endereço da pilha
     STACK 100H      ; espaço reservado para a pilha do processo "teclado"
 SP_inicial_teclado: ; endereço da pilha
 
+    STACK 100H      ; espaço reservado para a pilha do processo "loop_pseudoaleatorio_n4"
+SP_inicial_pseudoaleatorio_n4: ; endereço da pilha
+
+    STACK 100H      ; espaço reservado para a pilha do processo "loop_pseudoaleatorio_n5"
+SP_inicial_pseudoaleatorio_n5: ; endereço da pilha
+
     STACK 100H
 SP_inicial_meteoro:
 
@@ -168,6 +174,12 @@ DEF_POS_METEORO_NMIN:
 DEF_POS_SONDA:
     WORD SPAWN_SND_LIN, SPAWN2_SND_COL  ; localização da sonda(linha e coluna)
 
+DEF_PSEUDOALEATORIO_N4:                    ; numero pseudoaleatorio que vai variar entre 0 e 4
+    WORD 0H
+
+DEF_PSEUDOALEATORIO_N5:                    ; numero pseudoaleatorio que vai variar entre 0 e 5
+    WORD 0H
+
 energia: WORD ENERGIA_INICIAL                ; energia da nave
 tecla_carregada: LOCK 0
 anima_meteoro: LOCK 0
@@ -204,6 +216,8 @@ cria_bonecos:
     CALL inicio_meteoro
     CALL inicio_sonda
     CALL inicio_energia
+    CALL loop_pseudoaleatorio_n4
+    CALL loop_pseudoaleatorio_n5
     CALL cria_meteoro_nao_mineravel     ; cria um meteoro não minerável no 3.º spawnpoint
     CALL cria_painel                    ; cria o painel na sua posição
 
@@ -271,6 +285,37 @@ testa_decremento:
 ; **********************************************************************
 ; * ROTINAS
 ; **********************************************************************
+
+PROCESS SP_inicial_pseudoaleatorio_n4
+    loop_pseudoaleatorio_n4:
+        MOV R1, [DEF_PSEUDOALEATORIO_N4]
+        MOV R2, 3
+        CMP R1, R2
+        JNZ reseta_numero
+        ADD R1, 1
+        MOV [DEF_PSEUDOALEATORIO_N4], R1
+        YIELD
+    reseta_numero_n4:
+        MOV [DEF_PSEUDOALEATORIO_N4], 0
+        YIELD
+
+
+PROCESS SP_inicial_pseudoaleatorio_n5
+    loop_pseudoaleatorio_n5:
+        MOV R1, [DEF_PSEUDOALEATORIO_N5]
+        MOV R2, 3
+        CMP R1, R2
+        JNZ reseta_numero
+        ADD R1, 1
+        MOV [DEF_PSEUDOALEATORIO_N5], R1
+        YIELD
+    reseta_numero_n5:
+        MOV [DEF_PSEUDOALEATORIO_N5], 0
+        YIELD
+
+
+
+
 
 PROCESS SP_inicial_teclado
     inicio_teclado:
