@@ -84,7 +84,7 @@ ROSA        EQU 0FF0FH
 CINZENTO    EQU 0F777H
 APAGADO     EQU 0000H
 
-
+ENERGIA_INICIAL EQU 100H
 ; **********************************************************************
 ; * Dados
 ; **********************************************************************
@@ -94,7 +94,26 @@ PLACE 1000H
 ; * Pilhas
 
     STACK 100H  ; espaço reservado para a pilha do processo "programa principal"
-SP_Inicial:     ; endereço da pilha
+SP_inicial:     ; endereço da pilha
+
+    STACK 100H      ; espaço reservado para a pilha do processo "teclado"
+SP_inicial_teclado: ; endereço da pilha
+
+    STACK 100H
+SP_inicial_meteoro:
+
+    STACK 100H
+SP_inicial_sonda:
+
+    STACK 100H
+SP_inicial_energia:
+
+
+tab:
+    WORD int_meteoro
+    WORD int_sonda
+    WORD int_energia
+    WORD 0
 
 
 ; * Definições
@@ -149,8 +168,11 @@ DEF_POS_METEORO_NMIN:
 DEF_POS_SONDA:
     WORD SPAWN_SND_LIN, SPAWN2_SND_COL  ; localização da sonda(linha e coluna)
 
-DEF_ENERGIA:
-    WORD 0H                              ; energia da nave
+energia: WORD ENERGIA_INICIAL                ; energia da nave
+tecla_carregada: LOCK 0
+anima_meteoro: LOCK 0
+anima_sonda: LOCK 0
+decresce_energia: LOCK 0
 ; **********************************************************************
 ; * Código
 ; **********************************************************************
@@ -161,9 +183,13 @@ PLACE 0
 
 inicializacoes:
     ; * Stack Pointer
-    MOV SP, SP_Inicial  ; Inicialização do Stack Pointer
-    MOV R9, TEC_LIN
-    MOV R10, TEC_COL
+    MOV SP, SP_inicial  ; Inicialização do Stack Pointer
+    MOV BTE, tab
+
+    EI0
+    EI1
+    EI2
+    EI
 
     ; * Ecrâ
     MOV [APAGA_AVISO], R0	            ; apaga o aviso do ecrã
@@ -175,43 +201,15 @@ inicializacoes:
     MOV R5, ISOLA_03BITS                  ; para isolar os 4 bits de menor peso
 
 cria_bonecos:
-    CALL cria_meteoro_mineravel         ; cria um meteoro minerável no 1.º spawnpoint
+    CALL inicio_meteoro
+    CALL inicio_sonda
+    CALL inicio_energia
     CALL cria_meteoro_nao_mineravel     ; cria um meteoro não minerável no 3.º spawnpoint
     CALL cria_painel                    ; cria o painel na sua posição
-    CALL cria_sonda                     ; cria uma sonda no 2.º spawnpoint
-    CALL reseta_energia                 ; reinicia a energia guardada em memória
-    CALL escreve_energia                ; escreve a energia no display
-    JMP ciclo_teclado_tecla
 
-espera_nao_tecla:			; neste ciclo espera-se até NÃO haver nenhuma tecla premida
-	CALL teclado			; leitura às teclas
-	CMP	 R0, 0
-	JNZ	 espera_nao_tecla	; espera, enquanto houver tecla uma tecla carregada
-
-ciclo_teclado_tecla:
-    MOV R6, C_LINHA         ; reinicia o ciclo, começando em 10H para passar a 8
-espera_tecla:				; neste ciclo espera-se até uma tecla ser premida
-	SHR R6, 1	            ; passa de linha
-    JZ ciclo_teclado_tecla  ; Se o SHR der 0 volta ao início
-	CALL teclado			; leitura às teclas
-	CMP	 R0, 0
-	JZ	 espera_tecla		; espera, enquanto não houver tecla carregada
-	
-    CALL converte
-
-testa_meteoro:
-    MOV R1, MOVE_METEORO
-	CMP	R0, R1                          ; verifica se a tecla carregada foi a que move o meteoro
-	JNZ	testa_meteoro_nao_mineravel     ; se não for, testa outra tecla
-
-    MOV	R9, 0			            ; som com número 0
-	MOV [TOCA_SOM], R9		        ; toca som
-	MOV	R7, +1			            ; vai deslocar para baixo
-    MOV R8, +1                      ; vai deslocar para a direita
-    MOV R3, DEF_POS_METEORO_MIN     ; ativa a tabela com a posição do meteoro
-    CALL ativa_meteoro_mineravel    ; ativa as informações sobre o meteoro
-	JMP	move_boneco                 ; move o meteoro
-
+    CALL inicio_teclado
+tecla:
+    MOV R0, [tecla_carregada]
 
 testa_meteoro_nao_mineravel:
     MOV R1, MOVE_METEORO_NAO_MINERAVEL
@@ -230,7 +228,7 @@ testa_meteoro_nao_mineravel:
 testa_explode:
     MOV R1, EXPLODE
 	CMP	R0, R1
-	JNZ	testa_sonda
+	JNZ	testa_incremento
 
     MOV	R9, 0			    ; som com número 0
 	MOV [TOCA_SOM], R9		; comando para tocar o som
@@ -238,19 +236,7 @@ testa_explode:
     MOV R8, 0               ; mantem-se nas colunas
     MOV R3, DEF_POS_METEORO_NMIN
     CALL ativa_explosao
-	JMP	move_boneco
-
-
-testa_sonda:
-    MOV R1, MOVE_SONDA
-	CMP	R0, R1              ; verifica se a tecla carregada foi a que move a sonda
-	JNZ	testa_incremento    ; se não for, testa outra tecla
-
-	MOV	R7, -1              ; vai deslocar para cima
-    MOV R8, 0               ; matem-se nas colunas
-    MOV R3, DEF_POS_SONDA   ; ativa a tabela com a posição da sonda
-    CALL ativa_sonda        ; ativa as informações sobre a sonda
-
+	
     move_boneco:
     	CALL apaga_boneco		        ; apaga o boneco na sua posição atual
 
@@ -260,7 +246,7 @@ testa_sonda:
         
     	CALL desenha_boneco             ; desenha o boneco nas novas coordenadas
 
-    JMP espera_nao_tecla                ; volta a esperar que não haja tecla carregada
+    JMP tecla                ; volta a esperar que não haja tecla carregada
 
 testa_incremento:
     MOV R1, INCREMENTA
@@ -270,21 +256,148 @@ testa_incremento:
     CALL incrementa_energia ; incrementa uma unidade na energia
     CALL escreve_energia    ; escreve a energia no display
 
-    JMP espera_nao_tecla    ; volta a espera que não haja tecla carregada
+    JMP tecla    ; volta a espera que não haja tecla carregada
 
 testa_decremento:
     MOV R1, DECREMENTA
     CMP R0, R1              ; verifica se a tecla carregada foi a que incrementa o display
-    JNZ espera_nao_tecla    ; se não for, nenhuma tecla interessa
+    JNZ tecla    ; se não for, nenhuma tecla interessa
 
     CALL decrementa_energia ; decrementa uma unidade na energia
     CALL escreve_energia    ; escreve a energia no display
 
-    JMP espera_nao_tecla    ; volta a espera que não haja tecla carregada
+    JMP tecla    ; volta a espera que não haja tecla carregada
 
 ; **********************************************************************
 ; * ROTINAS
 ; **********************************************************************
+
+PROCESS SP_inicial_teclado
+    inicio_teclado:
+        MOV R9, TEC_LIN
+        MOV R10, TEC_COL
+        MOV R5, ISOLA_03BITS    ; para isolar os 4 bits de menor peso
+
+    espera_tecla:
+        YIELD
+        MOV  R6, C_LINHA        ; reinicia o ciclo, começando em 10H para passar a 8
+    linha:				        ; neste ciclo espera-se até uma tecla ser premida
+        SHR  R6, 1	            ; passa de linha
+        JZ   espera_tecla       ; Se o SHR der 0 volta ao início
+        CALL teclado			; leitura às teclas
+        CMP	 R0, 0
+        JZ	 linha		        ; espera, enquanto não houver tecla carregada
+        
+        CALL converte
+        MOV [tecla_carregada], R0
+
+    ha_tecla:
+        YIELD
+        CALL teclado
+        CMP  R0, 0
+        JNZ  ha_tecla
+    
+    JMP espera_tecla
+
+
+; **********************************************************************
+; TECLADO - Faz uma leitura às teclas de uma linha do teclado e retorna o valor lido
+; Argumentos:	R6 - linha a testar (em formato 1, 2, 4 ou 8)
+;
+; Retorna: 	R0 - valor lido das colunas do teclado (0, 1, 2, 4, ou 8)	
+; **********************************************************************
+teclado:
+	PUSH	R2
+	PUSH	R3
+	PUSH	R5
+	MOV  R2, TEC_LIN        ; endereço do periférico das linhas
+	MOV  R3, TEC_COL        ; endereço do periférico das colunas
+	MOV  R5, ISOLA_03BITS   ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
+	MOVB [R2], R6           ; escrever no periférico de saída (linhas)
+	MOVB R0, [R3]           ; ler do periférico de entrada (colunas)
+	AND  R0, R5             ; elimina bits para além dos bits 0-3
+    JNZ teclado_saida
+teclado_saida:
+    POP	R5
+	POP	R3
+	POP	R2
+	RET
+
+
+PROCESS SP_inicial_meteoro
+    inicio_meteoro:
+        CALL cria_meteoro_mineravel     ; cria um meteoro minerável no 1.º spawnpoint
+        CALL ativa_meteoro_mineravel
+        MOV R3, DEF_POS_METEORO_MIN     ; ativa a tabela com a posição do meteoro
+        MOV	R7, +1			            ; vai deslocar para baixo
+        MOV R8, +1                      ; vai deslocar para a direita
+        MOV	R9, 0			            ; som com número 0
+
+
+    testa_meteoro:
+        MOV R0, [anima_meteoro]
+
+        MOV [TOCA_SOM], R9		        ; toca som
+
+    	CALL apaga_boneco		        ; apaga o boneco na sua posição atual
+
+    	CALL define_novas_coordenadas	; escreve as novas coordenadas na memória
+        MOV R0, MAX_LINHA
+        CMP R1, R0
+        JGT inicio_meteoro
+        
+    	CALL desenha_boneco             ; desenha o boneco nas novas coordenadas
+
+    MOV R0, 0
+    MOV [anima_meteoro], R0
+    JMP testa_meteoro                ; volta a esperar que não haja tecla carregada
+
+
+int_meteoro:
+    PUSH R0
+    MOV R0, 1
+    MOV [anima_meteoro], R0
+    POP R0
+    RFE
+
+
+PROCESS SP_inicial_sonda
+    inicio_sonda:
+        CALL ativa_sonda        ; ativa as informações sobre a sonda
+        MOV R3, DEF_POS_SONDA   ; ativa a tabela com a posição da sonda
+        MOV	R7, -1              ; vai deslocar para cima
+        MOV R8, 0               ; matem-se nas colunas
+        
+    testa_sonda:
+        MOV R5, 12
+        MOV R0, [tecla_carregada]
+        MOV R6, MOVE_SONDA
+        CMP	R0, R6              ; verifica se a tecla carregada foi a que move a sonda
+        JNZ	testa_sonda        ; se não for, não interessa
+
+        CALL cria_sonda
+        MOV R0, [anima_sonda]
+        MOV R0, 0
+        MOV [anima_sonda], R0
+        ciclo_sonda:
+            CALL apaga_boneco		        ; apaga o boneco na sua posição atual
+            
+            CALL define_novas_coordenadas	; escreve as novas coordenadas na memória
+            SUB R5, 1
+            CMP R5, 0
+            JZ testa_sonda
+            
+            CALL desenha_boneco             ; desenha o boneco nas novas coordenadas
+            YIELD
+            JMP ciclo_sonda                ; volta a esperar que não haja tecla carregad
+
+
+int_sonda:
+    PUSH R0
+    MOV R0, 1
+    MOV [anima_sonda], R0
+    POP R0
+    RFE
 
 ; **********************************************************************
 ; ATIVA_METEORO_NAO_MINERAVEL - Retorna as informações para desenhar 
@@ -358,110 +471,6 @@ define_novas_coordenadas:
     ADD R2, R8      ; avança a coordenada nas colunas
     MOV [R3], R1    ; guarda a coordenada da linha na memória
     MOV [R3+2], R2  ; guarda as coordenada da coluna na memória
-    RET
-
-
-; **********************************************************************
-; ESCREVE_ENERGIA - Lê a energia em memória e escreve no display.
-;
-; **********************************************************************
-escreve_energia:
-    PUSH R3
-    MOV R3, [DEF_ENERGIA]   ; lê a energia guardada em memória
-    MOV [DISPLAYS], R3      ; escreve a energia no display
-    POP R3
-    RET
-
-
-; **********************************************************************
-; RESETA_ENERGIA - Reinicia a energia em memória.
-;
-; **********************************************************************
-reseta_energia:
-    PUSH R0
-    MOV  R0, 0H              
-    MOV  [DEF_ENERGIA], R0  ; reinicia a energia em memória  
-    POP  R0
-    RET
-
-; **********************************************************************
-; INCREMENTA_ENERGIA - Incrementa uma unidade na memória da energia.
-;
-; **********************************************************************
-incrementa_energia:
-    PUSH R0
-    PUSH R1
-    PUSH R2
-    PUSH R3
-    PUSH R4
-    MOV R0, 000AH
-    MOV R1, 1H
-    MOV R2, ISOLA_03BITS
-    MOV R3, [DEF_ENERGIA]
-    MOV R4, 3
-    JMP incrementa_corpo_ciclo
-ciclo_incrementa:
-    SUB R3, R0
-    SHL R1, 4
-    SHL R2, 4
-    SHL R0, 4
-incrementa_corpo_ciclo:
-    ADD R3, R1
-    AND R2, R3
-    CMP R2, R0
-    JLT incrementa_saida
-    SUB R4, 1
-    JNZ ciclo_incrementa
-    MOV R3, 0
-incrementa_saida:
-    MOV [DEF_ENERGIA], R3
-    POP R4
-    POP R3
-    POP R2
-    POP R1
-    POP R0
-    RET
-
-
-; **********************************************************************
-; DECREMENTA_ENERGIA - Decrementa uma unidade na memória da energia.
-;
-; **********************************************************************
-decrementa_energia:
-    PUSH R0
-    PUSH R1
-    PUSH R2
-    PUSH R3
-    PUSH R4
-    PUSH R5
-    MOV R0, 0009H
-    MOV R1, 1H
-    MOV R2, ISOLA_03BITS
-    MOV R3, [DEF_ENERGIA]
-    MOV R4, 3
-    MOV R5, 0006H
-    SUB R3, R1
-    JMP decrementa_corpo_ciclo
-ciclo_decrementa:
-    SUB R3, R5
-    SHL R5, 4
-    SHL R0, 4
-    SHL R2, 4
-decrementa_corpo_ciclo:
-    AND R2, R3
-    CMP R2, R0
-    JLT decrementa_saida
-    SUB R4, 1
-    JNZ ciclo_decrementa
-    MOV R3, 999H
-decrementa_saida:
-    MOV [DEF_ENERGIA], R3
-    POP R5
-    POP R4
-    POP R3
-    POP R2
-    POP R1
-    POP R0
     RET
 
 
@@ -720,29 +729,6 @@ sai_testa_limites:
 	POP	R5
 	RET
 
-; **********************************************************************
-; TECLADO - Faz uma leitura às teclas de uma linha do teclado e retorna o valor lido
-; Argumentos:	R6 - linha a testar (em formato 1, 2, 4 ou 8)
-;
-; Retorna: 	R0 - valor lido das colunas do teclado (0, 1, 2, 4, ou 8)	
-; **********************************************************************
-teclado:
-	PUSH	R2
-	PUSH	R3
-	PUSH	R5
-	MOV  R2, TEC_LIN        ; endereço do periférico das linhas
-	MOV  R3, TEC_COL        ; endereço do periférico das colunas
-	MOV  R5, ISOLA_03BITS   ; para isolar os 4 bits de menor peso, ao ler as colunas do teclado
-	MOVB [R2], R6           ; escrever no periférico de saída (linhas)
-	MOVB R0, [R3]           ; ler do periférico de entrada (colunas)
-	AND  R0, R5             ; elimina bits para além dos bits 0-3
-    JNZ teclado_saida
-teclado_saida:
-    POP	R5
-	POP	R3
-	POP	R2
-	RET
-
 
 ; **********************************************************************
 ; CONVERTE - Converte a linha, ou coluna, para um número entre 0 e 3.
@@ -775,4 +761,139 @@ loop:                   ; conta quantos bits o bit 1 se tem que mover para ficar
     SUB R2, 1           ; retira 1 para passar a um numero entre 0 e 3
     ADD R3, R2          ; soma 
     POP R2
+    RET
+    
+
+PROCESS SP_inicial_energia
+    inicio_energia:
+        MOV R1, ENERGIA_INICIAL
+        MOV [energia], R1
+        MOV R3, R1
+        MOV R0, 3H
+        MUL R1, R0
+        MOV R0, 100H
+        DIV R1, R0
+        controlo_energia:
+            CALL escreve_energia
+            MOV R0, [decresce_energia]
+            MOV R0, R1
+            ciclo_energia:
+                CALL decrementa_energia
+                SUB R0, 1
+                JNZ ciclo_energia
+        JMP controlo_energia
+
+; **********************************************************************
+; INT_ENERGIA - Decrementa a energia em memória e escreve no display.
+;   
+; **********************************************************************
+int_energia:
+    PUSH R0
+    MOV R0, 1
+    MOV [decresce_energia], R0
+    POP R0
+    RFE
+
+
+; **********************************************************************
+; ESCREVE_ENERGIA - Lê a energia em memória e escreve no display.
+;
+; **********************************************************************
+escreve_energia:
+    PUSH R3
+    MOV R3, [energia]   ; lê a energia guardada em memória
+    MOV [DISPLAYS], R3      ; escreve a energia no display
+    POP R3
+    RET
+
+
+; **********************************************************************
+; RESETA_ENERGIA - Reinicia a energia em memória.
+;
+; **********************************************************************
+reseta_energia:
+    PUSH R0
+    MOV  R0, ENERGIA_INICIAL              
+    MOV  [energia], R0  ; reinicia a energia em memória  
+    POP  R0
+    RET
+
+; **********************************************************************
+; INCREMENTA_ENERGIA - Incrementa uma unidade na energia recebida.
+; 
+; Argumentos: R3 - Energia atual
+;
+; Retorno: R3 - Energia Atualizada
+; **********************************************************************
+incrementa_energia:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    PUSH R4
+    MOV R0, 000AH
+    MOV R1, 1H
+    MOV R2, ISOLA_03BITS
+    MOV R4, 3
+    JMP incrementa_corpo_ciclo
+ciclo_incrementa:
+    SUB R3, R0
+    SHL R1, 4
+    SHL R2, 4
+    SHL R0, 4
+incrementa_corpo_ciclo:
+    ADD R3, R1
+    AND R2, R3
+    CMP R2, R0
+    JLT incrementa_saida
+    SUB R4, 1
+    JNZ ciclo_incrementa
+    MOV R3, 0
+incrementa_saida:
+    MOV [energia], R3
+    POP R4
+    POP R2
+    POP R1
+    POP R0
+    RET
+
+
+; **********************************************************************
+; DECREMENTA_ENERGIA - Decrementa uma unidade na energia recebida.
+;
+; Argumentos: R3 - Energia atual
+;
+; Retorno: R3 - Energia Atualizada
+; **********************************************************************
+decrementa_energia:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    PUSH R4
+    PUSH R5
+    MOV R0, 0009H
+    MOV R1, 1H
+    MOV R2, ISOLA_03BITS
+    MOV R4, 3
+    MOV R5, 0006H
+    SUB R3, R1
+    JMP decrementa_corpo_ciclo
+ciclo_decrementa:
+    SUB R3, R5
+    SHL R5, 4
+    SHL R0, 4
+    SHL R2, 4
+decrementa_corpo_ciclo:
+    AND R2, R3
+    CMP R2, R0
+    JLT decrementa_saida
+    SUB R4, 1
+    JNZ ciclo_decrementa
+    MOV R3, 999H
+decrementa_saida:
+    MOV [energia], R3
+    POP R5
+    POP R4
+    POP R2
+    POP R1
+    POP R0
     RET
