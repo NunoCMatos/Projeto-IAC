@@ -1534,7 +1534,7 @@
     "windowScreenWidthPixels" : 1024,
     "windowScreenHeightixels" : 512,
     "defaultPenColor" : 65280,
-    "image paths" : [ "espaco_a_andar.gif", "MARS.jpg", "espaço.jpg" ],
+    "image paths" : [ "espaco_a_andar.gif", "MARS.jpg", "espaço.jpg", "PAUSA.jpg" ],
     "sounds/videos settings" : [ {
       "filePathName" : "disparo.wav",
       "relative sound volume" : 1.0,
