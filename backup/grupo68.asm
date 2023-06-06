@@ -99,11 +99,8 @@ SP_inicial:     ; endereço da pilha
     STACK 100H      ; espaço reservado para a pilha do processo "teclado"
 SP_inicial_teclado: ; endereço da pilha
 
-    STACK 100H      ; espaço reservado para a pilha do processo "loop_pseudoaleatorio_n4"
-SP_inicial_pseudoaleatorio_n4: ; endereço da pilha
-
-    STACK 100H      ; espaço reservado para a pilha do processo "loop_pseudoaleatorio_n5"
-SP_inicial_pseudoaleatorio_n5: ; endereço da pilha
+    STACK 100H      ; espaço reservado para a pilha do processo "loop_pseudoaleatorio"
+SP_inicial_pseudoaleatorio: ; endereço da pilha
 
     STACK 100H
 SP_inicial_meteoro:
@@ -216,8 +213,12 @@ cria_bonecos:
     CALL inicio_meteoro
     CALL inicio_sonda
     CALL inicio_energia
-    CALL loop_pseudoaleatorio_n4
-    CALL loop_pseudoaleatorio_n5
+    MOV R2, 4
+    MOV R3, DEF_PSEUDOALEATORIO_N4
+    CALL loop_pseudoaleatorio
+    MOV R2, 5
+    MOV R3, DEF_PSEUDOALEATORIO_N5
+    CALL loop_pseudoaleatorio
     CALL cria_meteoro_nao_mineravel     ; cria um meteoro não minerável no 3.º spawnpoint
     CALL cria_painel                    ; cria o painel na sua posição
 
@@ -286,31 +287,17 @@ testa_decremento:
 ; * ROTINAS
 ; **********************************************************************
 
-PROCESS SP_inicial_pseudoaleatorio_n4
-    loop_pseudoaleatorio_n4:
+; * Argumentos: R2 - numero limite, R3 - Variável a guardar
+PROCESS SP_inicial_pseudoaleatorio
+    inicio_pseudoaleatorio:
         MOV R1, 0
-        MOV R2, 3
-        CMP R1, R2
-        JNZ reseta_numero
-        ADD R1, 1
-        MOV [DEF_PSEUDOALEATORIO_N4], R1
-        YIELD
-    reseta_numero_n4:
-        MOV [DEF_PSEUDOALEATORIO_N4], 0
-        YIELD
-
-
-PROCESS SP_inicial_pseudoaleatorio_n5
-    inicio_pseudoaleatorio_n5:
-        MOV R1, 0
-        MOV R2, 4
-    loop_pseudoaleatorio_n5:
+    loop_pseudoaleatorio:
         YIELD
         ADD R1, 1
         CMP R1, R2
-        JZ inicio_pseudoaleatorio_n5
-        MOV [DEF_PSEUDOALEATORIO_N5], R1
-        JMP loop_pseudoaleatorio_n5
+        JZ inicio_pseudoaleatorio
+        MOV [R3], R1
+        JMP loop_pseudoaleatorio
 
 
 
