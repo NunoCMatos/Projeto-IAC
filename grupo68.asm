@@ -111,8 +111,8 @@ SP_inicial_sonda:
     STACK 100H
 SP_inicial_energia:
 
-    STACK 1000H
-SP_inicio_jogo:
+    STACK 100H
+SP_pausa:
 
 
 tab:
@@ -239,6 +239,7 @@ inicializacoes:
     MOV R5, ISOLA_03BITS                  ; para isolar os 4 bits de menor peso
 
 cria_bonecos:
+    CALL inicio_pausa
     CALL inicio_meteoro
     CALL inicio_sonda
     CALL inicio_energia
@@ -318,6 +319,26 @@ testa_decremento:
 
 ; * Argumentos: R2 - numero limite, R3 - Variável a guardar
    
+PROCESS SP_pausa
+    inicio_pausa:
+        MOV R6, 8                           ; quarta linha
+        MOV R1, 2
+    testa_D:  
+        CALL teclado
+        CMP  R0, R1                         ; verifica se foi pressionada a tecla D
+        JZ  ha_pausa
+    nao_pausa:
+        YIELD
+        JMP testa_D
+    ha_pausa:
+        MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados
+        MOV R0, 2                           ; tela inicial (fundo número 1)
+        MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
+        JMP testa_D
+       
+
+
+
 PROCESS SP_inicial_pseudoaleatorio
     inicio_pseudoaleatorio:
         MOV R1, 0
