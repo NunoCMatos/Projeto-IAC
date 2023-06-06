@@ -111,6 +111,9 @@ SP_inicial_sonda:
     STACK 100H
 SP_inicial_energia:
 
+    STACK 1000H
+SP_inicio_jogo:
+
 
 tab:
     WORD int_meteoro
@@ -201,11 +204,21 @@ inicializacoes:
     EI
 
     ; * Ecrâ
-    MOV [APAGA_AVISO], R0	            ; apaga o aviso do ecrã
-    MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados
-    MOV R0, 0                           ; cenário de fundo número 0
-    MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
-
+    tela_inicial:
+        MOV [APAGA_AVISO], R0	            ; apaga o aviso do ecrã
+        MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados
+        MOV R0, 1                           ; tela inicial (fundo número 1)
+        MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
+        MOV R6, 8                           ; quarta linha
+        MOV R1, 1
+    espera_c:                         
+        CALL teclado
+        CMP  R0, R1                          ;verifica se foi pressionada a tecla C
+        JNZ  espera_c
+    comeco:
+        MOV R0, 0                           ; cenário de fundo número 0
+        MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
+    
     ; * Gerais
     MOV R5, ISOLA_03BITS                  ; para isolar os 4 bits de menor peso
 
@@ -288,6 +301,7 @@ testa_decremento:
 ; **********************************************************************
 
 ; * Argumentos: R2 - numero limite, R3 - Variável a guardar
+   
 PROCESS SP_inicial_pseudoaleatorio
     inicio_pseudoaleatorio:
         MOV R1, 0
