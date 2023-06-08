@@ -345,9 +345,8 @@ inicializacoes:
 cria_bonecos:
     CALL inicio_controlo
     CALL inicio_energia
-    CALL cria_painel                    ; cria o painel na sua posição
+    CALL inicio_painel
     CALL inicio_teclado
-    CALL inicio_luzes_painel
 
     MOV R11, N_METEOROS
     SUB R11, 1          ; contar com o meteoro 0
@@ -363,9 +362,9 @@ cria_bonecos:
         SUB R11, 1
         JNN cria_sondas
 
-tecla:
+fim:
     YIELD
-    JMP tecla    ; volta a espera que não haja tecla carregada
+    JMP fim    ; volta a espera que não haja tecla carregada
 
 ; **********************************************************************
 ; * ROTINAS
@@ -427,56 +426,23 @@ PROCESS SP_inicial_controlo
         derrota_energia:
 
 PROCESS SP_inicial_nave
-    inicio_luzes_painel:
+    inicio_painel:
+        CALL cria_painel                    ; cria o painel na sua posição
         MOV R1, LIN_LUZES_PAINEL
         MOV R2, COL_LUZES_PAINEL
         MOV R9, 0
-        painel_inicial:
+        reinicia_ciclo_paineis:
+            MOV R3, 8
             MOV R4, DEF_LUZES_PAINEL1
+        ciclo_paineis:
             CALL desenha_boneco
             MOV R0, [luzes_painel]
-            JMP painel2
-        painel1:                        
-            CALL apaga_boneco               ; sem ser na primeira vez em que o primeiro arranjo de luzes aparece, já existe um boneco anterior para apagar 
-            MOV R4, DEF_LUZES_PAINEL1
-            CALL desenha_boneco
-            MOV R0, [luzes_painel]
-        painel2:
-            CALL apaga_boneco
-            MOV R4, DEF_LUZES_PAINEL2
-            CALL desenha_boneco
-            MOV R0, [luzes_painel]
-        painel3:
-            CALL apaga_boneco
-            MOV R4, DEF_LUZES_PAINEL3
-            CALL desenha_boneco
-            MOV R0, [luzes_painel]
-        painel4:
-            CALL apaga_boneco
-            MOV R4, DEF_LUZES_PAINEL4
-            CALL desenha_boneco
-            MOV R0, [luzes_painel]
-        painel5:
-            CALL apaga_boneco
-            MOV R4, DEF_LUZES_PAINEL5
-            CALL desenha_boneco
-            MOV R0, [luzes_painel]
-        painel6:
-            CALL apaga_boneco
-            MOV R4, DEF_LUZES_PAINEL6
-            CALL desenha_boneco
-            MOV R0, [luzes_painel]
-        painel7:
-            CALL apaga_boneco
-            MOV R4, DEF_LUZES_PAINEL7
-            CALL desenha_boneco
-            MOV R0, [luzes_painel]
-        painel8:
-            CALL apaga_boneco
-            MOV R4, DEF_LUZES_PAINEL8
-            CALL desenha_boneco
-            MOV R0, [luzes_painel]
-            JMP painel1
+            MOV R0, 20H
+            ADD R4, R0 ; distância entre tabelas das luzes
+            SUB R3, 1
+            JNZ ciclo_paineis
+            JMP reinicia_ciclo_paineis
+        
 
 int_luzes_painel:
     PUSH R0

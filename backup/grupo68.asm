@@ -70,13 +70,17 @@ SPAWN2_SND_COL  EQU 32  ; coluna do 2.º spawnpoint (meio do painel)
 SPAWN3_SND_COL  EQU 38  ; coluna do 3.º spawnpoint (direita do painel)
 
 LIN_PAINEL  EQU 27      ; linha do painel da nave
+LIN_LUZES_PAINEL EQU 29
 COL_PAINEL  EQU 25      ; coluna do painel da nave
+COL_LUZES_PAINEL EQU 29
 
 ; * Tamanhos
 LARGURA     EQU 5   ; largura dos meteoros (mineráveis ou não)
 ALTURA      EQU 5   ; altura dos meteoros (mineráveis ou não)
 LAR_PAINEL  EQU 15  ; largura do painel da nave
 ALT_PAINEL  EQU 5   ; altura do painel da nave
+LAR_LUZES_PAINEL EQU 7  ; largura das luzes do painel
+ALT_LUZES_PAINEL EQU 2  ; altura das luzes do painel
 LAR_SONDA   EQU 1   ; largura das sondas
 ALT_SONDA   EQU 1   ; altura das sondas
 
@@ -112,6 +116,9 @@ SP_inicial_teclado: ; endereço da pilha
 SP_inicial_controlo:
 
     STACK 100H
+SP_inicial_nave:
+
+    STACK 100H
 SP_inicial_meteoro_0:
 
     STACK 100H
@@ -143,7 +150,7 @@ tab:
     WORD int_meteoro
     WORD int_sonda
     WORD int_energia
-    WORD 0
+    WORD int_luzes_painel
 
 
 ; * Definições
@@ -197,9 +204,49 @@ DEF_PAINEL:
     WORD ALT_PAINEL, LAR_PAINEL
     WORD 0, 0, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, 0, 0
     WORD 0, VERMELHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, VERMELHO, 0
-    WORD VERMELHO, CASTANHO, CASTANHO, CASTANHO, CINZENTO, VERMELHO, VERDE, CINZENTO, VERDE, CINZENTO, CINZENTO, CASTANHO, CASTANHO, CASTANHO, VERMELHO
-    WORD VERMELHO, CASTANHO, CASTANHO, CASTANHO, VERDE, CINZENTO, VERMELHO, VERDE, AMARELO, AZUL, CINZENTO, CASTANHO, CASTANHO, CASTANHO, VERMELHO
+    WORD VERMELHO, CASTANHO, CASTANHO, CASTANHO,  0, 0, 0, 0, 0, 0, 0, CASTANHO, CASTANHO, CASTANHO, VERMELHO
+    WORD VERMELHO, CASTANHO, CASTANHO, CASTANHO, 0, 0, 0, 0, 0, 0, 0, CASTANHO, CASTANHO, CASTANHO, VERMELHO
     WORD VERMELHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, VERMELHO
+
+DEF_LUZES_PAINEL1:
+    WORD ALT_LUZES_PAINEL, LAR_LUZES_PAINEL
+    WORD CINZENTO, AMARELO, VERMELHO, AZUL, VERDE, VERDE, VERMELHO
+    WORD AMARELO, VERDE, VERMELHO, AMARELO, AZUL, CINZENTO, AZUL
+
+DEF_LUZES_PAINEL2:
+    WORD ALT_LUZES_PAINEL, LAR_LUZES_PAINEL
+    WORD VERMELHO, VERDE, AMARELO, AZUL, CINZENTO, CINZENTO, VERDE
+    WORD CINZENTO, CINZENTO, VERDE, VERMELHO, AMARELO, AZUL, VERMELHO
+
+DEF_LUZES_PAINEL3:
+    WORD ALT_LUZES_PAINEL, LAR_LUZES_PAINEL
+    WORD AMARELO, VERDE, VERMELHO, VERDE, CINZENTO, VERMELHO, AZUL
+    WORD VERDE, CINZENTO, CINZENTO, VERDE, AMARELO, AZUL, VERMELHO
+
+DEF_LUZES_PAINEL4:
+    WORD ALT_LUZES_PAINEL, LAR_LUZES_PAINEL
+    WORD VERDE, AMARELO, AZUL, VERMELHO, VERDE, CINZENTO, AZUL
+    WORD VERMELHO, AMARELO, VERMELHO, AMARELO, VERDE, AZUL, CINZENTO
+
+DEF_LUZES_PAINEL5:
+    WORD ALT_LUZES_PAINEL, LAR_LUZES_PAINEL
+    WORD AZUL, CINZENTO, CINZENTO, VERDE, VERMELHO, VERDE, AMARELO
+    WORD AZUL, AMARELO, VERMELHO, VERDE, VERDE, CINZENTO, AZUL
+
+DEF_LUZES_PAINEL6:
+    WORD ALT_LUZES_PAINEL, LAR_LUZES_PAINEL
+    WORD CINZENTO, VERMELHO, VERMELHO, CINZENTO, AMARELO, VERDE, AZUL
+    WORD CINZENTO, CINZENTO, VERDE, AZUL, VERMELHO, VERDE, CINZENTO
+
+DEF_LUZES_PAINEL7:
+    WORD ALT_LUZES_PAINEL, LAR_LUZES_PAINEL
+    WORD VERDE, CINZENTO, CINZENTO, VERDE, AMARELO, AMARELO, AZUL
+    WORD CINZENTO, AMARELO, VERMELHO, VERMELHO, VERDE, CINZENTO, VERMELHO
+
+DEF_LUZES_PAINEL8:
+    WORD ALT_LUZES_PAINEL, LAR_LUZES_PAINEL
+    WORD CINZENTO, AZUL, CINZENTO, VERMELHO, AZUL, AMARELO, VERDE
+    WORD AZUL, AMARELO, VERDE, CINZENTO, CINZENTO, AZUL, AMARELO 
 
 DEF_SONDA:
     WORD ALT_SONDA, LAR_SONDA
@@ -268,6 +315,7 @@ POSICOES_SONDA:
 energia: WORD ENERGIA_INICIAL                ; energia da nave
 INICIO_JOGO: WORD 1         ; flag que indica se estamos no início do jogo
 GAME_OVER: LOCK 0           ; flag que indica se o jogo acabou e como acabou
+luzes_painel: LOCK 0
 tecla_carregada: LOCK 0
 anima_meteoro: LOCK 0
 anima_sonda: LOCK 0
@@ -288,34 +336,16 @@ inicializacoes:
     EI0
     EI1
     EI2
+    EI3
     EI
-
-    ; * Ecrâ
-    tela_inicial:
-        MOV [APAGA_AVISO], R0	            ; apaga o aviso do ecrã
-        MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados
-        MOV R0, 0
-        MOV [DISPLAYS], R0
-        MOV R0, 1                           ; tela inicial (fundo número 1)
-        MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
-        MOV R6, 8                           ; quarta linha
-        MOV R1, 1
-        
-    espera_c:                         
-        CALL teclado
-        CMP  R0, R1                          ;verifica se foi pressionada a tecla C
-        JNZ  espera_c
-    comeco:
-        MOV [APAGA_AVISO], R0
-        MOV R0, 1                           ; cenário de fundo número 0
-        MOV [REPRODUZ_VIDEO], R0   ; seleciona o cenário de fundo
     
     ; * Gerais
     MOV R5, ISOLA_03BITS                  ; para isolar os 4 bits de menor peso
 
 cria_bonecos:
+    CALL inicio_controlo
     CALL inicio_energia
-    CALL cria_painel                    ; cria o painel na sua posição
+    CALL inicio_painel
     CALL inicio_teclado
 
     MOV R11, N_METEOROS
@@ -332,39 +362,50 @@ cria_bonecos:
         SUB R11, 1
         JNN cria_sondas
 
-tecla:
+fim:
     YIELD
-    JMP tecla    ; volta a espera que não haja tecla carregada
+    JMP fim    ; volta a espera que não haja tecla carregada
 
 ; **********************************************************************
 ; * ROTINAS
 ; **********************************************************************
 
 PROCESS SP_inicial_controlo
-    controlo:
+    inicio_controlo:
     MOV R1, [INICIO_JOGO]       ; coloca em R1 se estamos no início do jogo 
     CMP R1, 1                   ; verifica se estamos no início do jogo
     JNZ running                  ; se não, salta para o ciclo de jogo
         start:                  ; iníco do jogo
             MOV R1, 0
             MOV [INICIO_JOGO], R1                   ; altera a flag de inicio de jogo para não voltar a entrar em start
-            MOV R7, 1                               ; tela inicial (fundo número 1)
-            MOV [SELECIONA_CENARIO_FUNDO], R7       ; seleciona o cenário de fundo
-            MOV R6, 8                               ; quarta linha
-            MOV R1, 1
-            espera_c_2:                         
+            tela_inicial:
+                MOV [APAGA_AVISO], R0	            ; apaga o aviso do ecrã
+                MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados
+                MOV R0, 0
+                MOV [DISPLAYS], R0
+                MOV R0, 1                           ; tela inicial (fundo número 1)
+                MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
+                MOV R6, 8                           ; quarta linha
+                MOV R1, 1
+                
+            espera_c:                         
                 CALL teclado
                 CMP  R0, R1                          ;verifica se foi pressionada a tecla C
-                JNZ  espera_c_2
+                JNZ  espera_c
 
         running:                                ; ciclo do jogo
-            MOV R7, 0                           ; cenário de fundo número 0
-            MOV [SELECIONA_CENARIO_FUNDO], R7   ; seleciona o cenário de fundo
+            MOV R0, 1                           ; cenário de fundo número 0
+            MOV [REPRODUZ_VIDEO], R0   ; seleciona o cenário de fundo
             MOV R0, [GAME_OVER]                 ; le a flag
             CMP R0, 0                           ; verifica se foi alterada
-            JZ controlo                         ; se nao foi alterada, continua o jogo
+            JZ inicio_controlo                         ; se nao foi alterada, continua o jogo
             CMP R0, 1                           ; se foi alterada para 1, o jogo foi colocado em pausa
+            JZ derrota_energia
+            CMP R0, 2
+            JZ derrota_colisao
+            CMP R0, 3
             JZ pausa
+        termina_jogo:
 
         pausa:
             MOV R6, 0
@@ -380,11 +421,35 @@ PROCESS SP_inicial_controlo
                 MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados
                 JMP running
 
+        derrota_colisao:
 
         derrota_energia:
 
+PROCESS SP_inicial_nave
+    inicio_painel:
+        CALL cria_painel                    ; cria o painel na sua posição
+        MOV R1, LIN_LUZES_PAINEL
+        MOV R2, COL_LUZES_PAINEL
+        MOV R9, 0
+        reinicia_ciclo_paineis:
+            MOV R3, 8
+            MOV R4, DEF_LUZES_PAINEL1
+        ciclo_paineis:
+            CALL desenha_boneco
+            MOV R0, [luzes_painel]
+            MOV R0, 20H
+            ADD R4, R0 ; distância entre tabelas das luzes
+            SUB R3, 1
+            JNZ ciclo_paineis
+            JMP reinicia_ciclo_paineis
+        
 
-        derrota_colisao:
+int_luzes_painel:
+    PUSH R0
+    MOV R0, 1
+    MOV [luzes_painel], R0
+    POP R0
+    RFE
 
 
 ; * Argumentos: R2 - numero limite, R3 - Variável a guardar
@@ -526,7 +591,7 @@ PROCESS SP_inicial_sonda_0
         MOV R0, [tecla_carregada]
         CMP R0, R11
         JNZ inicia_sonda
-        CALL decrementa25
+        CALL decrementa5
         MOV R1, POSICOES_SONDA
         MOV R0, [R10+R1]
     ativa_coordenadas_sonda:
@@ -903,6 +968,8 @@ PROCESS SP_inicial_energia
             MOV R3, [energia]
             CALL escreve_energia
             MOV R0, [decresce_energia]
+            CMP R0, 2
+            JZ controlo_energia
             MOV R0, R1
             ciclo_energia:
                 CALL decrementa_energia
@@ -976,7 +1043,7 @@ incrementa_corpo_ciclo:
     JLT incrementa_saida
     SUB R4, 1
     JNZ ciclo_incrementa
-    MOV R3, 0
+    MOV R3, 999H
 incrementa_saida:
     MOV [energia], R3
     POP R4
@@ -1017,7 +1084,9 @@ decrementa_corpo_ciclo:
     JLT decrementa_saida    ; Menos que porque o 9 é um dos casos limite
     SUB R4, 1
     JNZ ciclo_decrementa
-    MOV R3, 999H
+    MOV R3, 0H
+    MOV R0, 1
+    MOV [GAME_OVER], R0
 decrementa_saida:
     MOV [energia], R3
     POP R5
@@ -1027,16 +1096,24 @@ decrementa_saida:
     POP R0
     RET
 
-decrementa25:
+decrementa5:
     PUSH R0
+    PUSH R1
     PUSH R3
-    MOV R0, 25
+    MOV R1, ENERGIA_INICIAL
+    MOV R0, 5H
+    MUL R1, R0
+    MOV R0, 100H
+    DIV R1, R0
     MOV R3, [energia]
     ciclo_decrementa25:
         CALL decrementa_energia
-        SUB R0, 1
+        SUB R1, 1
         JNZ ciclo_decrementa25
     MOV [energia], R3
+    MOV R0, 2
+    MOV [decresce_energia], R0
     POP R3
+    POP R1
     POP R0
     RET
