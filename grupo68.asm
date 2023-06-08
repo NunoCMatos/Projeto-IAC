@@ -398,7 +398,6 @@ PROCESS SP_inicial_controlo
             MOV R0, 0                           ; cenário de fundo número 0
             MOV [REPRODUZ_VIDEO], R0   ; seleciona o cenário de fundo
         running:                                ; ciclo do jogo 
-            YIELD
             MOV R0, [GAME_OVER]                 ; le a flag
             CMP R0, 0                           ; verifica se foi alterada
             JZ inicio_controlo                         ; se nao foi alterada, continua o jogo
@@ -514,8 +513,6 @@ PROCESS SP_pausa
     ha_pausa:
         MOV R2, 1
         MOV [GAME_OVER], R2
-       
-        YIELD
         JMP testa_D
        
 
