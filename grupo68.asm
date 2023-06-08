@@ -77,8 +77,8 @@ LARGURA     EQU 5   ; largura dos meteoros (mineráveis ou não)
 ALTURA      EQU 5   ; altura dos meteoros (mineráveis ou não)
 LAR_PAINEL  EQU 15  ; largura do painel da nave
 ALT_PAINEL  EQU 5   ; altura do painel da nave
-LAR_LUZES_PAINEL 7  ; largura das luzes do painel
-ALT_LUZES_PAINEL 2  ; altura das luzes do painel
+LAR_LUZES_PAINEL EQU 7  ; largura das luzes do painel
+ALT_LUZES_PAINEL EQU 2  ; altura das luzes do painel
 LAR_SONDA   EQU 1   ; largura das sondas
 ALT_SONDA   EQU 1   ; altura das sondas
 
@@ -238,7 +238,7 @@ DEF_LUZES_PAINEL6:
 
 DEF_LUZES_PAINEL7:
     WORD ALT_LUZES_PAINEL, LAR_LUZES_PAINEL
-    WORD VERDE, CINZENTO, CINZENTO, VERDE, AMARELO, AMARELO, AZUL,
+    WORD VERDE, CINZENTO, CINZENTO, VERDE, AMARELO, AMARELO, AZUL
     WORD CINZENTO, AMARELO, VERMELHO, VERMELHO, VERDE, CINZENTO, VERMELHO
 
 DEF_LUZES_PAINEL8:
@@ -340,6 +340,7 @@ inicializacoes:
     MOV R5, ISOLA_03BITS                  ; para isolar os 4 bits de menor peso
 
 cria_bonecos:
+    CALL inicio_controlo
     CALL inicio_energia
     CALL cria_painel                    ; cria o painel na sua posição
     CALL inicio_teclado
@@ -368,7 +369,7 @@ tecla:
 ; **********************************************************************
 
 PROCESS SP_inicial_controlo
-    controlo:
+    inicio_controlo:
     MOV R1, [INICIO_JOGO]       ; coloca em R1 se estamos no início do jogo 
     CMP R1, 1                   ; verifica se estamos no início do jogo
     JNZ running                  ; se não, salta para o ciclo de jogo
@@ -395,7 +396,7 @@ PROCESS SP_inicial_controlo
             MOV [REPRODUZ_VIDEO], R0   ; seleciona o cenário de fundo
             MOV R0, [GAME_OVER]                 ; le a flag
             CMP R0, 0                           ; verifica se foi alterada
-            JZ controlo                         ; se nao foi alterada, continua o jogo
+            JZ inicio_controlo                         ; se nao foi alterada, continua o jogo
             CMP R0, 1                           ; se foi alterada para 1, o jogo foi colocado em pausa
             JZ derrota_energia
             CMP R0, 2
