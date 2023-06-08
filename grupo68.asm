@@ -101,7 +101,7 @@ SP_inicial:     ; endereço da pilha
     STACK 100H      ; espaço reservado para a pilha do processo "teclado"
 SP_inicial_teclado: ; endereço da pilha
 
-    STACK 100H * 2      ; espaço reservado para a pilha do processo "loop_pseudoaleatorio"
+    STACK 100H      ; espaço reservado para a pilha do processo "loop_pseudoaleatorio"
 SP_inicial_pseudoaleatorio: ; endereço da pilha
 
     STACK 100H
@@ -525,7 +525,7 @@ int_meteoro:
 PROCESS SP_inicial_sonda
     inicio_sonda:
         CALL ativa_sonda        ; ativa as informações sobre a sonda
-;        MOV R3, DEF_POS_SONDA   ; ativa a tabela com a posição da sonda
+        MOV R3, DEF_POS_SONDA   ; ativa a tabela com a posição da sonda
         MOV	R7, -1              ; vai deslocar para cima
         MOV R8, 0               ; matem-se nas colunas
         
