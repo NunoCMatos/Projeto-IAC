@@ -267,7 +267,7 @@ POSICOES_SONDA:
 
 energia: WORD ENERGIA_INICIAL                ; energia da nave
 INICIO_JOGO: WORD 1         ; flag que indica se estamos no início do jogo
-GAME_OVER: LOCK 0           ; flag que indica se o jogo acabou e como acabou
+GAME_OVER:  LOCK 0                     ; flag que indica se o jogo acabou e como acabou (1-energia, 2-colisao, 3-pausa, 4-termino voluntario do jogo)
 tecla_carregada: LOCK 0
 anima_meteoro: LOCK 0
 anima_sonda: LOCK 0
@@ -289,26 +289,6 @@ inicializacoes:
     EI1
     EI2
     EI
-
-    ; * Ecrâ
-    tela_inicial:
-        MOV [APAGA_AVISO], R0	            ; apaga o aviso do ecrã
-        MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados
-        MOV R0, 0
-        MOV [DISPLAYS], R0
-        MOV R0, 1                           ; tela inicial (fundo número 1)
-        MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
-        MOV R6, 8                           ; quarta linha
-        MOV R1, 1
-        
-    espera_c:                         
-        CALL teclado
-        CMP  R0, R1                          ;verifica se foi pressionada a tecla C
-        JNZ  espera_c
-    comeco:
-        MOV [APAGA_AVISO], R0
-        MOV R0, 1                           ; cenário de fundo número 0
-        MOV [REPRODUZ_VIDEO], R0   ; seleciona o cenário de fundo
     
     ; * Gerais
     MOV R5, ISOLA_03BITS                  ; para isolar os 4 bits de menor peso
@@ -348,23 +328,34 @@ PROCESS SP_inicial_controlo
         start:                  ; iníco do jogo
             MOV R1, 0
             MOV [INICIO_JOGO], R1                   ; altera a flag de inicio de jogo para não voltar a entrar em start
-            MOV R7, 1                               ; tela inicial (fundo número 1)
-            MOV [SELECIONA_CENARIO_FUNDO], R7       ; seleciona o cenário de fundo
-            MOV R6, 8                               ; quarta linha
-            MOV R1, 1
-            espera_c_2:                         
+            tela_inicial:
+                MOV [APAGA_AVISO], R0	            ; apaga o aviso do ecrã
+                MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados
+                MOV R0, 0
+                MOV [DISPLAYS], R0
+                MOV R0, 1                           ; tela inicial (fundo número 1)
+                MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
+                MOV R6, 8                           ; quarta linha
+                MOV R1, 1
+                
+            espera_c:                         
                 CALL teclado
                 CMP  R0, R1                          ;verifica se foi pressionada a tecla C
-                JNZ  espera_c_2
+                JNZ  espera_c
 
         running:                                ; ciclo do jogo
-            MOV R7, 0                           ; cenário de fundo número 0
-            MOV [SELECIONA_CENARIO_FUNDO], R7   ; seleciona o cenário de fundo
+            MOV R0, 1                           ; cenário de fundo número 0
+            MOV [REPRODUZ_VIDEO], R0   ; seleciona o cenário de fundo
             MOV R0, [GAME_OVER]                 ; le a flag
             CMP R0, 0                           ; verifica se foi alterada
             JZ controlo                         ; se nao foi alterada, continua o jogo
             CMP R0, 1                           ; se foi alterada para 1, o jogo foi colocado em pausa
+            JZ derrota_energia
+            CMP R0, 2
+            JZ derrota_colisao
+            CMP R0, 3
             JZ pausa
+        termina_jogo:
 
         pausa:
             MOV R6, 0
@@ -380,12 +371,9 @@ PROCESS SP_inicial_controlo
                 MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados
                 JMP running
 
-
-        derrota_energia:
-
-
         derrota_colisao:
 
+        derrota_energia:
 
 ; * Argumentos: R2 - numero limite, R3 - Variável a guardar
    
@@ -978,7 +966,7 @@ incrementa_corpo_ciclo:
     JLT incrementa_saida
     SUB R4, 1
     JNZ ciclo_incrementa
-    MOV R3, 0
+    MOV R3, 999H
 incrementa_saida:
     MOV [energia], R3
     POP R4
@@ -1019,7 +1007,9 @@ decrementa_corpo_ciclo:
     JLT decrementa_saida    ; Menos que porque o 9 é um dos casos limite
     SUB R4, 1
     JNZ ciclo_decrementa
-    MOV R3, 999H
+    MOV R3, 0H
+    MOV R0, 1
+    MOV [GAME_OVER], R0
 decrementa_saida:
     MOV [energia], R3
     POP R5
