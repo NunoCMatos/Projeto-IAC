@@ -101,9 +101,6 @@ SP_inicial:     ; endereço da pilha
     STACK 100H      ; espaço reservado para a pilha do processo "teclado"
 SP_inicial_teclado: ; endereço da pilha
 
-    STACK 100H      ; espaço reservado para a pilha do processo "loop_pseudoaleatorio"
-SP_inicial_pseudoaleatorio: ; endereço da pilha
-
     STACK 100H
 SP_inicial_meteoro_0:
 

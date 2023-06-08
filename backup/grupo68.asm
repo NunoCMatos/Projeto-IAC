@@ -101,9 +101,6 @@ SP_inicial:     ; endereço da pilha
     STACK 100H      ; espaço reservado para a pilha do processo "teclado"
 SP_inicial_teclado: ; endereço da pilha
 
-    STACK 100H * 2      ; espaço reservado para a pilha do processo "loop_pseudoaleatorio"
-SP_inicial_pseudoaleatorio: ; endereço da pilha
-
     STACK 100H
 SP_inicial_meteoro_0:
 
@@ -236,6 +233,8 @@ DEF_POS_SONDA:
     WORD SPAWN_SND_LIN, SPAWN2_SND_COL  ; localização da sonda(linha e coluna)
 
 energia: WORD ENERGIA_INICIAL                ; energia da nave
+INICIO_JOGO: WORD 1         ; flag que indica se estamos no início do jogo
+GAME_OVER: LOCK 0           ; flag que indica se o jogo acabou e como acabou
 tecla_carregada: LOCK 0
 anima_meteoro: LOCK 0
 anima_sonda: LOCK 0
@@ -349,6 +348,53 @@ testa_decremento:
 ; **********************************************************************
 ; * ROTINAS
 ; **********************************************************************
+
+PROCESS SP_inicial_controlo
+    controlo:
+    MOV R1, [INICIO_JOGO]       ; coloca em R1 se estamos no início do jogo 
+    CMP R1, 1                   ; verifica se estamos no início do jogo
+    JNZ runnig                  ; se não, salta para o ciclo de jogo
+        start:                  ; iníco do jogo
+            MOV R1, 0
+            MOV [INICIO_JOGO], R1                   ; altera a flag de inicio de jogo para não voltar a entrar em start
+            MOV R7, 1                               ; tela inicial (fundo número 1)
+            MOV [SELECIONA_CENARIO_FUNDO], R7       ; seleciona o cenário de fundo
+            MOV R6, 8                               ; quarta linha
+            MOV R1, 1
+            espera_c:                         
+                CALL teclado
+                CMP  R0, R1                          ;verifica se foi pressionada a tecla C
+                JNZ  espera_c
+
+        running:                                ; ciclo do jogo
+            MOV R7, 0                           ; cenário de fundo número 0
+            MOV [SELECIONA_CENARIO_FUNDO], R7   ; seleciona o cenário de fundo
+            MOV R0, [GAME_OVER]                 ; le a flag
+            CMP R0, 0                           ; verifica se foi alterada
+            JZ controlo                         ; se nao foi alterada, continua o jogo
+            CMP R0, 1                           ; se foi alterada para 1, o jogo foi colocado em pausa
+            JZ pausa
+
+        pausa:
+            MOV R6, 0
+            MOV [GAME_OVER], R6                 ; flag volta a 0 para que quando o programa saia deste ciclo saber que pode voltar ao jogo principal
+            MOV R6, 8                           ; quarta linha
+            MOV R1, 2
+            testa_D:
+                CALL teclado
+                CMP  R0, R1                         ; verifica se foi pressionada a tecla D
+                JZ  acaba_pausa
+                JMP testa_D
+            acaba_pausa:
+                MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados
+                JMP runnig
+
+
+        derrota_energia:
+
+
+        derrota_colisao:
+
 
 ; * Argumentos: R2 - numero limite, R3 - Variável a guardar
    
@@ -476,7 +522,7 @@ int_meteoro:
 PROCESS SP_inicial_sonda
     inicio_sonda:
         CALL ativa_sonda        ; ativa as informações sobre a sonda
-;        MOV R3, DEF_POS_SONDA   ; ativa a tabela com a posição da sonda
+        MOV R3, DEF_POS_SONDA   ; ativa a tabela com a posição da sonda
         MOV	R7, -1              ; vai deslocar para cima
         MOV R8, 0               ; matem-se nas colunas
         
