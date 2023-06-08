@@ -20,6 +20,7 @@ COMANDOS                    EQU 6000H   ; endereço base dos comandos do MediaCe
 DEFINE_ECRA                 EQU COMANDOS + 04H
 DEFINE_LINHA    	        EQU COMANDOS + 0AH		; endereço do comando para definir a linha
 DEFINE_COLUNA   	        EQU COMANDOS + 0CH		; endereço do comando para definir a coluna
+OBTEM_PIXEL                 EQU COMANDOS + 10H
 DEFINE_PIXEL                EQU COMANDOS + 12H		; endereço do comando para escrever um pixel
 APAGA_AVISO     	        EQU COMANDOS + 40H		; endereço do comando para apagar o aviso de nenhum cenário selecionado
 APAGA_ECRA	 		        EQU COMANDOS + 02H		; endereço do comando para apagar todos os pixels já desenhados
@@ -544,7 +545,7 @@ PROCESS SP_inicial_meteoro_0
         MUL R1, R11
         ADD SP, R1
         SHL R10, 1
-        INC R11
+        INC R11         ; número do ecrã
         MOV R7, +1
 
     inicia_meteoro:
@@ -608,7 +609,7 @@ PROCESS SP_inicial_sonda_0
         CALL apaga_boneco
         ADD R1, R7
         ADD R2, R8
-        ; verifica colisao
+        CALL verifica_colisao
         SUB R3, 1
         JNZ ciclo_sonda
         JMP inicia_sonda
@@ -673,6 +674,73 @@ define_novas_coordenadas:
     RET
 
 
+; R1 - linha atual, R2 - coluna atual, R9 - ecrã da sonda
+verifica_colisao:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R9
+    ciclo_lepixel:
+        SUB R9, 1
+        JZ saida_colisao
+        MOV [DEFINE_ECRA], R9
+        MOV R0, [OBTEM_PIXEL]
+        MOV R3, VERDE
+        CMP R0, R3
+        JZ colisao_mineravel
+        MOV R3, VERMELHO
+        CMP R0, R3
+        JZ colisao_nao_mineravel
+        JMP ciclo_lepixel
+    colisao_nao_mineravel:
+        
+        JMP saida_colisao
+    colisao_mineravel:
+        CALL explode_mineravel
+        CALL incrementa25
+saida_colisao:
+    POP R9
+    POP R3
+    POP R2
+    POP R1
+    POP R0
+    RET
+
+
+; R9 - ecrã
+explode_mineravel:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+    PUSH R9
+    PUSH R10
+    MOV R10, R9
+    SUB R10, 1
+    SHL R10, 1
+    CALL ativa_coordenadas_meteoro
+    MOV R0, 36H
+    MOV R3, 2
+    ciclo_explosao_mineravel:
+        ADD R4, R0
+        CALL desenha_boneco
+        CALL atraso
+        SUB R3, 1
+        JNZ ciclo_explosao_mineravel
+    CALL apaga_boneco
+    MOV R0, METEORO_LINHA
+    MOV R1, MAX_LINHA
+    MOV [R0+R10], R1
+    POP R10
+    POP R9
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    POP R0
+    RET
 ; **********************************************************************
 ; DEFINE_NOVAS_COORDENADAS_METEORO - Define as novas coordenadas.
 ;
@@ -1106,10 +1174,32 @@ decrementa5:
     MOV R0, 100H
     DIV R1, R0
     MOV R3, [energia]
-    ciclo_decrementa25:
+    ciclo_decrementa5:
         CALL decrementa_energia
         SUB R1, 1
-        JNZ ciclo_decrementa25
+        JNZ ciclo_decrementa5
+    MOV [energia], R3
+    MOV R0, 2
+    MOV [decresce_energia], R0
+    POP R3
+    POP R1
+    POP R0
+    RET
+
+incrementa25:
+    PUSH R0
+    PUSH R1
+    PUSH R3
+    MOV R1, ENERGIA_INICIAL
+    MOV R0, 19H ; 25 em hexadecimal
+    MUL R1, R0
+    MOV R0, 100H
+    DIV R1, R0
+    MOV R3, [energia]
+    ciclo_incrementa25:
+        CALL incrementa_energia
+        SUB R1, 1
+        JNZ ciclo_incrementa25
     MOV [energia], R3
     MOV R0, 2
     MOV [decresce_energia], R0

@@ -611,6 +611,7 @@ PROCESS SP_inicial_sonda_0
         ; verifica colisao
         SUB R3, 1
         JNZ ciclo_sonda
+        CALL verifica_colisao
         JMP inicia_sonda
 
 int_sonda:
@@ -672,6 +673,10 @@ define_novas_coordenadas:
     MOV [R3+2], R2  ; guarda as coordenada da coluna na memória
     RET
 
+
+; R1 - linha atual, R2 - coluna atual, R9 - ecrã da sonda
+verifica_colisao:
+    ciclo_lepixel:
 
 ; **********************************************************************
 ; DEFINE_NOVAS_COORDENADAS_METEORO - Define as novas coordenadas.
