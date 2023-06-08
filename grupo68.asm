@@ -526,6 +526,7 @@ PROCESS SP_inicial_sonda_0
         MOV R0, [tecla_carregada]
         CMP R0, R11
         JNZ inicia_sonda
+        CALL decrementa5
         MOV R1, POSICOES_SONDA
         MOV R0, [R10+R1]
     ativa_coordenadas_sonda:
@@ -894,19 +895,22 @@ PROCESS SP_inicial_energia
     inicio_energia:
         MOV R1, ENERGIA_INICIAL
         MOV [energia], R1
-        MOV R3, R1
         MOV R0, 3H
         MUL R1, R0
         MOV R0, 100H
         DIV R1, R0
         controlo_energia:
+            MOV R3, [energia]
             CALL escreve_energia
             MOV R0, [decresce_energia]
+            CMP R0, 2
+            JZ controlo_energia
             MOV R0, R1
             ciclo_energia:
                 CALL decrementa_energia
                 SUB R0, 1
                 JNZ ciclo_energia
+            MOV [energia], R3
         JMP controlo_energia
 
 ; **********************************************************************
@@ -1021,6 +1025,28 @@ decrementa_saida:
     POP R5
     POP R4
     POP R2
+    POP R1
+    POP R0
+    RET
+
+decrementa5:
+    PUSH R0
+    PUSH R1
+    PUSH R3
+    MOV R1, ENERGIA_INICIAL
+    MOV R0, 5H
+    MUL R1, R0
+    MOV R0, 100H
+    DIV R1, R0
+    MOV R3, [energia]
+    ciclo_decrementa25:
+        CALL decrementa_energia
+        SUB R1, 1
+        JNZ ciclo_decrementa25
+    MOV [energia], R3
+    MOV R0, 2
+    MOV [decresce_energia], R0
+    POP R3
     POP R1
     POP R0
     RET
