@@ -70,7 +70,9 @@ SPAWN2_SND_COL  EQU 32  ; coluna do 2.º spawnpoint (meio do painel)
 SPAWN3_SND_COL  EQU 38  ; coluna do 3.º spawnpoint (direita do painel)
 
 LIN_PAINEL  EQU 27      ; linha do painel da nave
+LIN_LUZES_PAINEL EQU 29
 COL_PAINEL  EQU 25      ; coluna do painel da nave
+COL_LUZES_PAINEL EQU 29
 
 ; * Tamanhos
 LARGURA     EQU 5   ; largura dos meteoros (mineráveis ou não)
@@ -148,7 +150,7 @@ tab:
     WORD int_meteoro
     WORD int_sonda
     WORD int_energia
-    WORD 0
+    WORD int_luzes_painel
 
 
 ; * Definições
@@ -334,6 +336,7 @@ inicializacoes:
     EI0
     EI1
     EI2
+    EI3
     EI
     
     ; * Gerais
@@ -425,8 +428,8 @@ PROCESS SP_inicial_controlo
 
 PROCESS SP_inicial_nave
     inicio_luzes_painel:
-        MOV R1, LIN_PAINEL
-        MOV R2, COL_PAINEL
+        MOV R1, LIN_LUZES_PAINEL
+        MOV R2, COL_LUZES_PAINEL
         painel_inicial:
             MOV R4, DEF_LUZES_PAINEL1
             CALL desenha_boneco
