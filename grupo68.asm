@@ -347,6 +347,7 @@ cria_bonecos:
     CALL inicio_energia
     CALL inicio_painel
     CALL inicio_teclado
+    CALL inicio_pausa
 
     MOV R11, N_METEOROS
     SUB R11, 1          ; contar com o meteoro 0
@@ -386,44 +387,88 @@ PROCESS SP_inicial_controlo
                 MOV R0, 1                           ; tela inicial (fundo número 1)
                 MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
                 MOV R6, 8                           ; quarta linha
-                MOV R1, 1
+                MOV R1, 1                           ; primeira coluna
                 
             espera_c:                         
                 CALL teclado
                 CMP  R0, R1                          ;verifica se foi pressionada a tecla C
                 JNZ  espera_c
-
-        running:                                ; ciclo do jogo
-            MOV R0, 1                           ; cenário de fundo número 0
+        video:
+            MOV R0, 0                           ; cenário de fundo número 0
             MOV [REPRODUZ_VIDEO], R0   ; seleciona o cenário de fundo
+        running:                                ; ciclo do jogo 
+            YIELD
             MOV R0, [GAME_OVER]                 ; le a flag
             CMP R0, 0                           ; verifica se foi alterada
             JZ inicio_controlo                         ; se nao foi alterada, continua o jogo
             CMP R0, 1                           ; se foi alterada para 1, o jogo foi colocado em pausa
-            JZ derrota_energia
-            CMP R0, 2
-            JZ derrota_colisao
-            CMP R0, 3
             JZ pausa
-        termina_jogo:
+            CMP R0, 2                           ; se foi alterada para 2, o jogo foi perdido devido a uma colisão
+            JZ derrota_colisao
+            CMP R0, 3                           ; se foi alterada para 3, o jogo foi perdido devido a acabar a energia
+            JZ derrota_energia
+            CMP R0, 4                           ; se foi alterada para 4, o jogo foi terminado manualmente
+            JZ derrota_energia
 
         pausa:
             MOV R6, 0
             MOV [GAME_OVER], R6                 ; flag volta a 0 para que quando o programa saia deste ciclo saber que pode voltar ao jogo principal
+            MOV R0, 5                           ; tela inicial (fundo número 5)
+            MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
             MOV R6, 8                           ; quarta linha
-            MOV R1, 2
+            MOV R1, 2                           ; segunda coluna
             testa_D_2:
                 CALL teclado
                 CMP  R0, R1                         ; verifica se foi pressionada a tecla D
-                JZ  acaba_pausa
-                JMP testa_D_2
+                JNZ testa_D_2
             acaba_pausa:
                 MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados
                 JMP running
 
         derrota_colisao:
+            MOV R6, 0
+            MOV [GAME_OVER], R6                 ; flag volta a 0 para que quando o programa saia deste ciclo saber que pode voltar ao jogo principal
+            MOV [APAGA_ECRA], R0                ; apaga todos os pixels já desenhados
+            MOV R0, 2                           ; tela inicial (fundo número 2)
+            MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
+            MOV R6, 8                           ; quarta linha
+            MOV R1, 1                           ; primeira coluna
+            testa_C_colisao:
+                CALL teclado
+                CMP  R0, R1                         ; verifica se foi pressionada a tecla C
+                JNZ testa_C_colisao
+            acaba_der_colisao:
+                JMP start
 
         derrota_energia:
+            MOV R6, 0
+            MOV [GAME_OVER], R6                 ; flag volta a 0 para que quando o programa saia deste ciclo saber que pode voltar ao jogo principal
+            MOV [APAGA_ECRA], R0                ; apaga todos os pixels já desenhados
+            MOV R0, 3                           ; tela inicial (fundo número 3)
+            MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
+            MOV R6, 8                           ; quarta linha
+            MOV R1, 1                           ; primeira coluna
+            testa_C_energia:
+                CALL teclado
+                CMP  R0, R1                         ; verifica se foi pressionada a tecla C
+                JNZ testa_C_energia
+            acaba_der_energia:
+                JMP start
+        
+        terminado:
+            MOV R6, 0
+            MOV [GAME_OVER], R6                 ; flag volta a 0 para que quando o programa saia deste ciclo saber que pode voltar ao jogo principal
+            MOV [APAGA_ECRA], R0                ; apaga todos os pixels já desenhados
+            MOV R0, 4                           ; tela inicial (fundo número 4)
+            MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
+            MOV R6, 8                           ; quarta linha
+            MOV R1, 1                           ; primeira coluna
+            testa_C_terminado:
+                CALL teclado
+                CMP  R0, R1                         ; verifica se foi pressionada a tecla C
+                JNZ testa_C_terminado
+            acaba_terminado:
+                JMP start
 
 PROCESS SP_inicial_nave
     inicio_painel:
@@ -466,9 +511,10 @@ PROCESS SP_pausa
         YIELD
         JMP testa_D
     ha_pausa:
-        MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados
-        MOV R0, 2                           ; tela inicial (fundo número 1)
-        MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
+        MOV R2, 1
+        MOV [GAME_OVER], R2
+       
+        YIELD
         JMP testa_D
        
 
