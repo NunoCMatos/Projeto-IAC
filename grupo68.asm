@@ -430,6 +430,7 @@ PROCESS SP_inicial_nave
     inicio_luzes_painel:
         MOV R1, LIN_LUZES_PAINEL
         MOV R2, COL_LUZES_PAINEL
+        MOV R9, 0
         painel_inicial:
             MOV R4, DEF_LUZES_PAINEL1
             CALL desenha_boneco
