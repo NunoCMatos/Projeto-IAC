@@ -17,18 +17,22 @@
 ; * MediaCenter
 ; **********************************************************************
 COMANDOS                    EQU 6000H   ; endereço base dos comandos do MediaCenter
+DEFINE_ECRA                 EQU COMANDOS + 04H
 DEFINE_LINHA    	        EQU COMANDOS + 0AH		; endereço do comando para definir a linha
 DEFINE_COLUNA   	        EQU COMANDOS + 0CH		; endereço do comando para definir a coluna
 DEFINE_PIXEL                EQU COMANDOS + 12H		; endereço do comando para escrever um pixel
 APAGA_AVISO     	        EQU COMANDOS + 40H		; endereço do comando para apagar o aviso de nenhum cenário selecionado
 APAGA_ECRA	 		        EQU COMANDOS + 02H		; endereço do comando para apagar todos os pixels já desenhados
 SELECIONA_CENARIO_FUNDO     EQU COMANDOS + 42H		; endereço do comando para selecionar uma imagem de fundo
+SELECIONA_CENARIO_FRONTAL   EQU COMANDOS + 46H
 TOCA_SOM                    EQU COMANDOS + 5AH		; endereço do comando para tocar um som
 REPRODUZ_VIDEO              EQU COMANDOS + 5CH
+
+
 MIN_LINHA		            EQU 0       ; número da coluna mais à esquerda do ecrã
 MIN_COLUNA		            EQU 0		; número da coluna mais à esquerda do ecrã
-MAX_LINHA		            EQU 31      ; número da coluna mais à direita do ecrã
-MAX_COLUNA		            EQU 63      ; número da coluna mais à direita do ecrã
+MAX_LINHA		            EQU 32      ; número da coluna mais à direita do ecrã
+MAX_COLUNA		            EQU 64      ; número da coluna mais à direita do ecrã
 ATRASO			            EQU 10H     ; atraso para limitar a velocidade de movimento do boneco
 
 ; **********************************************************************
@@ -63,7 +67,7 @@ SPAWN3_COL  EQU 59      ; coluna do 3.º spawnpoint (canto superior direito)
 SPAWN_SND_LIN   EQU 26  ; linhas dos spawnpoints das sondas
 SPAWN1_SND_COL  EQU 26  ; coluna do 1.º spawnpoint (esquerda do painel)
 SPAWN2_SND_COL  EQU 32  ; coluna do 2.º spawnpoint (meio do painel)
-SPAWN3_SND_COL  EQU 48  ; coluna do 3.º spawnpoint (direita do painel)
+SPAWN3_SND_COL  EQU 38  ; coluna do 3.º spawnpoint (direita do painel)
 
 LIN_PAINEL  EQU 27      ; linha do painel da nave
 COL_PAINEL  EQU 25      ; coluna do painel da nave
@@ -86,6 +90,9 @@ ROSA        EQU 0FF0FH
 CINZENTO    EQU 0F777H
 APAGADO     EQU 0000H
 
+N_METEOROS      EQU 4H
+N_SONDAS        EQU 3H
+PASSOS_SONDA    EQU 12
 ENERGIA_INICIAL EQU 100H
 ; **********************************************************************
 ; * Dados
@@ -102,6 +109,9 @@ SP_inicial:     ; endereço da pilha
 SP_inicial_teclado: ; endereço da pilha
 
     STACK 100H
+SP_inicial_controlo:
+
+    STACK 100H
 SP_inicial_meteoro_0:
 
     STACK 100H
@@ -114,7 +124,13 @@ SP_inicial_meteoro_2:
 SP_inicial_meteoro_3:
 
     STACK 100H
-SP_inicial_sonda:
+SP_inicial_sonda_0:
+
+    STACK 100H
+SP_inicial_sonda_1:
+
+    STACK 100H
+SP_inicial_sonda_2:
 
     STACK 100H
 SP_inicial_energia:
@@ -207,30 +223,47 @@ METEORO_COLUNA:
     WORD 0
     WORD 0
 
-esquerda:
+
+esquerda_meteoro:
     WORD SPAWN1_COL, +1 ; canto superior esquerdo, move para a direita
 
-centro_esquerda:
+centro_esquerda_meteoro:
     WORD SPAWN2_COL, -1 ; centro, move para a esquerda
 
-centro:
+centro_meteoro:
     WORD SPAWN2_COL, 0 ; centro, nao mexe nas colunas
 
-centro_direita:
+centro_direita_meteoro:
     WORD SPAWN2_COL, +1 ; centro, move para a direita
 
-direita:
+direita_meteoro:
     WORD SPAWN3_COL, -1 ; canto superior direito, move para a esquerda
 
 POSICOES_METEORO:
-    WORD esquerda
-    WORD centro_esquerda
-    WORD centro
-    WORD centro_direita
-    WORD direita
+    WORD esquerda_meteoro
+    WORD centro_esquerda_meteoro
+    WORD centro_meteoro
+    WORD centro_direita_meteoro
+    WORD direita_meteoro
 
-DEF_POS_SONDA:
-    WORD SPAWN_SND_LIN, SPAWN2_SND_COL  ; localização da sonda(linha e coluna)
+SONDAS:      ; (0 - INEXISTENTE, 1 - EXISTENTE)
+    WORD 0  ; esquerda
+    WORD 0  ; centro
+    WORD 0  ; direita
+
+esquerda_sonda:
+    WORD SPAWN1_SND_COL, -1
+
+centro_sonda:
+    WORD SPAWN2_SND_COL, 0
+
+direita_sonda:
+    WORD SPAWN3_SND_COL, +1
+    
+POSICOES_SONDA:
+    WORD esquerda_sonda
+    WORD centro_sonda
+    WORD direita_sonda
 
 energia: WORD ENERGIA_INICIAL                ; energia da nave
 INICIO_JOGO: WORD 1         ; flag que indica se estamos no início do jogo
@@ -261,15 +294,19 @@ inicializacoes:
     tela_inicial:
         MOV [APAGA_AVISO], R0	            ; apaga o aviso do ecrã
         MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados
+        MOV R0, 0
+        MOV [DISPLAYS], R0
         MOV R0, 1                           ; tela inicial (fundo número 1)
         MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
         MOV R6, 8                           ; quarta linha
         MOV R1, 1
+        
     espera_c:                         
         CALL teclado
         CMP  R0, R1                          ;verifica se foi pressionada a tecla C
         JNZ  espera_c
     comeco:
+        MOV [APAGA_AVISO], R0
         MOV R0, 1                           ; cenário de fundo número 0
         MOV [REPRODUZ_VIDEO], R0   ; seleciona o cenário de fundo
     
@@ -277,72 +314,26 @@ inicializacoes:
     MOV R5, ISOLA_03BITS                  ; para isolar os 4 bits de menor peso
 
 cria_bonecos:
-    CALL inicio_pausa
-    CALL inicio_meteoro
-    CALL inicio_sonda
     CALL inicio_energia
-    CALL cria_meteoro_nao_mineravel     ; cria um meteoro não minerável no 3.º spawnpoint
     CALL cria_painel                    ; cria o painel na sua posição
-
     CALL inicio_teclado
+
+    MOV R11, N_METEOROS
+    SUB R11, 1          ; contar com o meteoro 0
+    cria_meteoros:
+        CALL inicio_meteoro
+        SUB R11, 1
+        JNN cria_meteoros
+
+    MOV R11, N_SONDAS
+    SUB R11, 1          ; contar com a sonda 0
+    cria_sondas:
+        CALL inicio_sonda
+        SUB R11, 1
+        JNN cria_sondas
+
 tecla:
-    MOV R0, [tecla_carregada]
-
-testa_meteoro_nao_mineravel:
-    MOV R1, MOVE_METEORO_NAO_MINERAVEL
-	CMP	R0, R1
-	JNZ	testa_sonda
-
-    MOV	R9, 0                           ; som com número 0
-	MOV [TOCA_SOM], R9                  ; toca som
-	MOV	R7, +1                          ; vai deslocar para baixo
-    MOV R8, -1                          ; vai deslocar para a esquerda
-;    MOV R3, DEF_POS_METEORO_NMIN        ; ativa a tabela com a posição do meteoro
-    CALL ativa_meteoro_nao_mineravel    ; ativa as informações sobre o meteoro
-	JMP	move_boneco                     ; move o meteoro
-
-
-testa_explode:
-    MOV R1, EXPLODE
-	CMP	R0, R1
-	JNZ	testa_incremento
-
-    MOV	R9, 0			    ; som com número 0
-	MOV [TOCA_SOM], R9		; comando para tocar o som
-	MOV	R7, 0			    ; matem-se nas linhas
-    MOV R8, 0               ; mantem-se nas colunas
-;    MOV R3, DEF_POS_METEORO_NMIN
-    CALL ativa_explosao
-	
-    move_boneco:
-    	CALL apaga_boneco		        ; apaga o boneco na sua posição atual
-
-    coluna_seguinte:
-    	CALL define_novas_coordenadas	; escreve as novas coordenadas na memória
-        CALL verifica_limites           ; verifica se o objeto saiu do ecrã
-        
-    	CALL desenha_boneco             ; desenha o boneco nas novas coordenadas
-
-    JMP tecla                ; volta a esperar que não haja tecla carregada
-
-testa_incremento:
-    MOV R1, INCREMENTA
-    CMP R0, R1              ; verifica se a tecla carregada foi a que incrementa o display
-    JNZ testa_decremento    ; se não for, testa outra tecla
-
-    CALL incrementa_energia ; incrementa uma unidade na energia
-    CALL escreve_energia    ; escreve a energia no display
-
-    JMP tecla    ; volta a espera que não haja tecla carregada
-
-testa_decremento:
-    MOV R1, DECREMENTA
-    CMP R0, R1              ; verifica se a tecla carregada foi a que incrementa o display
-    JNZ tecla    ; se não for, nenhuma tecla interessa
-
-    CALL decrementa_energia ; decrementa uma unidade na energia
-    CALL escreve_energia    ; escreve a energia no display
-
+    YIELD
     JMP tecla    ; volta a espera que não haja tecla carregada
 
 ; **********************************************************************
@@ -353,7 +344,7 @@ PROCESS SP_inicial_controlo
     controlo:
     MOV R1, [INICIO_JOGO]       ; coloca em R1 se estamos no início do jogo 
     CMP R1, 1                   ; verifica se estamos no início do jogo
-    JNZ runnig                  ; se não, salta para o ciclo de jogo
+    JNZ running                  ; se não, salta para o ciclo de jogo
         start:                  ; iníco do jogo
             MOV R1, 0
             MOV [INICIO_JOGO], R1                   ; altera a flag de inicio de jogo para não voltar a entrar em start
@@ -361,10 +352,10 @@ PROCESS SP_inicial_controlo
             MOV [SELECIONA_CENARIO_FUNDO], R7       ; seleciona o cenário de fundo
             MOV R6, 8                               ; quarta linha
             MOV R1, 1
-            espera_c:                         
+            espera_c_2:                         
                 CALL teclado
                 CMP  R0, R1                          ;verifica se foi pressionada a tecla C
-                JNZ  espera_c
+                JNZ  espera_c_2
 
         running:                                ; ciclo do jogo
             MOV R7, 0                           ; cenário de fundo número 0
@@ -380,14 +371,14 @@ PROCESS SP_inicial_controlo
             MOV [GAME_OVER], R6                 ; flag volta a 0 para que quando o programa saia deste ciclo saber que pode voltar ao jogo principal
             MOV R6, 8                           ; quarta linha
             MOV R1, 2
-            testa_D:
+            testa_D_2:
                 CALL teclado
                 CMP  R0, R1                         ; verifica se foi pressionada a tecla D
                 JZ  acaba_pausa
-                JMP testa_D
+                JMP testa_D_2
             acaba_pausa:
                 MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados
-                JMP runnig
+                JMP running
 
 
         derrota_energia:
@@ -418,10 +409,14 @@ PROCESS SP_pausa
 
 ; * Argumentos: R11 - Módulo, Retorno: R0 - Numero aleatorio
 gera_numero_aleatorio:
+    PUSH R1
     PUSH R11
     MOV R0, [DISPLAYS]
+    MOV R1, [TEC_COL]
+    MUL R0, R1
     MOD R0, R11
     POP R11
+    POP R1
     RET
 
 
@@ -483,31 +478,28 @@ PROCESS SP_inicial_meteoro_0
         MOV R1, 200H
         MUL R1, R11
         ADD SP, R1
+        SHL R10, 1
+        INC R11
+        MOV R7, +1
 
-        CALL cria_meteoro     ; cria um meteoro minerável no 1.º spawnpoint
-        CALL ativa_meteoro_mineravel
-;        MOV R3, DEF_POS_METEORO_MIN     ; ativa a tabela com a posição do meteoro
-        MOV	R7, +1			            ; vai deslocar para baixo
-        MOV R8, +1                      ; vai deslocar para a direita
-        MOV	R9, 0			            ; som com número 0
-
-
+    inicia_meteoro:
+        CALL cria_meteoro
+        CALL ativa_coordenadas_meteoro
+        MOV R9, R11
+        CALL desenha_boneco
     testa_meteoro:
         MOV R0, [anima_meteoro]
-
-        MOV [TOCA_SOM], R9		        ; toca som
-
+        MOV R9, R11
     	CALL apaga_boneco		        ; apaga o boneco na sua posição atual
 
-    	CALL define_novas_coordenadas	; escreve as novas coordenadas na memória
+    	CALL define_novas_coordenadas_meteoro	; escreve as novas coordenadas na memória
         MOV R0, MAX_LINHA
         CMP R1, R0
-        JGT inicio_meteoro
+        JZ inicia_meteoro
         
     	CALL desenha_boneco             ; desenha o boneco nas novas coordenadas
 
-    MOV R0, 0
-    MOV [anima_meteoro], R0
+    YIELD
     JMP testa_meteoro                ; volta a esperar que não haja tecla carregada
 
 
@@ -519,36 +511,41 @@ int_meteoro:
     RFE
 
 
-PROCESS SP_inicial_sonda
+PROCESS SP_inicial_sonda_0
     inicio_sonda:
-        CALL ativa_sonda        ; ativa as informações sobre a sonda
-        MOV R3, DEF_POS_SONDA   ; ativa a tabela com a posição da sonda
-        MOV	R7, -1              ; vai deslocar para cima
-        MOV R8, 0               ; matem-se nas colunas
+        MOV R10, R11    ; número de meteoro
+        MOV R1, 200H
+        MUL R1, R11
+        ADD SP, R1
+        SHL R10, 1
+        MOV R7, -1
+        MOV R4, DEF_SONDA
         
-    testa_sonda:
-        MOV R5, 12
+    inicia_sonda:
+        MOV R3, PASSOS_SONDA
         MOV R0, [tecla_carregada]
-        MOV R6, MOVE_SONDA
-        CMP	R0, R6              ; verifica se a tecla carregada foi a que move a sonda
-        JNZ	testa_sonda        ; se não for, não interessa
+        CMP R0, R11
+        JNZ inicia_sonda
+        MOV R1, POSICOES_SONDA
+        MOV R0, [R10+R1]
+    ativa_coordenadas_sonda:
+        MOV R1, SPAWN_SND_LIN
+        MOV R2, [R0]
+        MOV R8, [R0+2]
 
-        CALL cria_sonda
+    ciclo_sonda:
+        YIELD
+        MOV R9, 5
+        CALL desenha_boneco
         MOV R0, [anima_sonda]
-        MOV R0, 0
-        MOV [anima_sonda], R0
-        ciclo_sonda:
-            CALL apaga_boneco		        ; apaga o boneco na sua posição atual
-            
-            CALL define_novas_coordenadas	; escreve as novas coordenadas na memória
-            SUB R5, 1
-            CMP R5, 0
-            JZ testa_sonda
-            
-            CALL desenha_boneco             ; desenha o boneco nas novas coordenadas
-            YIELD
-            JMP ciclo_sonda                ; volta a esperar que não haja tecla carregad
-
+        MOV R9, 5
+        CALL apaga_boneco
+        ADD R1, R7
+        ADD R2, R8
+        ; verifica colisao
+        SUB R3, 1
+        JNZ ciclo_sonda
+        JMP inicia_sonda
 
 int_sonda:
     PUSH R0
@@ -558,47 +555,34 @@ int_sonda:
     RFE
 
 ; **********************************************************************
-; ATIVA_METEORO_NAO_MINERAVEL - Retorna as informações para desenhar 
+; ATIVA_COORDENADAS_METEORO - Retorna as informações para desenhar 
 ;                               o meteoro minerável.
 ;
-; Retorna:      R1 - Linha atual
-;               R2 - Coluna atual
-;               R4 - Tabela do meteoro minerável
+; Argumentos: R10 - Número meteoro
+;             
 ;
 ; **********************************************************************
-ativa_meteoro_mineravel:
-    RET
-
-
-; **********************************************************************
-; ATIVA_METEORO_NAO_MINERAVEL - Retorna as informações para desenhar 
-;                               o meteoro não minerável.
-;
-; Retorna:      R1 - Linha atual
-;               R2 - Coluna atual
-;               R4 - Tabela do meteoro não minerável
-;
-; **********************************************************************
-ativa_meteoro_nao_mineravel:
-    RET
-
-
-ativa_explosao:
-    RET
-
-
-; **********************************************************************
-; ATIVA_SONDA - Retorna as informações para desenhar a sonda.
-;
-; Retorna:      R1 - Linha atual
-;               R2 - Coluna atual
-;               R4 - Tabela da sonda
-;
-; **********************************************************************
-ativa_sonda:
-    MOV R1, [DEF_POS_SONDA]     ; escreve a linha em que a sonda está em R1
-    MOV R2, [DEF_POS_SONDA+2]   ; escreve a coluna em que a sonda está em R2
-    MOV R4, DEF_SONDA           ; escreve a tabela que define a sonda em R4
+ativa_coordenadas_meteoro:
+    PUSH R0
+    PUSH R3
+    PUSH R10
+    MOV R0, METEORO_LINHA
+    MOV R1, [R10+R0]
+    MOV R0, METEORO_COLUNA
+    MOV R2, [R10+R0]
+    MOV R0, METEORO_FUNCAO
+    MOV R3, [R10+R0]
+    CMP R3, 0
+    JNZ e_nmin
+    e_min:
+        MOV R4, DEF_MET_MIN
+        JMP coordenadas_saida
+    e_nmin:
+        MOV R4, DEF_MET_NMIN
+    coordenadas_saida:
+    POP R10
+    POP R3
+    POP R0
     RET
 
 
@@ -624,11 +608,43 @@ define_novas_coordenadas:
 
 
 ; **********************************************************************
+; DEFINE_NOVAS_COORDENADAS_METEORO - Define as novas coordenadas.
+;
+; Argumentos:   R1 - Linha atual
+;               R2 - Coluna atual
+;               R7 - (In/De)cremento das linhas
+;               R8 - (In/De)cremento das colunas
+;               R10 - Número do meteoro
+; 
+; Retorna:      R1 - Linha atualizada
+;               R2 - Coluna atualizada
+;
+; **********************************************************************
+define_novas_coordenadas_meteoro:
+    ADD R1, R7      ; avança a coordenada nas linhas
+    ADD R2, R8      ; avança a coordenada nas colunas
+    MOV R3, METEORO_LINHA
+    MOV [R3+R10], R1    ; guarda a coordenada da linha na memória
+    MOV R3, METEORO_COLUNA
+    MOV [R3+R10], R2  ; guarda as coordenada da coluna na memória
+    RET
+
+
+
+; **********************************************************************
 ; CRIA_METEORO - Cria um meteoro.
 ; 
-; Argumentos - R10 - Número do meteoro
+; Argumentos: R10 - Número do meteoro
+;
+; Retorno: R8 - Direção do meteoro
 ; **********************************************************************
 cria_meteoro:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R10
+    PUSH R11
     funcao_meteoro:
     MOV R1, METEORO_FUNCAO
     MOV R11, 8
@@ -642,15 +658,24 @@ cria_meteoro:
         MOV R2, 1
     coordenadas_meteoro:
     MOV [R1+R10], R2
-
-    RET
-
-; **********************************************************************
-; CRIA_METEORO_NAO_MINERAVEL - Cria um meteoro não minerável no
-;                              3.º spawnpoint.
-;
-; **********************************************************************
-cria_meteoro_nao_mineravel:
+    MOV R11, 5
+    CALL gera_numero_aleatorio
+    SHL R0, 1
+    MOV R11, POSICOES_METEORO
+    MOV R3, [R11+R0]
+    MOV R2, [R3]                    ; Posição nas colunas
+    MOV R1, METEORO_COLUNA
+    MOV [R1+R10], R2
+    MOV R1, METEORO_LINHA
+    MOV R2, 0
+    MOV [R1+R10], R2
+    MOV R8, [R3+2]                  ; Direção do meteoro
+    POP R11
+    POP R10
+    POP R3
+    POP R2
+    POP R1
+    POP R0
     RET
 
 ; **********************************************************************
@@ -666,41 +691,21 @@ posicao_painel:
     MOV R2, COL_PAINEL  ; linha do meteoro
     MOV R4, DEF_PAINEL  ; endereço da tabela do meteoro minerável
 mostra_painel:
+    MOV R9, 0
     CALL desenha_boneco ; desenha o painel
     POP R4
     POP R2
     POP R1
     RET
 
-; **********************************************************************
-; CRIA_SONDA - Cria uma sonda no 2.º spawnpoint.
-;
-; **********************************************************************
-cria_sonda:
-    PUSH R1
-    PUSH R2
-    PUSH R4
-    MOV R1, SPAWN_SND_LIN
-    MOV R2, SPAWN2_SND_COL
-    MOV [DEF_POS_SONDA], R1     ; define a coordenada inicial das linhas da sonda
-    MOV [DEF_POS_SONDA+2], R2   ; define a coordenada inicial das colunas da sonda
-    CALL ativa_sonda
-    CALL desenha_boneco         ; desenha a sonda
-    POP R4
-    POP R2
-    POP R1
-    RET
 
-
-; * R1 - linha, R3 - tabela da posicao
-verifica_limites:
-    RET
 ; **********************************************************************
 ; DESENHA_BONECO - Desenha um boneco na linha e coluna indicadas
 ;			    com a forma e cor definidas na tabela indicada.
 ; Argumentos:   R1 - linha
 ;               R2 - coluna
 ;               R4 - tabela que define o boneco
+;               R9 - ecrã a escrever
 ;
 ; **********************************************************************
 desenha_boneco:
@@ -712,6 +717,8 @@ desenha_boneco:
     PUSH R6
     PUSH R7
     PUSH R8
+    PUSH R9
+    MOV [DEFINE_ECRA], R9
 	MOV	 R5, [R4]		    ; obtém a altura do boneco
     MOV  R8, R4             ; guarda o início da tabela que define o boneco
 	ADD	 R8, 4			    ; endereço da cor do 1.º pixel
@@ -728,6 +735,7 @@ desenha_pixels:       	    ; desenha os pixels do boneco a partir da tabela
     ADD  R1, 1              ; próxima linha
     SUB  R5, 1			    ; decrementa a altura
     JNZ  reinicia_desenha   ; continua até percorrer toda a altura do objeto
+    POP  R9
 	POP	 R8
     POP  R7
     POP  R6
@@ -745,6 +753,7 @@ desenha_pixels:       	    ; desenha os pixels do boneco a partir da tabela
 ; Argumentos:   R1 - linha
 ;               R2 - coluna
 ;               R4 - tabela que define o boneco
+;               R9 - ecrã a escrever
 ;
 ; **********************************************************************
 apaga_boneco:
@@ -756,6 +765,8 @@ apaga_boneco:
     PUSH R6
     PUSH R7
     PUSH R8
+    PUSH R9
+    MOV [DEFINE_ECRA], R9
 	MOV	 R5, [R4]		; obtém a altura do boneco
     MOV  R8, R4         ; guarda o início da tabela que define o boneco
 	MOV	 R3, APAGADO    ; pixeis sempre com cor apagado
@@ -770,6 +781,7 @@ apaga_pixels:       	; desenha os pixels do boneco a partir da tabela
     ADD  R1, 1          ; próxima linha
     SUB  R5, 1			; decrementa a altura
     JNZ  reinicia_apaga ; continua até percorrer toda a altura do objeto
+    POP  R9
 	POP	 R8
     POP  R7
     POP  R6
@@ -931,6 +943,7 @@ reseta_energia:
     MOV  [energia], R0  ; reinicia a energia em memória  
     POP  R0
     RET
+
 
 ; **********************************************************************
 ; INCREMENTA_ENERGIA - Incrementa uma unidade na energia recebida.
