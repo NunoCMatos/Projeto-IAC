@@ -77,6 +77,8 @@ LARGURA     EQU 5   ; largura dos meteoros (mineráveis ou não)
 ALTURA      EQU 5   ; altura dos meteoros (mineráveis ou não)
 LAR_PAINEL  EQU 15  ; largura do painel da nave
 ALT_PAINEL  EQU 5   ; altura do painel da nave
+LAR_LUZES_PAINEL 7  ; largura das luzes do painel
+ALT_LUZES_PAINEL 2  ; altura das luzes do painel
 LAR_SONDA   EQU 1   ; largura das sondas
 ALT_SONDA   EQU 1   ; altura das sondas
 
@@ -110,6 +112,9 @@ SP_inicial_teclado: ; endereço da pilha
 
     STACK 100H
 SP_inicial_controlo:
+
+    STACK 100H
+SP_inicial_nave:
 
     STACK 100H
 SP_inicial_meteoro_0:
@@ -197,9 +202,49 @@ DEF_PAINEL:
     WORD ALT_PAINEL, LAR_PAINEL
     WORD 0, 0, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, VERMELHO, 0, 0
     WORD 0, VERMELHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, VERMELHO, 0
-    WORD VERMELHO, CASTANHO, CASTANHO, CASTANHO, CINZENTO, VERMELHO, VERDE, CINZENTO, VERDE, CINZENTO, CINZENTO, CASTANHO, CASTANHO, CASTANHO, VERMELHO
-    WORD VERMELHO, CASTANHO, CASTANHO, CASTANHO, VERDE, CINZENTO, VERMELHO, VERDE, AMARELO, AZUL, CINZENTO, CASTANHO, CASTANHO, CASTANHO, VERMELHO
+    WORD VERMELHO, CASTANHO, CASTANHO, CASTANHO,  0, 0, 0, 0, 0, 0, 0, CASTANHO, CASTANHO, CASTANHO, VERMELHO
+    WORD VERMELHO, CASTANHO, CASTANHO, CASTANHO, 0, 0, 0, 0, 0, 0, 0, CASTANHO, CASTANHO, CASTANHO, VERMELHO
     WORD VERMELHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, CASTANHO, VERMELHO
+
+DEF_LUZES_PAINEL1:
+    WORD ALT_LUZES_PAINEL, LAR_LUZES_PAINEL
+    WORD CINZENTO, AMARELO, VERMELHO, AZUL, VERDE, VERDE, VERMELHO
+    WORD AMARELO, VERDE, VERMELHO, AMARELO, AZUL, CINZENTO, AZUL
+
+DEF_LUZES_PAINEL2:
+    WORD ALT_LUZES_PAINEL, LAR_LUZES_PAINEL
+    WORD VERMELHO, VERDE, AMARELO, AZUL, CINZENTO, CINZENTO, VERDE
+    WORD CINZENTO, CINZENTO, VERDE, VERMELHO, AMARELO, AZUL, VERMELHO
+
+DEF_LUZES_PAINEL3:
+    WORD ALT_LUZES_PAINEL, LAR_LUZES_PAINEL
+    WORD AMARELO, VERDE, VERMELHO, VERDE, CINZENTO, VERMELHO, AZUL
+    WORD VERDE, CINZENTO, CINZENTO, VERDE, AMARELO, AZUL, VERMELHO
+
+DEF_LUZES_PAINEL4:
+    WORD ALT_LUZES_PAINEL, LAR_LUZES_PAINEL
+    WORD VERDE, AMARELO, AZUL, VERMELHO, VERDE, CINZENTO, AZUL
+    WORD VERMELHO, AMARELO, VERMELHO, AMARELO, VERDE, AZUL, CINZENTO
+
+DEF_LUZES_PAINEL5:
+    WORD ALT_LUZES_PAINEL, LAR_LUZES_PAINEL
+    WORD AZUL, CINZENTO, CINZENTO, VERDE, VERMELHO, VERDE, AMARELO
+    WORD AZUL, AMARELO, VERMELHO, VERDE, VERDE, CINZENTO, AZUL
+
+DEF_LUZES_PAINEL6:
+    WORD ALT_LUZES_PAINEL, LAR_LUZES_PAINEL
+    WORD CINZENTO, VERMELHO, VERMELHO, CINZENTO, AMARELO, VERDE, AZUL
+    WORD CINZENTO, CINZENTO, VERDE, AZUL, VERMELHO, VERDE, CINZENTO
+
+DEF_LUZES_PAINEL7:
+    WORD ALT_LUZES_PAINEL, LAR_LUZES_PAINEL
+    WORD VERDE, CINZENTO, CINZENTO, VERDE, AMARELO, AMARELO, AZUL,
+    WORD CINZENTO, AMARELO, VERMELHO, VERMELHO, VERDE, CINZENTO, VERMELHO
+
+DEF_LUZES_PAINEL8:
+    WORD ALT_LUZES_PAINEL, LAR_LUZES_PAINEL
+    WORD CINZENTO, AZUL, CINZENTO, VERMELHO, AZUL, AMARELO, VERDE
+    WORD AZUL, AMARELO, VERDE, CINZENTO, CINZENTO, AZUL, AMARELO 
 
 DEF_SONDA:
     WORD ALT_SONDA, LAR_SONDA
@@ -267,7 +312,8 @@ POSICOES_SONDA:
 
 energia: WORD ENERGIA_INICIAL                ; energia da nave
 INICIO_JOGO: WORD 1         ; flag que indica se estamos no início do jogo
-GAME_OVER:  LOCK 0                     ; flag que indica se o jogo acabou e como acabou (1-energia, 2-colisao, 3-pausa, 4-termino voluntario do jogo)
+GAME_OVER: LOCK 0           ; flag que indica se o jogo acabou e como acabou
+luzes_painel: LOCK 0
 tecla_carregada: LOCK 0
 anima_meteoro: LOCK 0
 anima_sonda: LOCK 0
@@ -297,6 +343,7 @@ cria_bonecos:
     CALL inicio_energia
     CALL cria_painel                    ; cria o painel na sua posição
     CALL inicio_teclado
+    CALL inicio_luzes_painel
 
     MOV R11, N_METEOROS
     SUB R11, 1          ; contar com o meteoro 0
@@ -374,6 +421,65 @@ PROCESS SP_inicial_controlo
         derrota_colisao:
 
         derrota_energia:
+
+PROCESS SP_inicial_nave
+    inicio_luzes_painel:
+        MOV R1, LIN_PAINEL
+        MOV R2, COL_PAINEL
+        painel_inicial:
+            MOV R4, DEF_LUZES_PAINEL1
+            CALL desenha_boneco
+            MOV R0, [luzes_painel]
+            JMP painel2
+        painel1:                        
+            CALL apaga_boneco               ; sem ser na primeira vez em que o primeiro arranjo de luzes aparece, já existe um boneco anterior para apagar 
+            MOV R4, DEF_LUZES_PAINEL1
+            CALL desenha_boneco
+            MOV R0, [luzes_painel]
+        painel2:
+            CALL apaga_boneco
+            MOV R4, DEF_LUZES_PAINEL2
+            CALL desenha_boneco
+            MOV R0, [luzes_painel]
+        painel3:
+            CALL apaga_boneco
+            MOV R4, DEF_LUZES_PAINEL3
+            CALL desenha_boneco
+            MOV R0, [luzes_painel]
+        painel4:
+            CALL apaga_boneco
+            MOV R4, DEF_LUZES_PAINEL4
+            CALL desenha_boneco
+            MOV R0, [luzes_painel]
+        painel5:
+            CALL apaga_boneco
+            MOV R4, DEF_LUZES_PAINEL5
+            CALL desenha_boneco
+            MOV R0, [luzes_painel]
+        painel6:
+            CALL apaga_boneco
+            MOV R4, DEF_LUZES_PAINEL6
+            CALL desenha_boneco
+            MOV R0, [luzes_painel]
+        painel7:
+            CALL apaga_boneco
+            MOV R4, DEF_LUZES_PAINEL7
+            CALL desenha_boneco
+            MOV R0, [luzes_painel]
+        painel8:
+            CALL apaga_boneco
+            MOV R4, DEF_LUZES_PAINEL8
+            CALL desenha_boneco
+            MOV R0, [luzes_painel]
+            JMP painel1
+
+int_luzes_painel:
+    PUSH R0
+    MOV R0, 1
+    MOV [luzes_painel], R0
+    POP R0
+    RFE
+
 
 ; * Argumentos: R2 - numero limite, R3 - Variável a guardar
    
