@@ -410,12 +410,12 @@ PROCESS SP_inicial_controlo
             CMP R0, 3                           ; se foi alterada para 3, o jogo foi perdido devido a acabar a energia
             JZ derrota_energia
             CMP R0, 4                           ; se foi alterada para 4, o jogo foi terminado manualmente
-            JZ derrota_energia
+            JZ terminado
 
         pausa:
             MOV R6, 0
             MOV [GAME_OVER], R6                 ; flag volta a 0 para que quando o programa saia deste ciclo saber que pode voltar ao jogo principal
-            MOV R0, 5                           ; tela inicial (fundo número 5)
+            MOV R0, 5                           ; tela de pausa (fundo número 5)
             MOV [PAUSA_VIDEO], R0
             MOV [SELECIONA_CENARIO_FRONTAL], R0   ; seleciona o cenário de fundo
             MOV R6, 8                           ; quarta linha
@@ -469,11 +469,13 @@ PROCESS SP_inicial_controlo
             MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
             MOV R6, 8                           ; quarta linha
             MOV R1, 1                           ; primeira coluna
+            CALL espera_nao_tecla
             testa_C_terminado:
                 CALL teclado
                 CMP  R0, R1                         ; verifica se foi pressionada a tecla C
                 JNZ testa_C_terminado
             acaba_terminado:
+                CALL espera_nao_tecla
                 JMP start
 
 
@@ -533,14 +535,23 @@ PROCESS SP_inicial_teclado
         CMP	 R0, 0
         JZ	 linha		        ; espera, enquanto não houver tecla carregada
         
-        CALL converte
+        CALL converte                   ;R0 é a tecla pressionada
         MOV [tecla_carregada], R0
-        MOV R1, 0DH
-        CMP R0, R1
-        JNZ ha_tecla
+        MOV R1, 0DH                    
+        CMP R0, R1                      ;verifica se foi pressionado D
+        JZ testa_pausa
+        MOV R1, 0EH
+        CMP R0, R1                      ;verifica se foi pressionado D
+        JZ testa_fim
+        JMP ha_tecla
         testa_pausa:
             MOV R1, 1
             MOV [GAME_OVER], R1
+        testa_fim:
+            MOV R1, 4
+            MOV [GAME_OVER], R1
+
+        
 
     ha_tecla:
         YIELD
