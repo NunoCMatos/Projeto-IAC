@@ -20,6 +20,8 @@
 COMANDOS                    EQU 6000H   ; endereço base dos comandos do MediaCenter
 APAGA_ECRA	 		        EQU COMANDOS + 02H		; endereço do comando para apagar todos os pixels já desenhados
 DEFINE_ECRA                 EQU COMANDOS + 04H      ; endereço do comando para definir o ecrâ
+MOSTRA_ECRA                 EQU COMANDOS + 08H      ; endereço do comando para mostrar o ecrâ
+ESCONDE_ECRA                EQU COMANDOS + 08H      ; endereço do comando para esconder o ecrâ
 DEFINE_LINHA    	        EQU COMANDOS + 0AH		; endereço do comando para definir a linha
 DEFINE_COLUNA   	        EQU COMANDOS + 0CH		; endereço do comando para definir a coluna
 OBTEM_PIXEL                 EQU COMANDOS + 10H      
@@ -467,6 +469,7 @@ PROCESS SP_inicial_controlo
         terminado:
             MOV R6, 0
             MOV [GAME_OVER], R6                 ; flag volta a 0 para que quando o programa saia deste ciclo saber que pode voltar ao jogo principal
+            MOV [ESCONDE_ECRA], R6              ; esconde o ecrã do painel
             MOV [APAGA_ECRA], R0                ; apaga todos os pixels já desenhados
             MOV R0, 4                           ; tela inicial (fundo número 4)
             MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
@@ -480,8 +483,11 @@ PROCESS SP_inicial_controlo
                 JNZ testa_C_terminado
             acaba_terminado:
                 CALL espera_nao_tecla
-                CALL inicio_energia
-                CALL inicio_painel
+                MOV R1, ENERGIA_INICIAL
+                MOV [energia], R1
+                CALL escreve_energia
+                MOV R6, 0
+                MOV [MOSTRA_ECRA], R6
                 MOV R3, METEORO_FUNCAO
                 MOV R4, -1
                 MOV [R3], R4
