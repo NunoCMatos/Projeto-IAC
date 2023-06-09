@@ -482,6 +482,12 @@ PROCESS SP_inicial_controlo
                 CALL espera_nao_tecla
                 CALL inicio_energia
                 CALL inicio_painel
+                MOV R3, METEORO_FUNCAO
+                MOV R4, -1
+                MOV [R3], R4
+                MOV [R3+2], R4
+                MOV [R3+4], R4
+                MOV [R3+6], R4
                 JMP running
 
 
