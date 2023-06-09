@@ -341,7 +341,7 @@ inicializacoes:
     EI
 
 cria_bonecos:
-    CALL inicio_controlo
+    CALL inicio_controlo  
     CALL inicio_energia
     CALL inicio_painel
     CALL inicio_teclado
@@ -375,9 +375,9 @@ fim:
 
 PROCESS SP_inicial_controlo
     inicio_controlo:
-;    MOV R1, [INICIO_JOGO]       ; coloca em R1 se estamos no início do jogo 
-;    CMP R1, 1                   ; verifica se estamos no início do jogo
-;    JNZ running                  ; se não, salta para o ciclo de jogo
+    MOV R1, [INICIO_JOGO]       ; coloca em R1 se estamos no início do jogo 
+    CMP R1, 1                   ; verifica se estamos no início do jogo
+    JNZ running                  ; se não, salta para o ciclo de jogo
         start:                  ; iníco do jogo
             MOV R1, 0
             MOV [INICIO_JOGO], R1                   ; altera a flag de inicio de jogo para não voltar a entrar em start
@@ -480,6 +480,8 @@ PROCESS SP_inicial_controlo
                 JNZ testa_C_terminado
             acaba_terminado:
                 CALL espera_nao_tecla
+                CALL inicio_energia
+                CALL inicio_painel
                 JMP running
 
 
