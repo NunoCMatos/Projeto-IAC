@@ -42,13 +42,12 @@ ATRASO      EQU 10H     ; atraso para limitar a velocidade de movimento do bonec
 ; **********************************************************************
 ; * Periféricos
 ; **********************************************************************
-DISPLAYS                    EQU 0A000H  ; endereço dos displays de 7 segmentos (perif�rico POUT-1)
-TEC_LIN                     EQU 0C000H  ; endereço das linhas do teclado (perif�rico POUT-2)
-TEC_COL                     EQU 0E000H  ; endereço das colunas do teclado (perif�rico PIN)
-EXPLODE                     EQU 0CH
-INCREMENTA                  EQU 01H     ; tecla que incrementa o contador
-DECREMENTA                  EQU 00H     ; tecla que decrementa o contador
-C_LINHA                     EQU 10H     ; número para o ciclo de varrimento do teclado
+DISPLAYS    EQU 0A000H  ; endereço dos displays de 7 segmentos (perif�rico POUT-1)
+TEC_LIN     EQU 0C000H  ; endereço das linhas do teclado (perif�rico POUT-2)
+TEC_COL     EQU 0E000H  ; endereço das colunas do teclado (perif�rico PIN)
+INCREMENTA  EQU 01H     ; tecla que incrementa o contador
+DECREMENTA  EQU 00H     ; tecla que decrementa o contador
+C_LINHA     EQU 10H     ; número para o ciclo de varrimento do teclado
 
 ; **********************************************************************
 ; * Máscaras
@@ -421,7 +420,7 @@ PROCESS SP_inicial_controlo
             MOV R6, 8                           ; quarta linha
             MOV R1, 2                           ; segunda coluna
             CALL espera_nao_tecla
-            ttesta_D:
+            testa_D:
                 CALL teclado
                 MOV  R1, 4
                 CMP  R0, R1
@@ -583,25 +582,25 @@ PROCESS SP_inicial_meteoro_0
         SHL R10, 1
         INC R11         ; número do ecrã
         MOV R7, +1
+        MOV R9, R11
 
     inicia_meteoro:
         CALL cria_meteoro
-        CALL ativa_coordenadas_meteoro
-        MOV R9, R11
-        CALL desenha_boneco
     testa_meteoro:
+        CALL ativa_coordenadas_meteoro
+        CALL desenha_boneco
+        YIELD
         MOV R0, [anima_meteoro]
-        MOV R9, R11
+        MOV R0, METEORO_FUNCAO
+        MOV R3, [R0+R10]
+        CMP R3, -1
+        JZ inicia_meteoro
     	CALL apaga_boneco		        ; apaga o boneco na sua posição atual
 
     	CALL define_novas_coordenadas_meteoro	; escreve as novas coordenadas na memória
         MOV R0, MAX_LINHA
         CMP R1, R0
         JZ inicia_meteoro
-        
-    	CALL desenha_boneco             ; desenha o boneco nas novas coordenadas
-
-    YIELD
     JMP testa_meteoro                ; volta a esperar que não haja tecla carregada
 
 int_meteoro:
@@ -653,6 +652,8 @@ PROCESS SP_inicial_sonda_0
         ADD R1, R7
         ADD R2, R8
         CALL verifica_colisao
+        CMP R0, 1
+        JZ inicia_sonda
         SUB R3, 1
         JNZ ciclo_sonda
         JMP inicia_sonda
@@ -947,10 +948,10 @@ ativa_coordenadas_meteoro:
 ;               R2 - Coluna atual
 ;               R9 - Ecrã das sondas
 ;
+; Retorno: R0 - Houve colisao ou n
 ; **********************************************************************
 
 verifica_colisao:
-    PUSH R0
     PUSH R1
     PUSH R2
     PUSH R3
@@ -968,17 +969,18 @@ verifica_colisao:
         JZ colisao_nao_mineravel
         JMP ciclo_lepixel
     colisao_nao_mineravel:
-        
+        CALL explode_nao_mineravel
+        MOV R0, 1
         JMP saida_colisao
     colisao_mineravel:
         CALL explode_mineravel
         CALL incrementa25
+        MOV R0, 1
 saida_colisao:
     POP R9
     POP R3
     POP R2
     POP R1
-    POP R0
     RET
 
 ; **********************************************************************
@@ -1010,8 +1012,47 @@ explode_mineravel:
         SUB R3, 1
         JNZ ciclo_explosao_mineravel
     CALL apaga_boneco
-    MOV R0, METEORO_LINHA
-    MOV R1, MAX_LINHA
+    MOV R0, METEORO_FUNCAO
+    MOV R1, -1
+    MOV [R0+R10], R1
+    POP R10
+    POP R9
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    POP R0
+    RET
+
+
+; **********************************************************************
+; EXPLODE_NAO_MINERAVEL - Rotina responsãvel pela explosao de um meteoro 
+;                   mineravel.
+;
+; Argumentos:   R9 - Ecrã das sondas
+;
+; **********************************************************************
+
+explode_nao_mineravel:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+    PUSH R9
+    PUSH R10
+    MOV R10, R9
+    SUB R10, 1
+    SHL R10, 1
+    CALL ativa_coordenadas_meteoro
+    MOV R0, 36H
+    ADD R4, R0
+    CALL apaga_boneco
+    CALL desenha_boneco
+    CALL atraso
+    CALL apaga_boneco
+    MOV R0, METEORO_FUNCAO
+    MOV R1, -1
     MOV [R0+R10], R1
     POP R10
     POP R9
