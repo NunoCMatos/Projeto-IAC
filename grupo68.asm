@@ -341,9 +341,6 @@ inicializacoes:
     EI2
     EI3
     EI
-    
-    ; * Gerais
-    MOV R5, ISOLA_03BITS                  ; para isolar os 4 bits de menor peso
 
 cria_bonecos:
     CALL inicio_controlo
@@ -410,7 +407,7 @@ PROCESS SP_inicial_controlo
             CMP R0, 3                           ; se foi alterada para 3, o jogo foi perdido devido a acabar a energia
             JZ derrota_energia
             CMP R0, 4                           ; se foi alterada para 4, o jogo foi terminado manualmente
-            JZ derrota_energia
+            JZ terminado
 
         pausa:
             MOV R6, 0
