@@ -32,6 +32,7 @@ TOCA_SOM                    EQU COMANDOS + 5AH		; endereço do comando para toca
 REPRODUZ_VIDEO              EQU COMANDOS + 5CH
 PAUSA_VIDEO                 EQU COMANDOS + 62H
 RETOMA_VIDEO                EQU COMANDOS + 64H
+APAGA_VIDEO                 EQU COMANDOS + 68H
 
 MIN_LINHA   EQU 0       ; número da coluna mais à esquerda do ecrã
 MIN_COLUNA  EQU 0		; número da coluna mais à esquerda do ecrã
@@ -469,6 +470,7 @@ PROCESS SP_inicial_controlo
             MOV [APAGA_ECRA], R0                ; apaga todos os pixels já desenhados
             MOV R0, 4                           ; tela inicial (fundo número 4)
             MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
+            MOV [APAGA_VIDEO], R0               ; para o vídeo de fundo
             MOV R6, 8                           ; quarta linha
             MOV R1, 1                           ; primeira coluna
             CALL espera_nao_tecla
@@ -478,7 +480,7 @@ PROCESS SP_inicial_controlo
                 JNZ testa_C_terminado
             acaba_terminado:
                 CALL espera_nao_tecla
-                JMP start
+                JMP running
 
 
 ; **********************************************************************
