@@ -428,6 +428,7 @@ PROCESS SP_inicial_controlo
             acaba_pausa:
                 MOV [RETOMA_VIDEO], R0
                 MOV [APAGA_ECRA_FRONTAL], R0	            ; apaga todos os pixels já desenhados
+                CALL espera_nao_tecla
                 JMP running
 
         derrota_colisao:
