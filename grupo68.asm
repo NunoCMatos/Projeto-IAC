@@ -421,14 +421,17 @@ PROCESS SP_inicial_controlo
             MOV R6, 8                           ; quarta linha
             MOV R1, 2                           ; segunda coluna
             CALL espera_nao_tecla
-            testa_D:
+            ttesta_D:
                 CALL teclado
+                MOV  R1, 4
+                CMP  R0, R1
+                JZ running
+                SHR  R1, 1
                 CMP  R0, R1                         ; verifica se foi pressionada a tecla D
                 JNZ testa_D
             acaba_pausa:
-                MOV [RETOMA_VIDEO], R0
-                MOV [APAGA_ECRA_FRONTAL], R0	            ; apaga todos os pixels já desenhados
                 CALL espera_nao_tecla
+                MOV [APAGA_ECRA_FRONTAL], R0	            ; apaga todos os pixels já desenhados
                 JMP running
 
         derrota_colisao:
@@ -515,6 +518,7 @@ PROCESS SP_inicial_teclado
         testa_pausa:
             MOV R1, 1
             MOV [GAME_OVER], R1
+            JMP ha_tecla
         testa_fim:
             MOV R1, 4
             MOV [GAME_OVER], R1
