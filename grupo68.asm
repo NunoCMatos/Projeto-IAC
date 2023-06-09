@@ -30,27 +30,27 @@ SELECIONA_CENARIO_FRONTAL   EQU COMANDOS + 46H
 TOCA_SOM                    EQU COMANDOS + 5AH		; endereço do comando para tocar um som
 REPRODUZ_VIDEO              EQU COMANDOS + 5CH
 PAUSA_VIDEO                 EQU COMANDOS + 62H
-RETOMA_VIDEO              EQU COMANDOS + 64H
+RETOMA_VIDEO                EQU COMANDOS + 64H
 
-MIN_LINHA		            EQU 0       ; número da coluna mais à esquerda do ecrã
-MIN_COLUNA		            EQU 0		; número da coluna mais à esquerda do ecrã
-MAX_LINHA		            EQU 32      ; número da coluna mais à direita do ecrã
-MAX_COLUNA		            EQU 64      ; número da coluna mais à direita do ecrã
-ATRASO			            EQU 10H     ; atraso para limitar a velocidade de movimento do boneco
+MIN_LINHA   EQU 0       ; número da coluna mais à esquerda do ecrã
+MIN_COLUNA  EQU 0		; número da coluna mais à esquerda do ecrã
+MAX_LINHA   EQU 32      ; número da coluna mais à direita do ecrã
+MAX_COLUNA  EQU 64      ; número da coluna mais à direita do ecrã
+ATRASO      EQU 10H     ; atraso para limitar a velocidade de movimento do boneco
 
 ; **********************************************************************
 ; * Periféricos
 ; **********************************************************************
-DISPLAYS        EQU 0A000H  ; endereço dos displays de 7 segmentos (perif�rico POUT-1)
-TEC_LIN         EQU 0C000H  ; endereço das linhas do teclado (perif�rico POUT-2)
-TEC_COL         EQU 0E000H  ; endereço das colunas do teclado (perif�rico PIN)
-MOVE_METEORO    EQU 0FH     ; tecla que faz o meteoro mover
+DISPLAYS                    EQU 0A000H  ; endereço dos displays de 7 segmentos (perif�rico POUT-1)
+TEC_LIN                     EQU 0C000H  ; endereço das linhas do teclado (perif�rico POUT-2)
+TEC_COL                     EQU 0E000H  ; endereço das colunas do teclado (perif�rico PIN)
+MOVE_METEORO                EQU 0FH     ; tecla que faz o meteoro mover
 MOVE_METEORO_NAO_MINERAVEL  EQU 0EH
-EXPLODE         EQU 0CH
-MOVE_SONDA      EQU 0BH     ; tecla que faz a sonda mover
-INCREMENTA      EQU 01H     ; tecla que incrementa o contador
-DECREMENTA      EQU 00H     ; tecla que decrementa o contador
-C_LINHA         EQU 10H     ; número para o ciclo de varrimento do teclado
+EXPLODE                     EQU 0CH
+MOVE_SONDA                  EQU 0BH     ; tecla que faz a sonda mover
+INCREMENTA                  EQU 01H     ; tecla que incrementa o contador
+DECREMENTA                  EQU 00H     ; tecla que decrementa o contador
+C_LINHA                     EQU 10H     ; número para o ciclo de varrimento do teclado
 
 ; **********************************************************************
 ; * Máscaras
@@ -72,20 +72,20 @@ SPAWN1_SND_COL  EQU 26  ; coluna do 1.º spawnpoint (esquerda do painel)
 SPAWN2_SND_COL  EQU 32  ; coluna do 2.º spawnpoint (meio do painel)
 SPAWN3_SND_COL  EQU 38  ; coluna do 3.º spawnpoint (direita do painel)
 
-LIN_PAINEL  EQU 27      ; linha do painel da nave
-LIN_LUZES_PAINEL EQU 29
-COL_PAINEL  EQU 25      ; coluna do painel da nave
-COL_LUZES_PAINEL EQU 29
+LIN_PAINEL          EQU 27      ; linha do painel da nave
+LIN_LUZES_PAINEL    EQU 29
+COL_PAINEL          EQU 25      ; coluna do painel da nave
+COL_LUZES_PAINEL    EQU 29
 
 ; * Tamanhos
-LARGURA     EQU 5   ; largura dos meteoros (mineráveis ou não)
-ALTURA      EQU 5   ; altura dos meteoros (mineráveis ou não)
-LAR_PAINEL  EQU 15  ; largura do painel da nave
-ALT_PAINEL  EQU 5   ; altura do painel da nave
-LAR_LUZES_PAINEL EQU 7  ; largura das luzes do painel
-ALT_LUZES_PAINEL EQU 2  ; altura das luzes do painel
-LAR_SONDA   EQU 1   ; largura das sondas
-ALT_SONDA   EQU 1   ; altura das sondas
+LARGURA             EQU 5   ; largura dos meteoros (mineráveis ou não)
+ALTURA              EQU 5   ; altura dos meteoros (mineráveis ou não)
+LAR_PAINEL          EQU 15  ; largura do painel da nave
+ALT_PAINEL          EQU 5   ; altura do painel da nave
+LAR_LUZES_PAINEL    EQU 7  ; largura das luzes do painel
+ALT_LUZES_PAINEL    EQU 2  ; altura das luzes do painel
+LAR_SONDA           EQU 1   ; largura das sondas
+ALT_SONDA           EQU 1   ; altura das sondas
 
 ; * Cores
 VERMELHO    EQU 0FF00H
