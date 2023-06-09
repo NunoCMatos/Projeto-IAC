@@ -17,18 +17,20 @@
 ; * MediaCenter
 ; **********************************************************************
 COMANDOS                    EQU 6000H   ; endereço base dos comandos do MediaCenter
+APAGA_ECRA	 		        EQU COMANDOS + 02H		; endereço do comando para apagar todos os pixels já desenhados
 DEFINE_ECRA                 EQU COMANDOS + 04H
 DEFINE_LINHA    	        EQU COMANDOS + 0AH		; endereço do comando para definir a linha
 DEFINE_COLUNA   	        EQU COMANDOS + 0CH		; endereço do comando para definir a coluna
 OBTEM_PIXEL                 EQU COMANDOS + 10H
 DEFINE_PIXEL                EQU COMANDOS + 12H		; endereço do comando para escrever um pixel
 APAGA_AVISO     	        EQU COMANDOS + 40H		; endereço do comando para apagar o aviso de nenhum cenário selecionado
-APAGA_ECRA	 		        EQU COMANDOS + 02H		; endereço do comando para apagar todos os pixels já desenhados
 SELECIONA_CENARIO_FUNDO     EQU COMANDOS + 42H		; endereço do comando para selecionar uma imagem de fundo
+APAGA_ECRA_FRONTAL          EQU COMANDOS + 44H
 SELECIONA_CENARIO_FRONTAL   EQU COMANDOS + 46H
 TOCA_SOM                    EQU COMANDOS + 5AH		; endereço do comando para tocar um som
 REPRODUZ_VIDEO              EQU COMANDOS + 5CH
-
+PAUSA_VIDEO                 EQU COMANDOS + 62H
+RETOMA_VIDEO              EQU COMANDOS + 64H
 
 MIN_LINHA		            EQU 0       ; número da coluna mais à esquerda do ecrã
 MIN_COLUNA		            EQU 0		; número da coluna mais à esquerda do ecrã
@@ -348,7 +350,6 @@ cria_bonecos:
     CALL inicio_energia
     CALL inicio_painel
     CALL inicio_teclado
-    CALL inicio_pausa
 
     MOV R11, N_METEOROS
     SUB R11, 1          ; contar com o meteoro 0
@@ -374,15 +375,16 @@ fim:
 
 PROCESS SP_inicial_controlo
     inicio_controlo:
-    MOV R1, [INICIO_JOGO]       ; coloca em R1 se estamos no início do jogo 
-    CMP R1, 1                   ; verifica se estamos no início do jogo
-    JNZ running                  ; se não, salta para o ciclo de jogo
+;    MOV R1, [INICIO_JOGO]       ; coloca em R1 se estamos no início do jogo 
+;    CMP R1, 1                   ; verifica se estamos no início do jogo
+;    JNZ running                  ; se não, salta para o ciclo de jogo
         start:                  ; iníco do jogo
             MOV R1, 0
             MOV [INICIO_JOGO], R1                   ; altera a flag de inicio de jogo para não voltar a entrar em start
             tela_inicial:
                 MOV [APAGA_AVISO], R0	            ; apaga o aviso do ecrã
                 MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados
+                MOV [APAGA_ECRA_FRONTAL], R0
                 MOV R0, 0
                 MOV [DISPLAYS], R0
                 MOV R0, 1                           ; tela inicial (fundo número 1)
@@ -394,10 +396,10 @@ PROCESS SP_inicial_controlo
                 CALL teclado
                 CMP  R0, R1                          ;verifica se foi pressionada a tecla C
                 JNZ  espera_c
-        video:
+
+        running:                                ; ciclo do jogo 
             MOV R0, 0                           ; cenário de fundo número 0
             MOV [REPRODUZ_VIDEO], R0   ; seleciona o cenário de fundo
-        running:                                ; ciclo do jogo 
             MOV R0, [GAME_OVER]                 ; le a flag
             CMP R0, 0                           ; verifica se foi alterada
             JZ inicio_controlo                         ; se nao foi alterada, continua o jogo
@@ -414,15 +416,18 @@ PROCESS SP_inicial_controlo
             MOV R6, 0
             MOV [GAME_OVER], R6                 ; flag volta a 0 para que quando o programa saia deste ciclo saber que pode voltar ao jogo principal
             MOV R0, 5                           ; tela inicial (fundo número 5)
-            MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
+            MOV [PAUSA_VIDEO], R0
+            MOV [SELECIONA_CENARIO_FRONTAL], R0   ; seleciona o cenário de fundo
             MOV R6, 8                           ; quarta linha
             MOV R1, 2                           ; segunda coluna
-            testa_D_2:
+            CALL espera_nao_tecla
+            testa_D:
                 CALL teclado
                 CMP  R0, R1                         ; verifica se foi pressionada a tecla D
-                JNZ testa_D_2
+                JNZ testa_D
             acaba_pausa:
-                MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados
+                MOV [RETOMA_VIDEO], R0
+                MOV [APAGA_ECRA_FRONTAL], R0	            ; apaga todos os pixels já desenhados
                 JMP running
 
         derrota_colisao:
@@ -470,6 +475,7 @@ PROCESS SP_inicial_controlo
             acaba_terminado:
                 JMP start
 
+
 PROCESS SP_inicial_nave
     inicio_painel:
         CALL cria_painel                    ; cria o painel na sua posição
@@ -495,25 +501,6 @@ int_luzes_painel:
     MOV [luzes_painel], R0
     POP R0
     RFE
-
-
-; * Argumentos: R2 - numero limite, R3 - Variável a guardar
-   
-PROCESS SP_pausa
-    inicio_pausa:
-        MOV R6, 8                           ; quarta linha
-        MOV R1, 2
-    testa_D:  
-        CALL teclado
-        CMP  R0, R1                         ; verifica se foi pressionada a tecla D
-        JZ  ha_pausa
-    nao_pausa:
-        YIELD
-        JMP testa_D
-    ha_pausa:
-        MOV R2, 1
-        MOV [GAME_OVER], R2
-        JMP testa_D
        
 
 ; * Argumentos: R11 - Módulo, Retorno: R0 - Numero aleatorio
@@ -547,6 +534,12 @@ PROCESS SP_inicial_teclado
         
         CALL converte
         MOV [tecla_carregada], R0
+        MOV R1, 0DH
+        CMP R0, R1
+        JNZ ha_tecla
+        testa_pausa:
+            MOV R1, 1
+            MOV [GAME_OVER], R1
 
     ha_tecla:
         YIELD
@@ -579,6 +572,23 @@ teclado_saida:
 	POP	R3
 	POP	R2
 	RET
+
+
+; **********************************************************************
+; espera_nao_tecla - Espera até NÃO haver nenhuma tecla premida na linha
+;                    guardada em R6
+; Argumentos:   R6 - linha
+;
+; **********************************************************************
+
+espera_nao_tecla:
+    PUSH R0
+    espera_nao_tecla_ciclo:
+	CALL teclado			           ; leitura às teclas
+	CMP	R0, 0                          ; verifica se há alguma tecla a ser primida
+	JNZ	espera_nao_tecla_ciclo	       ; espera enquanto houver tecla uma tecla carregada
+    POP R0
+    RET
 
 
 PROCESS SP_inicial_meteoro_0

@@ -20,6 +20,7 @@ COMANDOS                    EQU 6000H   ; endereço base dos comandos do MediaCe
 DEFINE_ECRA                 EQU COMANDOS + 04H
 DEFINE_LINHA    	        EQU COMANDOS + 0AH		; endereço do comando para definir a linha
 DEFINE_COLUNA   	        EQU COMANDOS + 0CH		; endereço do comando para definir a coluna
+OBTEM_PIXEL                 EQU COMANDOS + 10H
 DEFINE_PIXEL                EQU COMANDOS + 12H		; endereço do comando para escrever um pixel
 APAGA_AVISO     	        EQU COMANDOS + 40H		; endereço do comando para apagar o aviso de nenhum cenário selecionado
 APAGA_ECRA	 		        EQU COMANDOS + 02H		; endereço do comando para apagar todos os pixels já desenhados
@@ -347,6 +348,7 @@ cria_bonecos:
     CALL inicio_energia
     CALL inicio_painel
     CALL inicio_teclado
+    CALL inicio_pausa
 
     MOV R11, N_METEOROS
     SUB R11, 1          ; contar com o meteoro 0
@@ -386,44 +388,87 @@ PROCESS SP_inicial_controlo
                 MOV R0, 1                           ; tela inicial (fundo número 1)
                 MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
                 MOV R6, 8                           ; quarta linha
-                MOV R1, 1
+                MOV R1, 1                           ; primeira coluna
                 
             espera_c:                         
                 CALL teclado
                 CMP  R0, R1                          ;verifica se foi pressionada a tecla C
                 JNZ  espera_c
-
-        running:                                ; ciclo do jogo
-            MOV R0, 1                           ; cenário de fundo número 0
+        video:
+            MOV R0, 0                           ; cenário de fundo número 0
             MOV [REPRODUZ_VIDEO], R0   ; seleciona o cenário de fundo
+        running:                                ; ciclo do jogo 
             MOV R0, [GAME_OVER]                 ; le a flag
             CMP R0, 0                           ; verifica se foi alterada
             JZ inicio_controlo                         ; se nao foi alterada, continua o jogo
             CMP R0, 1                           ; se foi alterada para 1, o jogo foi colocado em pausa
-            JZ derrota_energia
-            CMP R0, 2
-            JZ derrota_colisao
-            CMP R0, 3
             JZ pausa
-        termina_jogo:
+            CMP R0, 2                           ; se foi alterada para 2, o jogo foi perdido devido a uma colisão
+            JZ derrota_colisao
+            CMP R0, 3                           ; se foi alterada para 3, o jogo foi perdido devido a acabar a energia
+            JZ derrota_energia
+            CMP R0, 4                           ; se foi alterada para 4, o jogo foi terminado manualmente
+            JZ derrota_energia
 
         pausa:
             MOV R6, 0
             MOV [GAME_OVER], R6                 ; flag volta a 0 para que quando o programa saia deste ciclo saber que pode voltar ao jogo principal
+            MOV R0, 5                           ; tela inicial (fundo número 5)
+            MOV [SELECIONA_CENARIO_FRONTAL], R0   ; seleciona o cenário de fundo
             MOV R6, 8                           ; quarta linha
-            MOV R1, 2
+            MOV R1, 2                           ; segunda coluna
             testa_D_2:
                 CALL teclado
                 CMP  R0, R1                         ; verifica se foi pressionada a tecla D
-                JZ  acaba_pausa
-                JMP testa_D_2
+                JNZ testa_D_2
             acaba_pausa:
                 MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados
                 JMP running
 
         derrota_colisao:
+            MOV R6, 0
+            MOV [GAME_OVER], R6                 ; flag volta a 0 para que quando o programa saia deste ciclo saber que pode voltar ao jogo principal
+            MOV [APAGA_ECRA], R0                ; apaga todos os pixels já desenhados
+            MOV R0, 2                           ; tela inicial (fundo número 2)
+            MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
+            MOV R6, 8                           ; quarta linha
+            MOV R1, 1                           ; primeira coluna
+            testa_C_colisao:
+                CALL teclado
+                CMP  R0, R1                         ; verifica se foi pressionada a tecla C
+                JNZ testa_C_colisao
+            acaba_der_colisao:
+                JMP start
 
         derrota_energia:
+            MOV R6, 0
+            MOV [GAME_OVER], R6                 ; flag volta a 0 para que quando o programa saia deste ciclo saber que pode voltar ao jogo principal
+            MOV [APAGA_ECRA], R0                ; apaga todos os pixels já desenhados
+            MOV R0, 3                           ; tela inicial (fundo número 3)
+            MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
+            MOV R6, 8                           ; quarta linha
+            MOV R1, 1                           ; primeira coluna
+            testa_C_energia:
+                CALL teclado
+                CMP  R0, R1                         ; verifica se foi pressionada a tecla C
+                JNZ testa_C_energia
+            acaba_der_energia:
+                JMP start
+        
+        terminado:
+            MOV R6, 0
+            MOV [GAME_OVER], R6                 ; flag volta a 0 para que quando o programa saia deste ciclo saber que pode voltar ao jogo principal
+            MOV [APAGA_ECRA], R0                ; apaga todos os pixels já desenhados
+            MOV R0, 4                           ; tela inicial (fundo número 4)
+            MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
+            MOV R6, 8                           ; quarta linha
+            MOV R1, 1                           ; primeira coluna
+            testa_C_terminado:
+                CALL teclado
+                CMP  R0, R1                         ; verifica se foi pressionada a tecla C
+                JNZ testa_C_terminado
+            acaba_terminado:
+                JMP start
 
 PROCESS SP_inicial_nave
     inicio_painel:
@@ -466,9 +511,8 @@ PROCESS SP_pausa
         YIELD
         JMP testa_D
     ha_pausa:
-        MOV [APAGA_ECRA], R0	            ; apaga todos os pixels já desenhados
-        MOV R0, 2                           ; tela inicial (fundo número 1)
-        MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
+        MOV R2, 1
+        MOV [GAME_OVER], R2
         JMP testa_D
        
 
@@ -544,7 +588,7 @@ PROCESS SP_inicial_meteoro_0
         MUL R1, R11
         ADD SP, R1
         SHL R10, 1
-        INC R11
+        INC R11         ; número do ecrã
         MOV R7, +1
 
     inicia_meteoro:
@@ -608,10 +652,9 @@ PROCESS SP_inicial_sonda_0
         CALL apaga_boneco
         ADD R1, R7
         ADD R2, R8
-        ; verifica colisao
+        CALL verifica_colisao
         SUB R3, 1
         JNZ ciclo_sonda
-        CALL verifica_colisao
         JMP inicia_sonda
 
 int_sonda:
@@ -676,8 +719,71 @@ define_novas_coordenadas:
 
 ; R1 - linha atual, R2 - coluna atual, R9 - ecrã da sonda
 verifica_colisao:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R9
     ciclo_lepixel:
+        SUB R9, 1
+        JZ saida_colisao
+        MOV [DEFINE_ECRA], R9
+        MOV R0, [OBTEM_PIXEL]
+        MOV R3, VERDE
+        CMP R0, R3
+        JZ colisao_mineravel
+        MOV R3, VERMELHO
+        CMP R0, R3
+        JZ colisao_nao_mineravel
+        JMP ciclo_lepixel
+    colisao_nao_mineravel:
+        
+        JMP saida_colisao
+    colisao_mineravel:
+        CALL explode_mineravel
+        CALL incrementa25
+saida_colisao:
+    POP R9
+    POP R3
+    POP R2
+    POP R1
+    POP R0
+    RET
 
+
+; R9 - ecrã
+explode_mineravel:
+    PUSH R0
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+    PUSH R9
+    PUSH R10
+    MOV R10, R9
+    SUB R10, 1
+    SHL R10, 1
+    CALL ativa_coordenadas_meteoro
+    MOV R0, 36H
+    MOV R3, 2
+    ciclo_explosao_mineravel:
+        ADD R4, R0
+        CALL desenha_boneco
+        CALL atraso
+        SUB R3, 1
+        JNZ ciclo_explosao_mineravel
+    CALL apaga_boneco
+    MOV R0, METEORO_LINHA
+    MOV R1, MAX_LINHA
+    MOV [R0+R10], R1
+    POP R10
+    POP R9
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    POP R0
+    RET
 ; **********************************************************************
 ; DEFINE_NOVAS_COORDENADAS_METEORO - Define as novas coordenadas.
 ;
@@ -1111,10 +1217,32 @@ decrementa5:
     MOV R0, 100H
     DIV R1, R0
     MOV R3, [energia]
-    ciclo_decrementa25:
+    ciclo_decrementa5:
         CALL decrementa_energia
         SUB R1, 1
-        JNZ ciclo_decrementa25
+        JNZ ciclo_decrementa5
+    MOV [energia], R3
+    MOV R0, 2
+    MOV [decresce_energia], R0
+    POP R3
+    POP R1
+    POP R0
+    RET
+
+incrementa25:
+    PUSH R0
+    PUSH R1
+    PUSH R3
+    MOV R1, ENERGIA_INICIAL
+    MOV R0, 19H ; 25 em hexadecimal
+    MUL R1, R0
+    MOV R0, 100H
+    DIV R1, R0
+    MOV R3, [energia]
+    ciclo_incrementa25:
+        CALL incrementa_energia
+        SUB R1, 1
+        JNZ ciclo_incrementa25
     MOV [energia], R3
     MOV R0, 2
     MOV [decresce_energia], R0
