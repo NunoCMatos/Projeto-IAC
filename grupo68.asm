@@ -653,6 +653,7 @@ PROCESS SP_inicial_sonda_0
         CALL decrementa5
         MOV R1, POSICOES_SONDA
         MOV R0, [R10+R1]
+        CALL som_disparo        
     ativa_coordenadas_sonda:
         MOV R1, SPAWN_SND_LIN
         MOV R2, [R0]
@@ -1017,6 +1018,7 @@ explode_mineravel:
     CALL ativa_coordenadas_meteoro
     MOV R0, 36H
     MOV R3, 2
+    CALL som_explosao
     ciclo_explosao_mineravel:
         ADD R4, R0
         CALL desenha_boneco
@@ -1060,6 +1062,7 @@ explode_nao_mineravel:
     MOV R0, 36H
     ADD R4, R0
     CALL apaga_boneco
+    CALL som_explosao
     CALL desenha_boneco
     CALL atraso
     CALL apaga_boneco
@@ -1404,4 +1407,30 @@ repoe_jogo:
     MOV [R0+6], R1
     POP R1
     POP R0
+    RET
+
+
+; **********************************************************************
+; SOM_DISPARO - Toca o som de disparo.
+;
+; **********************************************************************
+
+som_disparo:
+    PUSH R1
+    MOV R1,             ; FALTA COLOCAR QUE SOM É
+    MOV [TOCA_SOM], R1
+    POP R1
+    RET
+
+
+; **********************************************************************
+; SOM_EXPLOSAO - Toca o som de explosao.
+;
+; **********************************************************************
+
+som_explosao:
+    PUSH R1
+    MOV R1,             ; FALTA COLOCAR QUE SOM É
+    MOV [TOCA_SOM], R1
+    POP R1
     RET
