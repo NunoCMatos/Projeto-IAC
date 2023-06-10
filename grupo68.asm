@@ -443,6 +443,8 @@ PROCESS SP_inicial_controlo
             MOV [APAGA_ECRA], R0                ; apaga todos os pixels já desenhados
             MOV R0, 2                           ; tela inicial (fundo número 2)
             MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
+            MOV [APAGA_VIDEO], R0               ; para o vídeo de fundo
+            MOV [APAGA_ECRA_FRONTAL], R0
             MOV R6, 8                           ; quarta linha
             MOV R1, 1                           ; primeira coluna
             testa_C_colisao:
@@ -450,7 +452,9 @@ PROCESS SP_inicial_controlo
                 CMP  R0, R1                         ; verifica se foi pressionada a tecla C
                 JNZ testa_C_colisao
             acaba_der_colisao:
-                JMP start
+                CALL espera_nao_tecla
+                CALL repoe_jogo
+                JMP running
 
         derrota_energia:
             MOV R6, 0
@@ -458,6 +462,8 @@ PROCESS SP_inicial_controlo
             MOV [APAGA_ECRA], R0                ; apaga todos os pixels já desenhados
             MOV R0, 3                           ; tela inicial (fundo número 3)
             MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
+            MOV [APAGA_VIDEO], R0               ; para o vídeo de fundo
+            MOV [APAGA_ECRA_FRONTAL], R0
             MOV R6, 8                           ; quarta linha
             MOV R1, 1                           ; primeira coluna
             testa_C_energia:
@@ -465,7 +471,9 @@ PROCESS SP_inicial_controlo
                 CMP  R0, R1                         ; verifica se foi pressionada a tecla C
                 JNZ testa_C_energia
             acaba_der_energia:
-                JMP start
+                CALL espera_nao_tecla
+                CALL repoe_jogo
+                JMP running
         
         terminado:
             MOV R6, 0
