@@ -1085,10 +1085,10 @@ explode_mineravel:
     MOV R5, [anima_meteoro]
     MOV R4, DEF_MET_MIN_EXP2
     CALL desenha_boneco
-    MOV R5, [anima_meteoro]
     MOV R0, METEORO_FUNCAO
     MOV R1, -1
     MOV [R0+R10], R1
+    CALL atraso
     POP R10
     POP R9
     POP R5
