@@ -387,7 +387,7 @@ PROCESS SP_inicial_controlo
     inicio_controlo:
     MOV R1, [INICIO_JOGO]       ; coloca em R1 se estamos no início do jogo 
     CMP R1, 1                   ; verifica se estamos no início do jogo
-    JNZ running                  ; se não, salta para o ciclo de jogo
+    JNZ running                 ; se não, salta para o ciclo de jogo
         start:                  ; iníco do jogo
             MOV R1, 0
             MOV [INICIO_JOGO], R1                   ; altera a flag de inicio de jogo para não voltar a entrar em start
@@ -404,7 +404,7 @@ PROCESS SP_inicial_controlo
                 
             espera_c:                         
                 CALL teclado
-                CMP  R0, R1                          ;verifica se foi pressionada a tecla C
+                CMP  R0, R1                         ;verifica se foi pressionada a tecla C
                 JNZ  espera_c
 
         CALL reseta_energia
@@ -426,12 +426,12 @@ PROCESS SP_inicial_controlo
 
         pausa:
             MOV R6, 0
-            MOV [GAME_OVER], R6                 ; flag volta a 0 para que quando o programa saia deste ciclo saber que pode voltar ao jogo principal
-            MOV R0, 5                           ; tela de pausa (fundo número 5)
+            MOV [GAME_OVER], R6                     ; flag volta a 0 para que quando o programa saia deste ciclo saber que pode voltar ao jogo principal
+            MOV R0, 5                               ; tela de pausa (fundo número 5)
             MOV [PAUSA_VIDEO], R0
-            MOV [SELECIONA_CENARIO_FRONTAL], R0   ; seleciona o cenário de fundo
-            MOV R6, 8                           ; quarta linha
-            MOV R1, 2                           ; segunda coluna
+            MOV [SELECIONA_CENARIO_FRONTAL], R0     ; seleciona o cenário de fundo
+            MOV R6, 8                               ; quarta linha
+            MOV R1, 2                               ; segunda coluna
             CALL espera_nao_tecla
             testa_DE:
                 CALL teclado
@@ -574,14 +574,14 @@ PROCESS SP_inicial_nave
             MOV R4, DEF_LUZES_PAINEL1
         ciclo_paineis:
             YIELD
-            CALL cria_painel                    ; cria o painel na sua posição
+            CALL cria_painel                ; cria o painel na sua posição
             CALL desenha_boneco
             CALL verifica_colisao_nave
             CMP R0, 1
             JZ colisao_painel
             MOV R0, [luzes_painel]
             MOV R0, 20H
-            ADD R4, R0 ; distância entre tabelas das luzes
+            ADD R4, R0                      ; distância entre tabelas das luzes
             SUB R3, 1
             JNZ ciclo_paineis
             JMP reinicia_ciclo_paineis
@@ -608,12 +608,12 @@ int_luzes_painel:
 
 PROCESS SP_inicial_meteoro_0
     inicio_meteoro:
-        MOV R10, R11    ; número de meteoro
+        MOV R10, R11        ; número de meteoro
         MOV R1, 200H
         MUL R1, R11
         ADD SP, R1
         SHL R10, 1
-        INC R11         ; número do ecrã
+        INC R11             ; número do ecrã
         MOV R7, +1
         MOV R9, R11
         CALL ativa_coordenadas_meteoro
@@ -630,13 +630,13 @@ PROCESS SP_inicial_meteoro_0
         MOV R3, [R0+R10]
         CMP R3, -1
         JZ inicia_meteoro
-    	CALL apaga_boneco		        ; apaga o boneco na sua posição atual
+    	CALL apaga_boneco		                ; apaga o boneco na sua posição atual
 
     	CALL define_novas_coordenadas_meteoro	; escreve as novas coordenadas na memória
         MOV R0, MAX_LINHA
         CMP R1, R0
         JZ inicia_meteoro
-    JMP testa_meteoro                ; volta a esperar que não haja tecla carregada
+    JMP testa_meteoro                           ; volta a esperar que não haja tecla carregada
 
 int_meteoro:
     PUSH R0
@@ -1181,12 +1181,12 @@ ciclo_atraso:
 ; **********************************************************************
 
 define_novas_coordenadas_meteoro:
-    ADD R1, R7      ; avança a coordenada nas linhas
-    ADD R2, R8      ; avança a coordenada nas colunas
+    ADD R1, R7              ; avança a coordenada nas linhas
+    ADD R2, R8              ; avança a coordenada nas colunas
     MOV R3, METEORO_LINHA
-    MOV [R3+R10], R1    ; guarda a coordenada da linha na memória
+    MOV [R3+R10], R1        ; guarda a coordenada da linha na memória
     MOV R3, METEORO_COLUNA
-    MOV [R3+R10], R2  ; guarda as coordenada da coluna na memória
+    MOV [R3+R10], R2        ; guarda as coordenada da coluna na memória
     RET
 
 
@@ -1277,19 +1277,19 @@ testa_limite_esquerdo:		; vê se o boneco chegou ao limite esquerdo
 	MOV	R5, MIN_COLUNA
 	CMP	R2, R5
 	JGT	testa_limite_direito
-	CMP	R7, 0			; passa a deslocar-se para a direita
+	CMP	R7, 0			    ; passa a deslocar-se para a direita
 	JGE	sai_testa_limites
 	JMP	impede_movimento	; entre limites. Mantém o valor do R7
 testa_limite_direito:		; vê se o boneco chegou ao limite direito
-	ADD	R6, R2			; posição a seguir ao extremo direito do boneco
+	ADD	R6, R2			    ; posição a seguir ao extremo direito do boneco
 	MOV	R5, MAX_COLUNA
 	CMP	R6, R5
 	JLE	sai_testa_limites	; entre limites. Mantém o valor do R7
-	CMP	R7, 0			; passa a deslocar-se para a direita
+	CMP	R7, 0			    ; passa a deslocar-se para a direita
 	JGT	impede_movimento
 	JMP	sai_testa_limites
 impede_movimento:
-	MOV	R7, 0			; impede o movimento, forçando R7 a 0
+	MOV	R7, 0			    ; impede o movimento, forçando R7 a 0
 sai_testa_limites:	
 	POP	R6
 	POP	R5
@@ -1316,7 +1316,7 @@ int_energia:
 
 escreve_energia:
     PUSH R3
-    MOV R3, [energia]   ; lê a energia guardada em memória
+    MOV R3, [energia]       ; lê a energia guardada em memória
     MOV [DISPLAYS], R3      ; escreve a energia no display
     POP R3
     RET
@@ -1330,7 +1330,7 @@ escreve_energia:
 reseta_energia:
     PUSH R0
     MOV  R0, ENERGIA_INICIAL              
-    MOV  [energia], R0  ; reinicia a energia em memória 
+    MOV  [energia], R0          ; reinicia a energia em memória 
     CALL escreve_energia
     POP  R0
     RET
@@ -1466,7 +1466,7 @@ incrementa25:
     PUSH R1
     PUSH R3
     MOV R1, ENERGIA_INICIAL
-    MOV R0, 19H ; 25 em hexadecimal
+    MOV R0, 19H                 ; 25 em hexadecimal
     MUL R1, R0
     MOV R0, 100H
     DIV R1, R0
