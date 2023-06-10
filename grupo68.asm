@@ -1018,9 +1018,7 @@ saida_colisao:
 ; **********************************************************************
 ; VERIFICA_COLISAO_NAVE - Verifica se ocorreu uma colisão de um meteoro
 ;                        com a nave.
-; Argumentos:   
 ;
-; Retorno: 
 ; **********************************************************************
 
 verifica_colisao_nave:
