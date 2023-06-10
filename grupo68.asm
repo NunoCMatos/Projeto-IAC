@@ -1015,6 +1015,13 @@ saida_colisao:
     POP R1
     RET
 
+; **********************************************************************
+; VERIFICA_COLISAO_NAVE - Verifica se ocorreu uma colisão de um meteoro
+;                        com a nave.
+; Argumentos:   
+;
+; Retorno: 
+; **********************************************************************
 
 verifica_colisao_nave:
     PUSH R1
@@ -1056,6 +1063,8 @@ saida_colisao_nave:
     POP R2
     POP R1
     RET
+
+
 ; **********************************************************************
 ; EXPLODE_MINERAVEL - Rotina responsãvel pela explosao de um meteoro 
 ;                   mineravel.
@@ -1422,6 +1431,12 @@ decrementa_saída:
     POP R0
     RET
 
+
+; **********************************************************************
+; DECREMENTA5 - Decrementa 5 ao valor atual da energia.
+;
+; **********************************************************************
+
 decrementa5:
     PUSH R0
     PUSH R1
@@ -1440,6 +1455,12 @@ decrementa5:
     POP R0
     RET
 
+
+; **********************************************************************
+; INCREMENTA25 - Incrementa 25 ao valor atual da energia.
+;
+; **********************************************************************
+
 incrementa25:
     PUSH R0
     PUSH R1
@@ -1457,6 +1478,13 @@ incrementa25:
     POP R1
     POP R0
     RET
+
+
+; **********************************************************************
+; REPOE_JOGO - Reinicia os valores de energia e dos meteoros para 
+;             se poder reiniciar o jogo.
+;
+; **********************************************************************
 
 repoe_jogo:
     PUSH R0
