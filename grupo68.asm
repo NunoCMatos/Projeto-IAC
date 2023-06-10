@@ -346,9 +346,6 @@ inicializacoes:
     EI3
     EI
 
-    MOV R0, 3
-    MOV [REPRODUZ], R0
-
 cria_bonecos:
     CALL repoe_jogo
     CALL inicio_controlo  
@@ -412,6 +409,8 @@ PROCESS SP_inicial_controlo
         running:                                ; ciclo do jogo 
             MOV R0, 0                           ; cenário de fundo número 0
             MOV [REPRODUZ], R0            ; seleciona o cenário de fundo
+            MOV R0, 3
+            MOV [REPRODUZ], R0
             MOV R0, [GAME_OVER]                 ; le a flag
             CMP R0, 0                           ; verifica se foi alterada
             JZ inicio_controlo                  ; se nao foi alterada, continua o jogo
@@ -1086,7 +1085,7 @@ explode_mineravel:
     CALL ativa_coordenadas_meteoro
     MOV R0, 36H
     MOV R3, 2
-    CALL som_explosao
+    CALL som_explosao_mineravel
     MOV R4, DEF_MET_MIN_EXP1
     CALL desenha_boneco
     MOV R5, [anima_meteoro]
@@ -1131,7 +1130,7 @@ explode_nao_mineravel:
     MOV R0, 36H
     ADD R4, R0
     CALL apaga_boneco
-    CALL som_explosao
+    CALL som_explosao_nao_mineravel
     CALL desenha_boneco
     MOV  R5, [anima_meteoro]
     MOV R0, METEORO_FUNCAO
@@ -1513,13 +1512,27 @@ som_disparo:
 
 
 ; **********************************************************************
-; SOM_EXPLOSAO - Toca o som de explosao.
+; SOM_EXPLOSAO_NAO_MINERAVEL - Toca o som de explosao de um meteoro
+;                              não minerável.
 ;
 ; **********************************************************************
 
-som_explosao:
+som_explosao_nao_mineravel:
     PUSH R1
     MOV R1, 2
+    MOV [TOCA_SOM], R1
+    POP R1
+    RET
+
+; **********************************************************************
+; SOM_EXPLOSAO_MINERAVEL - Toca o som de explosao de um meteoro
+;                              minerável.
+;
+; **********************************************************************
+
+som_explosao_mineravel:
+    PUSH R1
+    MOV R1, 4
     MOV [TOCA_SOM], R1
     POP R1
     RET
