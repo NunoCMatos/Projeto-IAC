@@ -698,6 +698,7 @@ PROCESS SP_inicial_energia
         MUL R1, R0
         MOV R0, 100H
         DIV R1, R0
+        MOV R5, 0
         reseta_ciclo_energia:
             MOV R0, [decresce_energia]
             MOV R0, R1
@@ -1316,6 +1317,7 @@ decrementa_energia:
     PUSH R2
     PUSH R4
     PUSH R5
+    PUSH R6
     MOV R0, 0009H
     MOV R1, 1H
     MOV R2, ISOLA_03BITS
@@ -1332,15 +1334,21 @@ ciclo_decrementa:
 decrementa_corpo_ciclo:
     AND R2, R3
     CMP R2, R0
-    JLT decrementa_saida    ; Menos que porque o 9 é um dos casos limite
+    JLT decrementa_teste_fim    ; Menos que porque o 9 é um dos casos limite
     SUB R4, 1
     JNZ ciclo_decrementa
     MOV R3, 0H
     MOV R0, 1
     MOV [GAME_OVER], R0
-decrementa_saida:
+decrementa_teste_fim:
     MOV [energia], R3
+    CMP R3, 0
+    JGT decrementa_saída
+    MOV R6, 3
+    MOV [GAME_OVER], R6 
+decrementa_saída:
     CALL escreve_energia
+    POP R6
     POP R5
     POP R4
     POP R2
