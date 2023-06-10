@@ -346,7 +346,7 @@ inicializacoes:
     EI3
     EI
 
-    MOV R0, 1                   ; FALTA COLOCAR A MUSICA CERTA
+    MOV R0, 3                   ; FALTA COLOCAR A MUSICA CERTA
     MOV [REPRODUZ_VIDEO], R0
 
 cria_bonecos:
