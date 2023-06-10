@@ -26,13 +26,13 @@ OBTEM_PIXEL                 EQU COMANDOS + 10H
 DEFINE_PIXEL                EQU COMANDOS + 12H		; endereço do comando para escrever um pixel
 APAGA_AVISO     	        EQU COMANDOS + 40H		; endereço do comando para apagar o aviso de nenhum cenário selecionado
 SELECIONA_CENARIO_FUNDO     EQU COMANDOS + 42H		; endereço do comando para selecionar uma imagem de fundo
-APAGA_ECRA_FRONTAL          EQU COMANDOS + 44H
-SELECIONA_CENARIO_FRONTAL   EQU COMANDOS + 46H
+APAGA_ECRA_FRONTAL          EQU COMANDOS + 44H      ; endereço do comando que apaga o ecrã frontal
+SELECIONA_CENARIO_FRONTAL   EQU COMANDOS + 46H      ; endereço do comando que seleciona o número do ecrã a visualizar
 TOCA_SOM                    EQU COMANDOS + 5AH		; endereço do comando para tocar um som
-REPRODUZ_VIDEO              EQU COMANDOS + 5CH
-PAUSA_VIDEO                 EQU COMANDOS + 62H
-RETOMA_VIDEO                EQU COMANDOS + 64H
-APAGA_VIDEO                 EQU COMANDOS + 68H
+REPRODUZ_VIDEO              EQU COMANDOS + 5CH      ; endereço do comando para reproduzir um vídeo ou som repetidamente
+PAUSA_VIDEO                 EQU COMANDOS + 62H		; endereço do comando para parar o vídeo e som a reproduzir
+RETOMA_VIDEO                EQU COMANDOS + 64H		; endereço do comando para retomar o vídeo e som
+APAGA_VIDEO                 EQU COMANDOS + 68H		; endereço do comando para terminar a reprodução de qualquer vídeo e som
 
 MIN_LINHA   EQU 0       ; número da coluna mais à esquerda do ecrã
 MIN_COLUNA  EQU 0		; número da coluna mais à esquerda do ecrã
@@ -346,6 +346,9 @@ inicializacoes:
     EI3
     EI
 
+    MOV R0, 1                   ; FALTA COLOCAR A MUSICA CERTA
+    MOV [REPRODUZ_VIDEO], R0
+
 cria_bonecos:
     CALL repoe_jogo
     CALL inicio_controlo  
@@ -408,10 +411,10 @@ PROCESS SP_inicial_controlo
         CALL escreve_energia
         running:                                ; ciclo do jogo 
             MOV R0, 0                           ; cenário de fundo número 0
-            MOV [REPRODUZ_VIDEO], R0   ; seleciona o cenário de fundo
+            MOV [REPRODUZ_VIDEO], R0            ; seleciona o cenário de fundo
             MOV R0, [GAME_OVER]                 ; le a flag
             CMP R0, 0                           ; verifica se foi alterada
-            JZ inicio_controlo                         ; se nao foi alterada, continua o jogo
+            JZ inicio_controlo                  ; se nao foi alterada, continua o jogo
             CMP R0, 1                           ; se foi alterada para 1, o jogo foi colocado em pausa
             JZ pausa
             CMP R0, 2                           ; se foi alterada para 2, o jogo foi perdido devido a uma colisão
@@ -440,7 +443,7 @@ PROCESS SP_inicial_controlo
                 JNZ testa_DE
             acaba_pausa:
                 CALL espera_nao_tecla
-                MOV [APAGA_ECRA_FRONTAL], R0	            ; apaga todos os pixels já desenhados
+                MOV [APAGA_ECRA_FRONTAL], R0	    ; apaga todos os pixels já desenhados
                 JMP running
 
         derrota_colisao:
@@ -455,7 +458,7 @@ PROCESS SP_inicial_controlo
             MOV R1, 1                           ; primeira coluna
             testa_C_colisao:
                 CALL teclado
-                CMP  R0, R1                         ; verifica se foi pressionada a tecla C
+                CMP  R0, R1                     ; verifica se foi pressionada a tecla C
                 JNZ testa_C_colisao
             acaba_der_colisao:
                 CALL espera_nao_tecla
@@ -474,7 +477,7 @@ PROCESS SP_inicial_controlo
             MOV R1, 1                           ; primeira coluna
             testa_C_energia:
                 CALL teclado
-                CMP  R0, R1                         ; verifica se foi pressionada a tecla C
+                CMP  R0, R1                     ; verifica se foi pressionada a tecla C
                 JNZ testa_C_energia
             acaba_der_energia:
                 CALL espera_nao_tecla
@@ -495,7 +498,7 @@ PROCESS SP_inicial_controlo
             CALL espera_nao_tecla
             testa_C_terminado:
                 CALL teclado
-                CMP  R0, R1                         ; verifica se foi pressionada a tecla C
+                CMP  R0, R1                     ; verifica se foi pressionada a tecla C
                 JNZ testa_C_terminado
             acaba_terminado:
                 CALL espera_nao_tecla
@@ -1472,7 +1475,7 @@ repoe_jogo:
 
 som_disparo:
     PUSH R1
-    MOV R1, 0            ; FALTA COLOCAR QUE SOM É
+    MOV R1, 1            ; FALTA COLOCAR QUE SOM É
     MOV [TOCA_SOM], R1
     POP R1
     RET
@@ -1485,7 +1488,7 @@ som_disparo:
 
 som_explosao:
     PUSH R1
-    MOV R1, 0             ; FALTA COLOCAR QUE SOM É
+    MOV R1, 1            ; FALTA COLOCAR QUE SOM É
     MOV [TOCA_SOM], R1
     POP R1
     RET
