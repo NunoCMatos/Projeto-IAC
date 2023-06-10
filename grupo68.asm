@@ -80,6 +80,7 @@ LARGURA             EQU 5   ; largura dos meteoros (mineráveis ou não)
 ALTURA              EQU 5   ; altura dos meteoros (mineráveis ou não)
 LAR_PAINEL          EQU 15  ; largura do painel da nave
 ALT_PAINEL          EQU 5   ; altura do painel da nave
+MEIO_PAINEL         EQU 7
 LAR_LUZES_PAINEL    EQU 7   ; largura das luzes do painel
 ALT_LUZES_PAINEL    EQU 2   ; altura das luzes do painel
 LAR_SONDA           EQU 1   ; largura das sondas
@@ -310,6 +311,11 @@ POSICOES_SONDA:
     WORD esquerda_sonda
     WORD centro_sonda
     WORD direita_sonda
+
+pontos_de_colisao:
+    WORD COL_PAINEL                 ; colisão à esquerda
+    WORD COL_PAINEL + MEIO_PAINEL   ; colisão no meio
+    WORD COL_PAINEL + 13            ; colisão à direita
 
 energia:            WORD ENERGIA_INICIAL    ; energia da nave
 INICIO_JOGO:        WORD 1                  ; flag que indica se estamos no início do jogo
@@ -564,15 +570,23 @@ PROCESS SP_inicial_nave
             MOV R3, 8
             MOV R4, DEF_LUZES_PAINEL1
         ciclo_paineis:
+            YIELD
             CALL cria_painel                    ; cria o painel na sua posição
             CALL desenha_boneco
+            CALL verifica_colisao_nave
+            CMP R0, 1
+            JZ colisao_painel
             MOV R0, [luzes_painel]
             MOV R0, 20H
             ADD R4, R0 ; distância entre tabelas das luzes
             SUB R3, 1
             JNZ ciclo_paineis
             JMP reinicia_ciclo_paineis
-        
+        colisao_painel:
+            MOV R0, 2
+            MOV [GAME_OVER], R0
+            JMP reinicia_ciclo_paineis
+
 int_luzes_painel:
     PUSH R0
     MOV R0, 1
@@ -996,6 +1010,47 @@ saida_colisao:
     POP R1
     RET
 
+
+verifica_colisao_nave:
+    PUSH R1
+    PUSH R2
+    PUSH R3
+    PUSH R4
+    PUSH R5
+    PUSH R9
+    MOV R1, LIN_PAINEL
+    MOV [DEFINE_LINHA], R1
+    MOV R5, -2
+    MOV R4, pontos_de_colisao
+    passa_coluna:
+        ADD R5, 2
+        CMP R5, 6
+        JGT saida_colisao_nave
+        MOV R2, [R4+R5]
+        MOV [DEFINE_COLUNA], R2
+        MOV R9, 0
+    ciclo_lepixel_nave:
+        ADD R9, 1
+        CMP R9, 5
+        JZ passa_coluna
+        MOV [DEFINE_ECRA], R9
+        MOV R0, [OBTEM_PIXEL]
+        MOV R3, VERDE
+        CMP R0, R3
+        JZ colisao_nave
+        MOV R3, VERMELHO
+        CMP R0, R3
+        JNZ ciclo_lepixel_nave
+    colisao_nave:
+        MOV R0, 1
+saida_colisao_nave:
+    POP R9
+    POP R5
+    POP R4
+    POP R3
+    POP R2
+    POP R1
+    RET
 ; **********************************************************************
 ; EXPLODE_MINERAVEL - Rotina responsãvel pela explosao de um meteoro 
 ;                   mineravel.
@@ -1417,7 +1472,7 @@ repoe_jogo:
 
 som_disparo:
     PUSH R1
-    MOV R1,             ; FALTA COLOCAR QUE SOM É
+    MOV R1, 0            ; FALTA COLOCAR QUE SOM É
     MOV [TOCA_SOM], R1
     POP R1
     RET
@@ -1430,7 +1485,7 @@ som_disparo:
 
 som_explosao:
     PUSH R1
-    MOV R1,             ; FALTA COLOCAR QUE SOM É
+    MOV R1, 0             ; FALTA COLOCAR QUE SOM É
     MOV [TOCA_SOM], R1
     POP R1
     RET
