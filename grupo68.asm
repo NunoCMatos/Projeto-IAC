@@ -29,7 +29,7 @@ SELECIONA_CENARIO_FUNDO     EQU COMANDOS + 42H		; endereço do comando para sele
 APAGA_ECRA_FRONTAL          EQU COMANDOS + 44H      ; endereço do comando que apaga o ecrã frontal
 SELECIONA_CENARIO_FRONTAL   EQU COMANDOS + 46H      ; endereço do comando que seleciona o número do ecrã a visualizar
 TOCA_SOM                    EQU COMANDOS + 5AH		; endereço do comando para tocar um som
-REPRODUZ_VIDEO              EQU COMANDOS + 5CH      ; endereço do comando para reproduzir um vídeo ou som repetidamente
+REPRODUZ                    EQU COMANDOS + 5CH      ; endereço do comando para reproduzir um vídeo ou som repetidamente
 PAUSA_VIDEO                 EQU COMANDOS + 62H		; endereço do comando para parar o vídeo e som a reproduzir
 RETOMA_VIDEO                EQU COMANDOS + 64H		; endereço do comando para retomar o vídeo e som
 APAGA_VIDEO                 EQU COMANDOS + 68H		; endereço do comando para terminar a reprodução de qualquer vídeo e som
@@ -346,8 +346,8 @@ inicializacoes:
     EI3
     EI
 
-    MOV R0, 3                   ; FALTA COLOCAR A MUSICA CERTA
-    MOV [REPRODUZ_VIDEO], R0
+    MOV R0, 3
+    MOV [REPRODUZ], R0
 
 cria_bonecos:
     CALL repoe_jogo
@@ -411,7 +411,7 @@ PROCESS SP_inicial_controlo
         CALL escreve_energia
         running:                                ; ciclo do jogo 
             MOV R0, 0                           ; cenário de fundo número 0
-            MOV [REPRODUZ_VIDEO], R0            ; seleciona o cenário de fundo
+            MOV [REPRODUZ], R0            ; seleciona o cenário de fundo
             MOV R0, [GAME_OVER]                 ; le a flag
             CMP R0, 0                           ; verifica se foi alterada
             JZ inicio_controlo                  ; se nao foi alterada, continua o jogo
@@ -1506,7 +1506,7 @@ repoe_jogo:
 
 som_disparo:
     PUSH R1
-    MOV R1, 1            ; FALTA COLOCAR QUE SOM É
+    MOV R1, 1
     MOV [TOCA_SOM], R1
     POP R1
     RET
@@ -1519,7 +1519,7 @@ som_disparo:
 
 som_explosao:
     PUSH R1
-    MOV R1, 2            ; som da explosão
+    MOV R1, 2
     MOV [TOCA_SOM], R1
     POP R1
     RET
