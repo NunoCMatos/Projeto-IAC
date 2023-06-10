@@ -1493,7 +1493,7 @@ som_disparo:
 
 som_explosao:
     PUSH R1
-    MOV R1, 1            ; FALTA COLOCAR QUE SOM É
+    MOV R1, 2            ; som da explosão
     MOV [TOCA_SOM], R1
     POP R1
     RET
