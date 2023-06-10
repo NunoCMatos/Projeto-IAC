@@ -38,7 +38,7 @@ MIN_LINHA   EQU 0       ; número da coluna mais à esquerda do ecrã
 MIN_COLUNA  EQU 0		; número da coluna mais à esquerda do ecrã
 MAX_LINHA   EQU 32      ; número da coluna mais à direita do ecrã
 MAX_COLUNA  EQU 64      ; número da coluna mais à direita do ecrã
-ATRASO      EQU 10H     ; atraso para limitar a velocidade de movimento do boneco
+ATRASO      EQU 100H     ; atraso para limitar a velocidade de movimento do boneco
 
 ; **********************************************************************
 ; * Periféricos
@@ -616,8 +616,10 @@ PROCESS SP_inicial_meteoro_0
         INC R11         ; número do ecrã
         MOV R7, +1
         MOV R9, R11
+        CALL ativa_coordenadas_meteoro
 
     inicia_meteoro:
+        CALL apaga_boneco
         CALL cria_meteoro
     testa_meteoro:
         CALL ativa_coordenadas_meteoro
@@ -1068,6 +1070,7 @@ explode_mineravel:
     PUSH R2
     PUSH R3
     PUSH R4
+    PUSH R5
     PUSH R9
     PUSH R10
     MOV R10, R9
@@ -1077,18 +1080,18 @@ explode_mineravel:
     MOV R0, 36H
     MOV R3, 2
     CALL som_explosao
-    ciclo_explosao_mineravel:
-        ADD R4, R0
-        CALL desenha_boneco
-        CALL atraso
-        SUB R3, 1
-        JNZ ciclo_explosao_mineravel
-    CALL apaga_boneco
+    MOV R4, DEF_MET_MIN_EXP1
+    CALL desenha_boneco
+    MOV R5, [anima_meteoro]
+    MOV R4, DEF_MET_MIN_EXP2
+    CALL desenha_boneco
+    MOV R5, [anima_meteoro]
     MOV R0, METEORO_FUNCAO
     MOV R1, -1
     MOV [R0+R10], R1
     POP R10
     POP R9
+    POP R5
     POP R4
     POP R3
     POP R2
@@ -1111,6 +1114,7 @@ explode_nao_mineravel:
     PUSH R2
     PUSH R3
     PUSH R4
+    PUSH R5
     PUSH R9
     PUSH R10
     MOV R10, R9
@@ -1122,13 +1126,13 @@ explode_nao_mineravel:
     CALL apaga_boneco
     CALL som_explosao
     CALL desenha_boneco
-    CALL atraso
-    CALL apaga_boneco
+    MOV  R5, [anima_meteoro]
     MOV R0, METEORO_FUNCAO
     MOV R1, -1
     MOV [R0+R10], R1
     POP R10
     POP R9
+    POP R5
     POP R4
     POP R3
     POP R2
@@ -1145,6 +1149,7 @@ explode_nao_mineravel:
 
 atraso:
 	PUSH R11
+    MOV R11, ATRASO
 ciclo_atraso:
 	SUB	 R11, 1
 	JNZ	 ciclo_atraso
