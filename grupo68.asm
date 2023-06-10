@@ -20,7 +20,7 @@
 COMANDOS                    EQU 6000H   ; endereço base dos comandos do MediaCenter
 APAGA_ECRA	 		        EQU COMANDOS + 02H		; endereço do comando para apagar todos os pixels já desenhados
 DEFINE_ECRA                 EQU COMANDOS + 04H      ; endereço do comando para definir o ecrâ
-MOSTRA_ECRA                 EQU COMANDOS + 08H      ; endereço do comando para mostrar o ecrâ
+MOSTRA_ECRA                 EQU COMANDOS + 06H      ; endereço do comando para mostrar o ecrâ
 ESCONDE_ECRA                EQU COMANDOS + 08H      ; endereço do comando para esconder o ecrâ
 DEFINE_LINHA    	        EQU COMANDOS + 0AH		; endereço do comando para definir a linha
 DEFINE_COLUNA   	        EQU COMANDOS + 0CH		; endereço do comando para definir a coluna
