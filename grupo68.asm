@@ -424,14 +424,14 @@ PROCESS SP_inicial_controlo
             MOV R6, 8                           ; quarta linha
             MOV R1, 2                           ; segunda coluna
             CALL espera_nao_tecla
-            testa_D:
+            testa_DE:
                 CALL teclado
                 MOV  R1, 4
-                CMP  R0, R1
-                JZ running
+                CMP  R0, R1                         ; verifica se foi pressionada a tecla E
+                JZ terminado
                 SHR  R1, 1
                 CMP  R0, R1                         ; verifica se foi pressionada a tecla D
-                JNZ testa_D
+                JNZ testa_DE
             acaba_pausa:
                 CALL espera_nao_tecla
                 MOV [APAGA_ECRA_FRONTAL], R0	            ; apaga todos os pixels já desenhados
