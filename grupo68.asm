@@ -20,8 +20,6 @@
 COMANDOS                    EQU 6000H   ; endereço base dos comandos do MediaCenter
 APAGA_ECRA	 		        EQU COMANDOS + 02H		; endereço do comando para apagar todos os pixels já desenhados
 DEFINE_ECRA                 EQU COMANDOS + 04H      ; endereço do comando para definir o ecrâ
-MOSTRA_ECRA                 EQU COMANDOS + 06H      ; endereço do comando para mostrar o ecrâ
-ESCONDE_ECRA                EQU COMANDOS + 08H      ; endereço do comando para esconder o ecrâ
 DEFINE_LINHA    	        EQU COMANDOS + 0AH		; endereço do comando para definir a linha
 DEFINE_COLUNA   	        EQU COMANDOS + 0CH		; endereço do comando para definir a coluna
 OBTEM_PIXEL                 EQU COMANDOS + 10H      
@@ -343,6 +341,7 @@ inicializacoes:
     EI
 
 cria_bonecos:
+    CALL repoe_jogo
     CALL inicio_controlo  
     CALL inicio_energia
     CALL inicio_painel
@@ -399,6 +398,8 @@ PROCESS SP_inicial_controlo
                 CMP  R0, R1                          ;verifica se foi pressionada a tecla C
                 JNZ  espera_c
 
+        CALL reseta_energia
+        CALL escreve_energia
         running:                                ; ciclo do jogo 
             MOV R0, 0                           ; cenário de fundo número 0
             MOV [REPRODUZ_VIDEO], R0   ; seleciona o cenário de fundo
@@ -469,11 +470,12 @@ PROCESS SP_inicial_controlo
         terminado:
             MOV R6, 0
             MOV [GAME_OVER], R6                 ; flag volta a 0 para que quando o programa saia deste ciclo saber que pode voltar ao jogo principal
-            MOV [ESCONDE_ECRA], R6              ; esconde o ecrã do painel
+            MOV [DISPLAYS], R6
             MOV [APAGA_ECRA], R0                ; apaga todos os pixels já desenhados
             MOV R0, 4                           ; tela inicial (fundo número 4)
             MOV [SELECIONA_CENARIO_FUNDO], R0   ; seleciona o cenário de fundo
             MOV [APAGA_VIDEO], R0               ; para o vídeo de fundo
+            MOV [APAGA_ECRA_FRONTAL], R0
             MOV R6, 8                           ; quarta linha
             MOV R1, 1                           ; primeira coluna
             CALL espera_nao_tecla
@@ -483,17 +485,7 @@ PROCESS SP_inicial_controlo
                 JNZ testa_C_terminado
             acaba_terminado:
                 CALL espera_nao_tecla
-                MOV R1, ENERGIA_INICIAL
-                MOV [energia], R1
-                CALL escreve_energia
-                MOV R6, 0
-                MOV [MOSTRA_ECRA], R6
-                MOV R3, METEORO_FUNCAO
-                MOV R4, -1
-                MOV [R3], R4
-                MOV [R3+2], R4
-                MOV [R3+4], R4
-                MOV [R3+6], R4
+                CALL repoe_jogo
                 JMP running
 
 
@@ -557,7 +549,6 @@ PROCESS SP_inicial_teclado
 
 PROCESS SP_inicial_nave
     inicio_painel:
-        CALL cria_painel                    ; cria o painel na sua posição
         MOV R1, LIN_LUZES_PAINEL
         MOV R2, COL_LUZES_PAINEL
         MOV R9, 0
@@ -565,6 +556,7 @@ PROCESS SP_inicial_nave
             MOV R3, 8
             MOV R4, DEF_LUZES_PAINEL1
         ciclo_paineis:
+            CALL cria_painel                    ; cria o painel na sua posição
             CALL desenha_boneco
             MOV R0, [luzes_painel]
             MOV R0, 20H
@@ -698,19 +690,14 @@ PROCESS SP_inicial_energia
         MUL R1, R0
         MOV R0, 100H
         DIV R1, R0
-        controlo_energia:
-            MOV R3, [energia]
-            CALL escreve_energia
+        reseta_ciclo_energia:
             MOV R0, [decresce_energia]
-            CMP R0, 2
-            JZ controlo_energia
             MOV R0, R1
-            ciclo_energia:
-                CALL decrementa_energia
-                SUB R0, 1
-                JNZ ciclo_energia
-            MOV [energia], R3
-        JMP controlo_energia
+        ciclo_energia:
+            CALL decrementa_energia
+            SUB R0, 1
+            JNZ ciclo_energia
+        JMP reseta_ciclo_energia
 
 
 ; **********************************************************************
@@ -1259,7 +1246,8 @@ escreve_energia:
 reseta_energia:
     PUSH R0
     MOV  R0, ENERGIA_INICIAL              
-    MOV  [energia], R0  ; reinicia a energia em memória  
+    MOV  [energia], R0  ; reinicia a energia em memória 
+    CALL escreve_energia
     POP  R0
     RET
 
@@ -1280,6 +1268,7 @@ incrementa_energia:
     MOV R0, 000AH
     MOV R1, 1H
     MOV R2, ISOLA_03BITS
+    MOV R3, [energia]
     MOV R4, 3
     JMP incrementa_corpo_ciclo
 ciclo_incrementa:
@@ -1297,6 +1286,7 @@ incrementa_corpo_ciclo:
     MOV R3, 999H
 incrementa_saida:
     MOV [energia], R3
+    CALL escreve_energia
     POP R4
     POP R2
     POP R1
@@ -1321,6 +1311,7 @@ decrementa_energia:
     MOV R0, 0009H
     MOV R1, 1H
     MOV R2, ISOLA_03BITS
+    MOV R3, [energia]
     MOV R4, 3
     MOV R5, 0006H
     SUB R3, R1
@@ -1341,6 +1332,7 @@ decrementa_corpo_ciclo:
     MOV [GAME_OVER], R0
 decrementa_saida:
     MOV [energia], R3
+    CALL escreve_energia
     POP R5
     POP R4
     POP R2
@@ -1357,14 +1349,10 @@ decrementa5:
     MUL R1, R0
     MOV R0, 100H
     DIV R1, R0
-    MOV R3, [energia]
     ciclo_decrementa5:
         CALL decrementa_energia
         SUB R1, 1
         JNZ ciclo_decrementa5
-    MOV [energia], R3
-    MOV R0, 2
-    MOV [decresce_energia], R0
     POP R3
     POP R1
     POP R0
@@ -1379,15 +1367,25 @@ incrementa25:
     MUL R1, R0
     MOV R0, 100H
     DIV R1, R0
-    MOV R3, [energia]
     ciclo_incrementa25:
         CALL incrementa_energia
         SUB R1, 1
         JNZ ciclo_incrementa25
-    MOV [energia], R3
-    MOV R0, 2
-    MOV [decresce_energia], R0
     POP R3
+    POP R1
+    POP R0
+    RET
+
+repoe_jogo:
+    PUSH R0
+    PUSH R1
+    CALL reseta_energia
+    MOV R0, METEORO_FUNCAO
+    MOV R1, -1
+    MOV [R0], R1
+    MOV [R0+2], R1
+    MOV [R0+4], R1
+    MOV [R0+6], R1
     POP R1
     POP R0
     RET
